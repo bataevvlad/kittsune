@@ -7,7 +7,7 @@
 import {
   DateService,
   TranslationWidth,
-} from '@ui-kitten/components';
+} from '@kitsuine/components';
 import moment, { Moment } from 'moment';
 
 export class MomentDateService extends DateService<Moment> {

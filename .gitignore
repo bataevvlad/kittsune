@@ -26,3 +26,4 @@ src/showcases/web-build/
 
 .expo
 dist
+/.yarn/

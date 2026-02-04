@@ -19,7 +19,7 @@ import {
 import {
   light,
   mapping,
-} from '@eva-design/eva';
+} from '@kitsuine/eva';
 import { ApplicationProvider } from '../../theme';
 import {
   RangeDatepicker,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckBox } from '@ui-kitten/components';
+import { CheckBox } from '@kitsuine/components';
 
 export const CheckboxSimpleUsageShowcase = (): React.ReactElement => {
 

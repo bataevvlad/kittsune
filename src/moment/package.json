@@ -1,5 +1,5 @@
 {
-  "name": "@ui-kitten/moment",
+  "name": "@kitsuine/moment",
   "description": "moment.js services for UI Kitten",
   "version": "5.3.1",
   "author": "akveo <contact@akveo.com>",
@@ -24,7 +24,7 @@
     "moment": "^2.24.0"
   },
   "peerDependencies": {
-    "@ui-kitten/components": "5.3.1",
+    "@kitsuine/components": "5.3.1",
     "moment": "^2.24.0"
   },
   "sideEffects": false

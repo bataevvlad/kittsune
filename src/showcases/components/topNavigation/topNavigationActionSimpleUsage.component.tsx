@@ -1,6 +1,6 @@
 import React from 'react';
-import { Icon, IconElement, TopNavigationAction } from '@ui-kitten/components';
-import { TouchableWebElement } from '@ui-kitten/components/devsupport';
+import { Icon, IconElement, TopNavigationAction } from '@kitsuine/components';
+import { TouchableWebElement } from '@kitsuine/components/devsupport';
 
 const BackIcon = (props): IconElement => (
   <Icon

@@ -1,0 +1,25 @@
+{
+  "name": "@kitsuine/processor",
+  "description": "Eva Design System Schema Processor for Kitsune",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Kitsune Contributors",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bataevvlad/kitsune.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bataevvlad/kitsune/issues"
+  },
+  "keywords": [
+    "kitsune",
+    "eva",
+    "processor",
+    "schema",
+    "react-native"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

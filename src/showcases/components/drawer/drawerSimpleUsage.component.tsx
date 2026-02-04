@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, DrawerItem, IndexPath } from '@ui-kitten/components';
+import { Drawer, DrawerItem, IndexPath } from '@kitsuine/components';
 
 export const DrawerSimpleUsageShowcase = (): React.ReactElement => {
 

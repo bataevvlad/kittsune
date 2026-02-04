@@ -6,7 +6,7 @@
 
 import React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { ThemeStyleType } from '@eva-design/dss';
+import { ThemeStyleType } from '@kitsuine/processor';
 import { StyleConsumerService } from './styleConsumer.service';
 import {
   Interaction,

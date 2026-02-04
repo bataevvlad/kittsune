@@ -8,7 +8,7 @@ import {
   ControlMetaType,
   ControlThemedStyleType,
   ThemedStyleType,
-} from '@eva-design/dss';
+} from '@kitsuine/processor';
 import { StyledComponentProps } from './styled';
 import {
   Interaction,

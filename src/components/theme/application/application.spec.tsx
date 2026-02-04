@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from 'react-native-testing-library';
-import * as eva from '@eva-design/eva';
+import * as eva from '@kitsuine/eva';
 import { ApplicationProvider } from './applicationProvider.component';
 
 it('should be able to provide styles to all `styled` components in the library', () => {

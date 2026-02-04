@@ -13,7 +13,7 @@ import { render } from 'react-native-testing-library';
 import {
   light,
   mapping,
-} from '@eva-design/eva';
+} from '@kitsuine/eva';
 import { ApplicationProvider } from '../../theme';
 import {
   Avatar,

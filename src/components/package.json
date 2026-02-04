@@ -1,33 +1,35 @@
 {
-  "name": "@ui-kitten/components",
-  "description": "React Native components based on Eva Design System",
-  "version": "5.3.1",
-  "author": "akveo <contact@akveo.com>",
+  "name": "@kitsuine/components",
+  "description": "React Native UI components based on Eva Design System",
+  "version": "1.0.0",
+  "author": "Kitsune Contributors",
   "license": "MIT",
-  "homepage": "https://github.com/akveo/react-native-ui-kitten#readme",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akveo/react-native-ui-kitten.git"
+    "url": "git+https://github.com/bataevvlad/kitsune.git"
   },
   "bugs": {
-    "url": "https://github.com/akveo/react-native-ui-kitten/issues"
+    "url": "https://github.com/bataevvlad/kitsune/issues"
   },
   "keywords": [
     "react-native",
-    "ui-kitten",
-    "ui-kit"
+    "kitsune",
+    "ui-kit",
+    "eva-design"
   ],
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@eva-design/dss": "^2.2.0",
-    "@eva-design/processor": "^2.2.0",
+    "@kitsuine/processor": "^1.0.0",
+    "fecha": "3.0.3",
     "hoist-non-react-statics": "^3.2.1",
-    "lodash.merge": "^4.6.1",
-    "fecha": "3.0.3"
+    "lodash.merge": "^4.6.1"
   },
   "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-native": ">=0.70.0",
     "react-native-svg": "*"
   }
 }

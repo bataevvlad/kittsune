@@ -1,5 +1,5 @@
 {
-  "name": "@ui-kitten/showcases",
+  "name": "@kitsuine/showcases",
   "version": "5.0.0-alpha.1",
   "private": true,
   "workspaces": {
@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@expo/webpack-config": "0.17.4",
-    "babel-preset-expo": "9.2.2",
-    "babel-plugin-react-native-web": "0.19.1"
+    "babel-plugin-react-native-web": "0.19.1",
+    "babel-preset-expo": "9.2.2"
   }
 }

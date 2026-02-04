@@ -1,0 +1,25 @@
+{
+  "name": "@kitsuine/eva",
+  "description": "Eva Design System themes and mappings for Kitsune",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Kitsune Contributors",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bataevvlad/kitsune.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bataevvlad/kitsune/issues"
+  },
+  "keywords": [
+    "kitsune",
+    "eva",
+    "design-system",
+    "react-native",
+    "themes"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

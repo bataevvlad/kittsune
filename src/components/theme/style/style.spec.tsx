@@ -30,8 +30,8 @@ import {
   StyleService,
   useStyleSheet,
 } from './style.service';
-import { ThemeStyleType } from '@eva-design/dss';
-import { ThemeType } from '@ui-kitten/components';
+import { ThemeStyleType } from '@kitsuine/processor';
+import { ThemeType } from '@kitsuine/components';
 
 const theme = {
   defaultColor: '#000000',

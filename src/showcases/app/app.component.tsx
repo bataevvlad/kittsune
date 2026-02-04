@@ -1,14 +1,14 @@
 import React from 'react';
 import { reloadAsync } from 'expo-updates';
 import { enableScreens } from 'react-native-screens';
-import * as eva from '@eva-design/eva';
-import * as material from '@eva-design/material';
+import * as eva from '@kitsuine/eva';
+import * as material from '@kitsuine/material';
 import {
   ApplicationProvider,
   ApplicationProviderProps,
   IconRegistry,
-} from '@ui-kitten/components';
-import { EvaIconsPack } from '@ui-kitten/eva-icons';
+} from '@kitsuine/components';
+import { EvaIconsPack } from '@kitsuine/eva-icons';
 import { default as customMapping } from './mapping.json';
 import { themes } from './themes';
 import { AppNavigator } from '../navigation/app.navigator';

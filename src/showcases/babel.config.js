@@ -2,16 +2,16 @@ const path = require('path');
 const environment = require('./env');
 
 const evaModules = {
-  '@eva-design/eva': path.resolve(environment.EVA_PATH, 'eva'),
-  '@eva-design/material': path.resolve(environment.EVA_PATH, 'material'),
-  '@eva-design/processor': path.resolve(environment.EVA_PATH, 'processor'),
+  '@kitsuine/eva': path.resolve(environment.EVA_PATH, 'eva'),
+  '@kitsuine/material': path.resolve(environment.EVA_PATH, 'material'),
+  '@kitsuine/processor': path.resolve(environment.EVA_PATH, 'processor'),
 };
 
 const frameworkModules = {
-  '@ui-kitten/components': path.resolve(__dirname, '../components'),
-  '@ui-kitten/date-fns': path.resolve(__dirname, '../date-fns'),
-  '@ui-kitten/eva-icons': path.resolve(__dirname, '../eva-icons'),
-  '@ui-kitten/moment': path.resolve(__dirname, '../moment'),
+  '@kitsuine/components': path.resolve(__dirname, '../components'),
+  '@kitsuine/date-fns': path.resolve(__dirname, '../date-fns'),
+  '@kitsuine/eva-icons': path.resolve(__dirname, '../eva-icons'),
+  '@kitsuine/moment': path.resolve(__dirname, '../moment'),
 };
 
 const moduleResolverConfig = {

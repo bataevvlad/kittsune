@@ -1,13 +1,13 @@
 {
-  "name": "ui-kitten",
-  "version": "5.3.1",
+  "name": "kitsune",
+  "version": "1.0.0",
   "private": true,
   "license": "MIT",
-  "author": "akveo <contact@akveo.com>",
-  "homepage": "https://github.com/akveo/react-native-ui-kitten#readme",
-  "repository": "git+https://github.com/akveo/react-native-ui-kitten.git",
+  "author": "Kitsune Contributors",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
+  "repository": "git+https://github.com/bataevvlad/kitsune.git",
   "bugs": {
-    "url": "https://github.com/akveo/react-native-ui-kitten/issues"
+    "url": "https://github.com/bataevvlad/kitsune/issues"
   },
   "workspaces": {
     "packages": [
@@ -16,7 +16,6 @@
     ]
   },
   "scripts": {
-    "demo": "yarn --cwd ../kittenTricks",
     "build": "gulp build",
     "clean": "rimraf ./dist",
     "lint": "eslint -c .eslintrc.js ./src",
@@ -36,8 +35,6 @@
     "@babel/core": "^7.12.9",
     "@babel/plugin-proposal-decorators": "^7.18.10",
     "@babel/runtime": "^7.12.5",
-    "@eva-design/eva": "^2.2.0",
-    "@eva-design/material": "^2.2.0",
     "@react-native-community/eslint-config": "^2.0.0",
     "@tsconfig/react-native": "^2.0.2",
     "@types/gulp": "ts3.8",

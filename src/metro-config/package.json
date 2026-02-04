@@ -1,27 +1,31 @@
 {
-  "name": "@ui-kitten/metro-config",
-  "description": "UI Kitten config for Metro Bundler",
-  "version": "5.3.1",
-  "author": "akveo <contact@akveo.com>",
+  "name": "@kitsuine/metro-config",
+  "description": "Kitsune config for Metro Bundler",
+  "version": "1.0.0",
+  "author": "Kitsune Contributors",
   "license": "MIT",
-  "homepage": "https://github.com/akveo/react-native-ui-kitten#readme",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akveo/react-native-ui-kitten.git"
+    "url": "git+https://github.com/bataevvlad/kitsune.git"
   },
   "bugs": {
-    "url": "https://github.com/akveo/react-native-ui-kitten/issues"
+    "url": "https://github.com/bataevvlad/kitsune/issues"
   },
+  "keywords": [
+    "react-native",
+    "kitsune",
+    "metro",
+    "bundler"
+  ],
   "publishConfig": {
     "access": "public"
   },
   "bin": {
-    "ui-kitten": "./bin/ui-kitten"
+    "kitsune": "./bin/kitsune"
   },
-  "devDependencies": {
-    "@eva-design/dss": "^2.2.0",
-    "@eva-design/processor": "^2.2.0",
-    "@types/lodash.merge": "ts3.7",
+  "dependencies": {
+    "@kitsuine/processor": "^1.0.0",
     "chalk": "^3.0.0",
     "commander": "^4.1.1",
     "lodash.merge": "^4.6.1"

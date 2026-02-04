@@ -16,8 +16,8 @@ UI Kitten is a great library, but development has slowed. **Kitsune** picks up w
 | React Native | 0.70 | **0.76+** |
 | New Architecture | ❌ | ✅ |
 | Functional Components | ❌ Class-based | ✅ Hooks |
-| Headless Components | ❌ | ✅ `@kitsune/core` |
-| Unistyles Support | ❌ | ✅ `@kitsune/unistyles` |
+| Headless Components | ❌ | ✅ `@kitsuine/core` |
+| Unistyles Support | ❌ | ✅ `@kitsuine/unistyles` |
 | Actively Maintained | ⚠️ | ✅ |
 
 ---
@@ -26,11 +26,11 @@ UI Kitten is a great library, but development has slowed. **Kitsune** picks up w
 
 | Package | Description |
 |---------|-------------|
-| `@kitsune/components` | Full UI components with Eva Design System |
-| `@kitsune/core` | Headless components (behavior only) |
-| `@kitsune/unistyles` | C++ powered styling with zero re-renders |
-| `@kitsune/eva-icons` | 480+ SVG icons |
-| `@kitsune/metro-config` | Build-time optimizations |
+| `@kitsuine/components` | Full UI components with Eva Design System |
+| `@kitsuine/core` | Headless components (behavior only) |
+| `@kitsuine/unistyles` | C++ powered styling with zero re-renders |
+| `@kitsuine/eva-icons` | 480+ SVG icons |
+| `@kitsuine/metro-config` | Build-time optimizations |
 
 ---
 
@@ -38,15 +38,15 @@ UI Kitten is a great library, but development has slowed. **Kitsune** picks up w
 
 ```bash
 # Install
-npm install @kitsune/components @eva-design/eva
+npm install @kitsuine/components @eva-design/eva
 
 # or with yarn
-yarn add @kitsune/components @eva-design/eva
+yarn add @kitsuine/components @eva-design/eva
 ```
 
 ```tsx
 import React from 'react';
-import { ApplicationProvider, Button } from '@kitsune/components';
+import { ApplicationProvider, Button } from '@kitsuine/components';
 import * as eva from '@eva-design/eva';
 
 export default function App() {
@@ -64,14 +64,14 @@ export default function App() {
 
 ## Want Maximum Performance?
 
-Use `@kitsune/unistyles` for C++ powered styling (requires New Architecture):
+Use `@kitsuine/unistyles` for C++ powered styling (requires New Architecture):
 
 ```bash
-yarn add @kitsune/unistyles react-native-unistyles
+yarn add @kitsuine/unistyles react-native-unistyles
 ```
 
 ```tsx
-import { Button, UnistylesProvider } from '@kitsune/unistyles';
+import { Button, UnistylesProvider } from '@kitsuine/unistyles';
 
 export default function App() {
   return (
@@ -86,14 +86,14 @@ export default function App() {
 
 ## Build Your Own Components
 
-Use `@kitsune/core` for headless, unstyled components:
+Use `@kitsuine/core` for headless, unstyled components:
 
 ```bash
-yarn add @kitsune/core
+yarn add @kitsuine/core
 ```
 
 ```tsx
-import { ButtonCore } from '@kitsune/core';
+import { ButtonCore } from '@kitsuine/core';
 
 function MyCustomButton({ children, onPress }) {
   return (
@@ -129,7 +129,7 @@ function MyCustomButton({ children, onPress }) {
 
 ```diff
 - import { Button } from '@ui-kitten/components';
-+ import { Button } from '@kitsune/components';
++ import { Button } from '@kitsuine/components';
 ```
 
 API is fully compatible. See [Migration Guide](./docs/migration/ui-kitten-to-kitsune.md).
@@ -166,6 +166,6 @@ Thank you for creating such an amazing foundation!
 
 **Kitsune** 🦊 — *The fox that evolved from the kitten*
 
-[badge:license]: https://img.shields.io/npm/l/@kitsune/components.svg
-[badge:github-actions]: https://github.com/user/kitsune/workflows/Build/badge.svg
-[link:github-actions]: https://github.com/user/kitsune/actions
+[badge:license]: https://img.shields.io/npm/l/@kitsuine/components.svg
+[badge:github-actions]: https://github.com/bataevvlad/kitsune/workflows/Build/badge.svg
+[link:github-actions]: https://github.com/bataevvlad/kitsune/actions

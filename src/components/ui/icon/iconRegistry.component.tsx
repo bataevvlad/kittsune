@@ -30,9 +30,9 @@ export type IconRegistryElement = React.ReactElement<IconRegistryProps>;
  *
  * ```
  * import React from 'react';
- * import * as eva from '@eva-design/eva';
- * import { ApplicationProvider, IconRegistry, Layout, Text, Icon, Button } from '@ui-kitten/components';
- * import { EvaIconsPack } from '@ui-kitten/eva-icons'; // <-- Make sure it is installed. npm i @ui-kitten/eva-icons
+ * import * as eva from '@kitsuine/eva';
+ * import { ApplicationProvider, IconRegistry, Layout, Text, Icon, Button } from '@kitsuine/components';
+ * import { EvaIconsPack } from '@kitsuine/eva-icons'; // <-- Make sure it is installed. npm i @kitsuine/eva-icons
  *
  * const LikeIcon = (props) => (
  *   <Icon {...props} name='like' />

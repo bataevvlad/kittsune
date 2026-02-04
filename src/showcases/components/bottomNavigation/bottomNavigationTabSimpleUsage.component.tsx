@@ -1,5 +1,5 @@
 import React from 'react';
-import { BottomNavigationTab, Icon, IconElement } from '@ui-kitten/components';
+import { BottomNavigationTab, Icon, IconElement } from '@kitsuine/components';
 
 const StarIcon = (props): IconElement => (
   <Icon

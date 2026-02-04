@@ -14,7 +14,7 @@ import {
 import {
   light,
   mapping,
-} from '@eva-design/eva';
+} from '@kitsuine/eva';
 import {
   fireEvent,
   render,

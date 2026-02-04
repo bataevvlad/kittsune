@@ -2,8 +2,8 @@ import {
   CustomSchemaType,
   SchemaType,
   ThemeStyleType,
-} from '@eva-design/dss';
-import { SchemaProcessor } from '@eva-design/processor';
+} from '@kitsuine/processor';
+import { SchemaProcessor } from '@kitsuine/processor';
 import Fs from 'fs';
 import LodashMerge from 'lodash.merge';
 import EvaConfigService, { EvaConfig } from './eva-config.service';
@@ -37,11 +37,11 @@ interface EvaCache {
 }
 
 /**
- * Generates styles for `@eva-design/*` package specified in EvaConfig
+ * Generates styles for `@kitsuine/*` package specified in EvaConfig
  *
  * @see EvaConfig
  *
- * 1. Finds installed `@eva-design/*` packages.
+ * 1. Finds installed `@kitsuine/*` packages.
  * Will warn if there is no valid eva mapping packages installed and do nothing.
  *
  * @see EvaConfigService.MAPPING_PACKAGE_NAMES
@@ -53,8 +53,8 @@ interface EvaCache {
  * @see {CACHE_FILE_NAME}
  * @see {EvaCache}
  *
- * E.g, if `evaPackage` is `@eva-design/eva`:
- * The result will be stored at `./node_modules/@eva-design/eva/generated.json`
+ * E.g, if `evaPackage` is `@kitsuine/eva`:
+ * The result will be stored at `./node_modules/@kitsuine/eva/generated.json`
  */
 // eslint-disable-next-line no-restricted-syntax
 export default class BootstrapService {

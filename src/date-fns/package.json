@@ -1,5 +1,5 @@
 {
-  "name": "@ui-kitten/date-fns",
+  "name": "@kitsuine/date-fns",
   "description": "date-fns services for UI Kitten",
   "version": "5.3.1",
   "author": "akveo <contact@akveo.com>",
@@ -24,7 +24,7 @@
     "date-fns": "2"
   },
   "peerDependencies": {
-    "@ui-kitten/components": "5.3.1",
+    "@kitsuine/components": "5.3.1",
     "date-fns": "^1.30.1"
   },
   "sideEffects": false
