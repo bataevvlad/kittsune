@@ -1,52 +1,71 @@
 const path = require('path');
-const env = require('./env');
+const { getDefaultConfig } = require('expo/metro-config');
+
+const config = getDefaultConfig(__dirname);
+
+const workspaceRoot = path.resolve(__dirname, '../..');
+const srcRoot = path.resolve(__dirname, '..');
 
 const frameworkModules = [
-  path.resolve(__dirname, '../components'),
-  path.resolve(__dirname, '../date-fns'),
-  path.resolve(__dirname, '../eva-icons'),
-  path.resolve(__dirname, '../moment'),
+  path.resolve(srcRoot, 'components'),
+  path.resolve(srcRoot, 'date-fns'),
+  path.resolve(srcRoot, 'eva-icons'),
+  path.resolve(srcRoot, 'moment'),
+  path.resolve(srcRoot, 'eva'),
+  path.resolve(srcRoot, 'material'),
+  path.resolve(srcRoot, 'processor'),
 ];
 
 const moduleDependencies = [
-  // @kitsuine/components
-  path.resolve(env.EVA_PATH, 'eva'),
-  path.resolve(env.EVA_PATH, 'processor'),
-  path.resolve(__dirname, '../../node_modules/@kitsuine/processor'),
-  path.resolve(__dirname, '../../node_modules/hoist-non-react-statics'),
-  path.resolve(__dirname, '../../node_modules/lodash.merge'),
-  path.resolve(__dirname, '../../node_modules/fecha'),
+  // root node_modules
+  path.resolve(workspaceRoot, 'node_modules'),
+
+  // @kitsuine/components dependencies
+  path.resolve(workspaceRoot, 'node_modules/hoist-non-react-statics'),
+  path.resolve(workspaceRoot, 'node_modules/lodash.merge'),
+  path.resolve(workspaceRoot, 'node_modules/fecha'),
 
   // @kitsuine/eva-icons
-  path.resolve(__dirname, '../../node_modules/react-native-eva-icons'),
-  path.resolve(__dirname, '../../node_modules/react-native-svg'),
-
-  // @kitsuine/moment
-  path.resolve(__dirname, '../../node_modules/moment'),
-
-  // @kitsuine/date-fns
-  path.resolve(__dirname, '../../node_modules/date-fns'),
+  path.resolve(workspaceRoot, 'node_modules/react-native-eva-icons'),
 
   // external
-  path.resolve(__dirname, '../../node_modules/react-is'),
-  path.resolve(__dirname, '../../node_modules/source-map'),
+  path.resolve(workspaceRoot, 'node_modules/react-is'),
+  path.resolve(workspaceRoot, 'node_modules/source-map'),
 ];
 
-const playgroundExtraModules = {
-  '@babel/runtime': path.resolve(__dirname, './node_modules/@babel/runtime'),
-  'react': path.resolve(__dirname, './node_modules/react'),
-  'react-native': path.resolve(__dirname, './node_modules/react-native'),
-  'css-tree': path.resolve(__dirname, './node_modules/css-tree'),
-  'css-select': path.resolve(__dirname, './node_modules/css-select'),
+// Force single copies of these modules - use root node_modules
+const extraNodeModules = {
+  // Core React modules - force root copy
+  'react': path.resolve(workspaceRoot, 'node_modules/react'),
+  'react-native': path.resolve(workspaceRoot, 'node_modules/react-native'),
+  'react-native-svg': path.resolve(workspaceRoot, 'node_modules/react-native-svg'),
+  '@babel/runtime': path.resolve(workspaceRoot, 'node_modules/@babel/runtime'),
+
+  // Map @kitsuine packages to local source
+  '@kitsuine/components': path.resolve(srcRoot, 'components'),
+  '@kitsuine/eva-icons': path.resolve(srcRoot, 'eva-icons'),
+  '@kitsuine/date-fns': path.resolve(srcRoot, 'date-fns'),
+  '@kitsuine/moment': path.resolve(srcRoot, 'moment'),
+  '@kitsuine/eva': path.resolve(srcRoot, 'eva'),
+  '@kitsuine/material': path.resolve(srcRoot, 'material'),
+  '@kitsuine/processor': path.resolve(srcRoot, 'processor'),
 };
 
-module.exports = {
-  projectRoot: path.resolve(__dirname),
-  resolver: {
-    extraNodeModules: playgroundExtraModules,
-  },
-  watchFolders: [
-    ...frameworkModules,
-    ...moduleDependencies,
-  ],
+config.projectRoot = path.resolve(__dirname);
+
+config.resolver.extraNodeModules = {
+  ...config.resolver.extraNodeModules,
+  ...extraNodeModules,
 };
+
+config.resolver.nodeModulesPaths = [
+  path.resolve(__dirname, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
+
+config.watchFolders = [
+  ...frameworkModules,
+  ...moduleDependencies,
+];
+
+module.exports = config;

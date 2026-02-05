@@ -1,9 +1,9 @@
 {
-  "name": "@kitsuine/template-js",
-  "description": "React Native template project with Kitsune",
+  "name": "@kitsuine/material",
+  "description": "Material Design System themes and mappings for Kitsune",
   "version": "1.0.0",
-  "author": "Kitsune Contributors",
   "license": "MIT",
+  "author": "Kitsune Contributors",
   "homepage": "https://github.com/bataevvlad/kitsune#readme",
   "repository": {
     "type": "git",
@@ -13,15 +13,11 @@
     "url": "https://github.com/bataevvlad/kitsune/issues"
   },
   "keywords": [
-    "react-native",
     "kitsune",
-    "template",
-    "boilerplate",
-    "javascript"
-  ],
-  "files": [
-    "template",
-    "template.config.js"
+    "material",
+    "design-system",
+    "themes",
+    "react-native"
   ],
   "publishConfig": {
     "access": "public"

@@ -1,31 +1,31 @@
 {
   "name": "@kitsuine/moment",
-  "description": "moment.js services for UI Kitten",
-  "version": "5.3.1",
-  "author": "akveo <contact@akveo.com>",
+  "description": "moment.js services for Kitsune",
+  "version": "1.0.0",
+  "author": "Kitsune Contributors",
   "license": "MIT",
-  "homepage": "https://github.com/akveo/react-native-ui-kitten#readme",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akveo/react-native-ui-kitten.git"
+    "url": "git+https://github.com/bataevvlad/kitsune.git"
   },
   "bugs": {
-    "url": "https://github.com/akveo/react-native-ui-kitten/issues"
+    "url": "https://github.com/bataevvlad/kitsune/issues"
   },
   "keywords": [
     "react-native",
-    "ui-kitten",
+    "kitsune",
     "moment"
   ],
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
-    "moment": "^2.24.0"
+    "moment": "^2.30.0"
   },
   "peerDependencies": {
-    "@kitsuine/components": "5.3.1",
-    "moment": "^2.24.0"
+    "@kitsuine/components": "^1.0.0",
+    "moment": ">=2.24.0"
   },
   "sideEffects": false
 }

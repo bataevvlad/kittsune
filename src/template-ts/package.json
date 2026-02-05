@@ -1,19 +1,23 @@
 {
   "name": "@kitsuine/template-ts",
-  "description": "React Native template project with UI Kitten and TypeScript",
-  "version": "5.3.1",
-  "author": "akveo <contact@akveo.com>",
+  "description": "React Native template project with Kitsune and TypeScript",
+  "version": "1.0.0",
+  "author": "Kitsune Contributors",
   "license": "MIT",
-  "homepage": "https://github.com/akveo/react-native-ui-kitten#readme",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akveo/react-native-ui-kitten.git"
+    "url": "git+https://github.com/bataevvlad/kitsune.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bataevvlad/kitsune/issues"
   },
   "keywords": [
     "react-native",
-    "ui-kitten",
+    "kitsune",
     "template",
-    "boilerplate"
+    "boilerplate",
+    "typescript"
   ],
   "files": [
     "template",

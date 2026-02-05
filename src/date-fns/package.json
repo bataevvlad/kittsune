@@ -1,31 +1,31 @@
 {
   "name": "@kitsuine/date-fns",
-  "description": "date-fns services for UI Kitten",
-  "version": "5.3.1",
-  "author": "akveo <contact@akveo.com>",
+  "description": "date-fns services for Kitsune",
+  "version": "1.0.0",
+  "author": "Kitsune Contributors",
   "license": "MIT",
-  "homepage": "https://github.com/akveo/react-native-ui-kitten#readme",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akveo/react-native-ui-kitten.git"
+    "url": "git+https://github.com/bataevvlad/kitsune.git"
   },
   "bugs": {
-    "url": "https://github.com/akveo/react-native-ui-kitten/issues"
+    "url": "https://github.com/bataevvlad/kitsune/issues"
   },
   "keywords": [
     "react-native",
-    "ui-kitten",
+    "kitsune",
     "date-fns"
   ],
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
-    "date-fns": "2"
+    "date-fns": "^3.0.0"
   },
   "peerDependencies": {
-    "@kitsuine/components": "5.3.1",
-    "date-fns": "^1.30.1"
+    "@kitsuine/components": "^1.0.0",
+    "date-fns": ">=2.0.0"
   },
   "sideEffects": false
 }

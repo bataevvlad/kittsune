@@ -1,18 +1,38 @@
 {
   "expo": {
-    "name": "UI Kitten Showcases",
-    "slug": "ui-kitten-showcases",
-    "description": "UI Kitten Documentation Showcases",
-    "privacy": "public",
-    "platforms": [
-      "web"
-    ],
+    "name": "Kitsune Showcases",
+    "slug": "kitsune-showcases",
+    "description": "Kitsune Documentation Showcases",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "assets/icon.png",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "entryPoint": "./index.ts",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "assetBundlePatterns": [
       "assets/*"
     ],
-    "entryPoint": "node_modules/expo/AppEntry.js"
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ]
   }
 }

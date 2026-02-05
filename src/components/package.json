@@ -2,6 +2,7 @@
   "name": "@kitsuine/components",
   "description": "React Native UI components based on Eva Design System",
   "version": "1.0.0",
+  "main": "index.ts",
   "author": "Kitsune Contributors",
   "license": "MIT",
   "homepage": "https://github.com/bataevvlad/kitsune#readme",
@@ -28,8 +29,8 @@
     "lodash.merge": "^4.6.1"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-native": ">=0.70.0",
-    "react-native-svg": "*"
+    "react": ">=18.2.0",
+    "react-native": ">=0.72.0",
+    "react-native-svg": ">=13.0.0"
   }
 }

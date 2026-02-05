@@ -2,8 +2,8 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist/tsc-out",
-    "target": "esnext",
-    "module": "commonjs",
+    "target": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "jsx": "react-native",
     "esModuleInterop": true,
@@ -12,8 +12,10 @@
     "sourceMap": true,
     "declaration": true,
     "skipLibCheck": true,
+    "noEmit": false,
+    "allowSyntheticDefaultImports": true,
     "paths": {
-      "@ui-kitten/*": [
+      "@kitsuine/*": [
         "./src/*"
       ]
     }

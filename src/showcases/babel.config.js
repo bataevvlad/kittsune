@@ -1,17 +1,18 @@
 const path = require('path');
-const environment = require('./env');
+
+const srcRoot = path.resolve(__dirname, '..');
 
 const evaModules = {
-  '@kitsuine/eva': path.resolve(environment.EVA_PATH, 'eva'),
-  '@kitsuine/material': path.resolve(environment.EVA_PATH, 'material'),
-  '@kitsuine/processor': path.resolve(environment.EVA_PATH, 'processor'),
+  '@kitsuine/eva': path.resolve(srcRoot, 'eva'),
+  '@kitsuine/material': path.resolve(srcRoot, 'material'),
+  '@kitsuine/processor': path.resolve(srcRoot, 'processor'),
 };
 
 const frameworkModules = {
-  '@kitsuine/components': path.resolve(__dirname, '../components'),
-  '@kitsuine/date-fns': path.resolve(__dirname, '../date-fns'),
-  '@kitsuine/eva-icons': path.resolve(__dirname, '../eva-icons'),
-  '@kitsuine/moment': path.resolve(__dirname, '../moment'),
+  '@kitsuine/components': path.resolve(srcRoot, 'components'),
+  '@kitsuine/date-fns': path.resolve(srcRoot, 'date-fns'),
+  '@kitsuine/eva-icons': path.resolve(srcRoot, 'eva-icons'),
+  '@kitsuine/moment': path.resolve(srcRoot, 'moment'),
 };
 
 const moduleResolverConfig = {
@@ -22,17 +23,14 @@ const moduleResolverConfig = {
   },
 };
 
-const presets = [
-  'babel-preset-expo',
-];
-
-const plugins = [
-  ['module-resolver', moduleResolverConfig],
-  ["@babel/plugin-proposal-decorators", { 'legacy': true }],
-  ["react-native-web", { commonjs: true }]
-];
-
 module.exports = function (api) {
   api.cache(true);
-  return { presets, plugins };
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [
+      ['module-resolver', moduleResolverConfig],
+      ['@babel/plugin-proposal-decorators', { legacy: true }],
+      'react-native-reanimated/plugin', // Must be last
+    ],
+  };
 };

@@ -1,6 +1,6 @@
 const path = require('path');
 
 module.exports = {
-  ENV: 'dev',
+  ENV: 'prod',
   EVA_PATH: path.resolve(__dirname, '../../eva'),
 };
