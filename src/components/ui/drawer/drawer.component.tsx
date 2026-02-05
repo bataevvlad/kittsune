@@ -4,14 +4,15 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ViewProps } from 'react-native';
 import {
   FalsyFC,
   RenderProp,
+  LiteralUnion,
 } from '../../devsupport';
 import {
-  styled,
+  useStyled,
   StyleType,
 } from '../../theme';
 import {
@@ -22,6 +23,7 @@ import {
 export interface DrawerProps extends MenuProps {
   header?: RenderProp<ViewProps>;
   footer?: RenderProp<ViewProps>;
+  appearance?: LiteralUnion<'default' | 'noDivider'>;
 }
 
 export type DrawerElement = React.ReactElement<DrawerProps>;
@@ -141,52 +143,56 @@ export type DrawerElement = React.ReactElement<DrawerProps>;
  * @overview-example DrawerTheming
  * In most cases this is redundant, if [custom theme is configured](guides/branding).
  */
-@styled('Drawer')
-export class Drawer extends React.Component<DrawerProps> {
+const getComponentStyle = (source: StyleType): StyleType => {
+  const {
+    headerPaddingHorizontal,
+    headerPaddingVertical,
+    footerPaddingHorizontal,
+    footerPaddingVertical,
+    ...containerParameters
+  } = source;
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      headerPaddingHorizontal,
-      headerPaddingVertical,
-      footerPaddingHorizontal,
-      footerPaddingVertical,
-      ...containerParameters
-    } = source;
-
-    return {
-      container: containerParameters,
-      header: {
-        paddingHorizontal: headerPaddingHorizontal,
-        paddingVertical: headerPaddingVertical,
-      },
-      footer: {
-        paddingHorizontal: footerPaddingHorizontal,
-        paddingVertical: footerPaddingVertical,
-      },
-    };
+  return {
+    container: containerParameters,
+    header: {
+      paddingHorizontal: headerPaddingHorizontal,
+      paddingVertical: headerPaddingVertical,
+    },
+    footer: {
+      paddingHorizontal: footerPaddingHorizontal,
+      paddingVertical: footerPaddingVertical,
+    },
   };
+};
 
-  public render(): React.ReactElement {
-    const { eva, style, header, footer, ...menuProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+export const Drawer: React.FC<DrawerProps> = ({
+  style,
+  header,
+  footer,
+  appearance,
+  ...menuProps
+}) => {
+  const { style: evaStyleRaw } = useStyled('Drawer', { appearance });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
 
-    return (
-      <>
-        <FalsyFC
-          style={evaStyle.header}
-          component={header}
-        />
-        <Menu
-          style={[evaStyle.container, style]}
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-          {...menuProps}
-        />
-        <FalsyFC
-          style={evaStyle.footer}
-          component={footer}
-        />
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <FalsyFC
+        style={evaStyle.header}
+        component={header}
+      />
+      <Menu
+        style={[evaStyle.container, style]}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        {...menuProps}
+      />
+      <FalsyFC
+        style={evaStyle.footer}
+        component={footer}
+      />
+    </>
+  );
+};
+
+Drawer.displayName = 'Drawer';

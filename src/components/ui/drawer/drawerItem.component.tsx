@@ -18,7 +18,7 @@ export type DrawerItemElement = React.ReactElement<DrawerItemProps>;
  * A single item in Drawer.
  * Items should be rendered within Drawer or DrawerGroup children to provide a usable component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactText | ReactElement | (TextProps) => ReactElement} title - String, number or a function component
  * to render within the item.
@@ -36,11 +36,10 @@ export type DrawerItemElement = React.ReactElement<DrawerItemProps>;
  *
  * @overview-example DrawerItemSimpleUsage
  */
-export class DrawerItem extends React.Component<MenuItemProps> {
+export const DrawerItem: React.FC<MenuItemProps> = (props): MenuItemElement => {
+  return (
+    <MenuItem {...props} />
+  );
+};
 
-  public render(): MenuItemElement {
-    return (
-      <MenuItem {...this.props} />
-    );
-  }
-}
+DrawerItem.displayName = 'DrawerItem';

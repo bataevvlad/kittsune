@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -15,12 +15,10 @@ import {
   ChildrenWithProps,
   EvaSize,
   EvaStatus,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import {
@@ -28,14 +26,11 @@ import {
   ButtonProps,
 } from '../button/button.component';
 
-type ButtonGroupStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'filled' | 'outline' | 'ghost'>;
-}>;
-
-export interface ButtonGroupProps extends ViewProps, ButtonGroupStyledProps {
+export interface ButtonGroupProps extends ViewProps {
   children: ChildrenWithProps<ButtonProps>;
   status?: EvaStatus;
   size?: EvaSize;
+  appearance?: LiteralUnion<'filled' | 'outline' | 'ghost'>;
 }
 
 export type ButtonGroupElement = React.ReactElement<ButtonGroupProps>;
@@ -81,49 +76,58 @@ export type ButtonGroupElement = React.ReactElement<ButtonGroupProps>;
  * @overview-example ButtonGroupWithIcons
  */
 
-@styled('ButtonGroup')
-export class ButtonGroup extends React.Component<ButtonGroupProps> {
+const getComponentStyle = (source: StyleType): StyleType => {
+  const { dividerBackgroundColor, dividerWidth, ...containerParameters } = source;
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const { dividerBackgroundColor, dividerWidth, ...containerParameters } = source;
-
-    return {
-      container: {
-        ...containerParameters,
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        borderWidth: containerParameters.borderWidth + 0.25,
-      },
-      button: {
-        borderWidth: dividerWidth,
-        borderColor: dividerBackgroundColor,
-      },
-    };
+  return {
+    container: {
+      ...containerParameters,
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+      borderWidth: containerParameters.borderWidth + 0.25,
+    },
+    button: {
+      borderWidth: dividerWidth,
+      borderColor: dividerBackgroundColor,
+    },
   };
+};
 
-  private isFirstElement = (index: number): boolean => {
+export const ButtonGroup: React.FC<ButtonGroupProps> = ({
+  style,
+  children,
+  appearance,
+  size,
+  status,
+  ...viewProps
+}) => {
+  const { style: evaStyleRaw } = useStyled('ButtonGroup', { appearance });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
+
+  const childCount = React.Children.count(children);
+
+  const isFirstElement = useCallback((index: number): boolean => {
     return index === 0;
-  };
+  }, []);
 
-  private isLastElement = (index: number): boolean => {
-    return index === React.Children.count(this.props.children) - 1;
-  };
+  const isLastElement = useCallback((index: number): boolean => {
+    return index === childCount - 1;
+  }, [childCount]);
 
-  private renderButtonElement = (element: ButtonElement, index: number, style: StyleType): ButtonElement => {
-    const { appearance, size, status } = this.props;
-    const { borderRadius }: ViewStyle = style.container;
-    const { borderWidth, borderColor }: ViewStyle = style.button;
+  const renderButtonElement = useCallback((element: ButtonElement, index: number): ButtonElement => {
+    const { borderRadius }: ViewStyle = evaStyle.container;
+    const { borderWidth, borderColor }: ViewStyle = evaStyle.button;
 
-    const shapeStyle: ViewStyle = !this.isLastElement(index) && {
+    const shapeStyle: ViewStyle = !isLastElement(index) && {
       borderEndWidth: borderWidth,
       borderEndColor: borderColor,
     };
 
-    const startShapeStyle: ViewStyle = this.isFirstElement(index) && {
+    const startShapeStyle: ViewStyle = isFirstElement(index) && {
       borderTopStartRadius: borderRadius,
       borderBottomStartRadius: borderRadius,
     };
 
-    const endShapeStyle: ViewStyle = this.isLastElement(index) && {
+    const endShapeStyle: ViewStyle = isLastElement(index) && {
       borderTopEndRadius: borderRadius,
       borderBottomEndRadius: borderRadius,
     };
@@ -135,28 +139,23 @@ export class ButtonGroup extends React.Component<ButtonGroupProps> {
       status: status,
       style: [element.props.style, styles.button, shapeStyle, startShapeStyle, endShapeStyle],
     });
-  };
+  }, [evaStyle, appearance, size, status, isFirstElement, isLastElement]);
 
-  private renderButtonElements = (source: ChildrenWithProps<ButtonProps>, style: StyleType): ButtonElement[] => {
-    return React.Children.map(source, (element: ButtonElement, index: number): ButtonElement => {
-      return this.renderButtonElement(element, index, style);
-    });
-  };
+  const buttonElements = React.Children.map(children, (element: ButtonElement, index: number): ButtonElement => {
+    return renderButtonElement(element, index);
+  });
 
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, children, ...viewProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+  return (
+    <View
+      {...viewProps}
+      style={[evaStyle.container, styles.container, style]}
+    >
+      {buttonElements}
+    </View>
+  );
+};
 
-    return (
-      <View
-        {...viewProps}
-        style={[evaStyle.container, styles.container, style]}
-      >
-        {this.renderButtonElements(children, evaStyle)}
-      </View>
-    );
-  }
-}
+ButtonGroup.displayName = 'ButtonGroup';
 
 const styles = StyleSheet.create({
   container: {

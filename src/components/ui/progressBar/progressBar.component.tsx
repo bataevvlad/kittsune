@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Animated,
   LayoutChangeEvent,
@@ -17,42 +17,59 @@ import {
   EvaSize,
   EvaStatus,
   LiteralUnion,
-  Overwrite,
 } from '@kitsuine/components/devsupport';
 import {
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '@kitsuine/components';
 import { ProgressBarAnimation, ProgressBarAnimationConfig } from './animation';
-
-type ProgressBarStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
 
 interface ComponentStyles {
   track: ViewStyle;
   indicator: ViewStyle;
 }
 
-export interface ProgressBarProps extends ViewProps, ProgressBarStyledProps {
+export interface ProgressBarProps extends ViewProps {
   progress?: number;
   animating?: boolean;
   animationConfig?: Partial<ProgressBarAnimationConfig>;
   status?: EvaStatus;
   size?: EvaSize;
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type ProgressBarElement = React.ReactElement<ProgressBarProps>;
 
-interface State {
-  trackWidth: number;
-}
+const getComponentStyle = (source: StyleType): ComponentStyles => {
+  const {
+    height,
+    borderRadius,
+    trackColor,
+    indicatorColor,
+  } = source;
+
+  return {
+    track: {
+      height,
+      borderRadius,
+      backgroundColor: trackColor,
+    },
+    indicator: {
+      height,
+      borderRadius,
+      backgroundColor: indicatorColor,
+    },
+  };
+};
+
+const clamp = (progress: number): number => {
+  return progress > 1 ? 1 : (progress < 0 ? 0 : progress);
+};
 
 /**
  * Displays the length of a process.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {boolean} animating - Whether component is animating.
  * Default is *true*.
@@ -79,106 +96,68 @@ interface State {
  * Styling of ProgressBar is possible with [configuring a custom theme](guides/branding).
  *
  */
+export const ProgressBar: React.FC<ProgressBarProps> = ({
+  style,
+  progress = 0,
+  animating = true,
+  animationConfig,
+  status,
+  size,
+  appearance,
+  onLayout: onLayoutProp,
+  ...viewProps
+}) => {
+  const { style: evaStyleRaw } = useStyled('ProgressBar', { appearance, status, size });
+  const animationRef = useRef<ProgressBarAnimation>(new ProgressBarAnimation(animationConfig));
 
-@styled('ProgressBar')
-export class ProgressBar extends React.PureComponent<ProgressBarProps> {
+  const combinedStyles: StyleType = useMemo(
+    () => StyleSheet.flatten([evaStyleRaw, style]),
+    [evaStyleRaw, style]
+  );
+  const evaStyle = useMemo(() => getComponentStyle(combinedStyles), [combinedStyles]);
 
-  static defaultProps: Partial<ProgressBarProps> = {
-    animating: true,
-    progress: 0,
-  };
+  const startAnimation = useCallback(() => {
+    const validProgress = clamp(progress);
+    animationRef.current.startDeterminate(validProgress);
+  }, [progress]);
 
-  public state: State = {
-    trackWidth: 0,
-  };
+  const stopAnimation = useCallback(() => {
+    animationRef.current.stop();
+  }, []);
 
-  private animation: ProgressBarAnimation;
-
-  constructor(props: ProgressBarProps) {
-    super(props);
-
-    this.animation = new ProgressBarAnimation(props.animationConfig);
-  }
-
-  public componentDidMount(): void {
-    if (this.props.animating) {
-      this.startAnimation();
+  useEffect(() => {
+    if (animating) {
+      startAnimation();
     }
-  }
+  }, [animating, startAnimation]);
 
-  public componentDidUpdate(prevProps: ProgressBarProps): void {
-    const progressChanged: boolean = this.props.progress !== prevProps.progress;
-    const animatingChanged: boolean = this.props.animating !== prevProps.animating;
-
-    if (progressChanged && this.props.animating) {
-      this.startAnimation();
+  useEffect(() => {
+    if (!animating) {
+      stopAnimation();
     }
+  }, [animating, stopAnimation]);
 
-    if (animatingChanged && !this.props.animating) {
-      this.stopAnimation();
-    }
-  }
-
-  public componentWillUnmount(): void {
-    this.animation.release();
-  }
-
-  private startAnimation = (): void => {
-    const validProgress = this.clamp(this.props.progress);
-    this.animation.startDeterminate(validProgress);
-  };
-
-  private stopAnimation = (): void => {
-    this.animation.stop();
-  };
-
-  private clamp = (progress: number): number => {
-    return progress > 1 ? 1 : (progress < 0 ? 0 : progress);
-  };
-
-  private onLayout = (event: LayoutChangeEvent): void => {
-    this.props.onLayout?.(event);
-    const trackWidth = event.nativeEvent.layout.width;
-
-    this.setState({ trackWidth });
-    this.animation.setBarWidth(trackWidth);
-  };
-
-  private getComponentStyle = (source: StyleType): ComponentStyles => {
-    const {
-      height,
-      borderRadius,
-      trackColor,
-      indicatorColor,
-    } = source;
-
-    return {
-      track: {
-        height,
-        borderRadius,
-        backgroundColor: trackColor,
-      },
-      indicator: {
-        height,
-        borderRadius,
-        backgroundColor: indicatorColor,
-      },
+  useEffect(() => {
+    return () => {
+      animationRef.current.release();
     };
-  };
+  }, []);
 
-  private renderIndicator = (
-    style: ViewStyle, progress: number, animating: boolean,
-  ): React.ReactElement<Animated.AnimatedProps<ViewStyle>> => {
-    const indicatorStyles: Animated.AnimatedProps<ViewStyle>[] = [style];
+  const onLayout = useCallback((event: LayoutChangeEvent): void => {
+    onLayoutProp?.(event);
+    const trackWidth = event.nativeEvent.layout.width;
+    animationRef.current.setBarWidth(trackWidth);
+  }, [onLayoutProp]);
+
+  const renderIndicator = (): React.ReactElement<Animated.AnimatedProps<ViewStyle>> => {
+    const indicatorStyles: Animated.AnimatedProps<ViewStyle>[] = [evaStyle.indicator];
 
     if (animating) {
-      const animationStyles = this.animation.toProps();
-
+      const animationStyles = animationRef.current.toProps();
       indicatorStyles.push(animationStyles);
     } else {
-      const validProgress = this.clamp(progress);
+      const validProgress = clamp(progress);
       const width = `${validProgress * 100}%`;
-
       indicatorStyles.push({ width });
     }
 
@@ -187,22 +166,18 @@ export class ProgressBar extends React.PureComponent<ProgressBarProps> {
     );
   };
 
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, progress, animating, ...viewProps } = this.props;
-    const combinedStyles: StyleType = StyleSheet.flatten([eva.style, this.props.style]);
-    const evaStyle = this.getComponentStyle(combinedStyles);
+  return (
+    <View
+      {...viewProps}
+      style={[evaStyle.track, styles.noOverflow, style]}
+      onLayout={onLayout}
+    >
+      {renderIndicator()}
+    </View>
+  );
+};
 
-    return (
-      <View
-        {...viewProps}
-        style={[evaStyle.track, styles.noOverflow, style]}
-        onLayout={this.onLayout}
-      >
-        {this.renderIndicator(evaStyle.indicator, progress, animating)}
-      </View>
-    );
-  }
-}
+ProgressBar.displayName = 'ProgressBar';
 
 const styles = StyleSheet.create({
   noOverflow: {

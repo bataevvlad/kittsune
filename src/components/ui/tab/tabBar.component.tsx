@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -14,12 +14,10 @@ import {
 } from 'react-native';
 import {
   ChildrenWithProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import {
@@ -28,24 +26,26 @@ import {
 } from './tab.component';
 import { TabIndicator } from '../shared/tabIndicator.component';
 
-type TabBarStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
-
-export interface TabBarProps extends ViewProps, TabBarStyledProps {
+export interface TabBarProps extends ViewProps {
   children?: ChildrenWithProps<TabProps>;
   selectedIndex?: number;
   onSelect?: (index: number) => void;
   indicatorStyle?: StyleProp<ViewStyle>;
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type TabBarElement = React.ReactElement<TabBarProps>;
+
+export interface TabBarRef {
+  scrollToIndex: (params: { index: number; animated?: boolean }) => void;
+  scrollToOffset: (params: { offset: number; animated?: boolean }) => void;
+}
 
 /**
  * A bar with tabs styled by Eva.
  * TabBar should contain Tab components to provide a useful navigation component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactElement<TabProps> | ReactElement<TabProps>[]} children - Tabs to be rendered within the bar.
  *
@@ -122,86 +122,87 @@ export type TabBarElement = React.ReactElement<TabBarProps>;
  * @overview-example TabTheming
  * In most cases this is redundant, if [custom theme is configured](guides/branding).
  */
-@styled('TabBar')
-export class TabBar extends React.Component<TabBarProps> {
 
-  static defaultProps: Partial<TabBarProps> = {
-    selectedIndex: 0,
+const getComponentStyle = (source: StyleType): StyleType => {
+  const {
+    indicatorHeight,
+    indicatorBorderRadius,
+    indicatorBackgroundColor,
+    ...containerParameters
+  } = source;
+
+  return {
+    container: containerParameters,
+    item: {},
+    indicator: {
+      height: indicatorHeight,
+      borderRadius: indicatorBorderRadius,
+      backgroundColor: indicatorBackgroundColor,
+    },
   };
+};
 
-  private tabIndicatorRef = React.createRef<TabIndicator>();
+export const TabBar = forwardRef<TabBarRef, TabBarProps>(({
+  style,
+  children,
+  selectedIndex = 0,
+  onSelect,
+  indicatorStyle,
+  appearance,
+  testID,
+  ...viewProps
+}, ref) => {
+  const { style: evaStyleRaw } = useStyled('TabBar', { appearance });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
+  const tabIndicatorRef = useRef<TabIndicator>(null);
 
-  public scrollToIndex(params: { index: number; animated?: boolean }): void {
-    this.tabIndicatorRef.current?.scrollToIndex(params);
-  }
+  useImperativeHandle(ref, () => ({
+    scrollToIndex: (params: { index: number; animated?: boolean }) => {
+      tabIndicatorRef.current?.scrollToIndex(params);
+    },
+    scrollToOffset: (params: { offset: number; animated?: boolean }) => {
+      tabIndicatorRef.current?.scrollToOffset(params);
+    },
+  }), []);
 
-  public scrollToOffset(params: { offset: number; animated?: boolean }): void {
-    this.tabIndicatorRef.current?.scrollToOffset(params);
-  }
+  const onTabSelect = useCallback((index: number) => {
+    onSelect?.(index);
+  }, [onSelect]);
 
-  private onTabSelect = (index: number): void => {
-    this.props.onSelect?.(index);
-  };
-
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      indicatorHeight,
-      indicatorBorderRadius,
-      indicatorBackgroundColor,
-      ...containerParameters
-    } = source;
-
-    return {
-      container: containerParameters,
-      item: {},
-      indicator: {
-        height: indicatorHeight,
-        borderRadius: indicatorBorderRadius,
-        backgroundColor: indicatorBackgroundColor,
-      },
-    };
-  };
-
-  private isTabSelected = (index: number): boolean => {
-    return index === this.props.selectedIndex;
-  };
-
-  private renderTabElement = (element: TabElement, index: number): TabElement => {
+  const renderTabElement = (element: TabElement, index: number): TabElement => {
     return React.cloneElement(element, {
       key: index,
       style: [styles.item, element.props.style],
-      selected: this.isTabSelected(index),
-      onSelect: () => this.onTabSelect(index),
+      selected: index === selectedIndex,
+      onSelect: () => onTabSelect(index),
     });
   };
 
-  private renderTabElements = (source: ChildrenWithProps<TabProps>): TabElement[] => {
-    return React.Children.map(source, this.renderTabElement);
+  const renderTabElements = (source: ChildrenWithProps<TabProps>): TabElement[] => {
+    return React.Children.map(source, renderTabElement);
   };
 
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, testID, indicatorStyle, selectedIndex, children, ...viewProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-    const tabElements: TabElement[] = this.renderTabElements(children);
+  const tabElements = renderTabElements(children);
 
-    return (
-      <View testID={testID}>
-        <View
-          {...viewProps}
-          style={[evaStyle.container, styles.container, style]}
-        >
-          {tabElements}
-        </View>
-        <TabIndicator
-          ref={this.tabIndicatorRef}
-          style={[evaStyle.indicator, indicatorStyle]}
-          selectedPosition={selectedIndex}
-          positions={tabElements.length}
-        />
+  return (
+    <View testID={testID}>
+      <View
+        {...viewProps}
+        style={[evaStyle.container, styles.container, style]}
+      >
+        {tabElements}
       </View>
-    );
-  }
-}
+      <TabIndicator
+        ref={tabIndicatorRef}
+        style={[evaStyle.indicator, indicatorStyle]}
+        selectedPosition={selectedIndex}
+        positions={tabElements.length}
+      />
+    </View>
+  );
+});
+
+TabBar.displayName = 'TabBar';
 
 const styles = StyleSheet.create({
   container: {

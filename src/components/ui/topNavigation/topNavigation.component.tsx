@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -14,36 +14,31 @@ import {
   FalsyFC,
   FalsyText,
   RenderProp,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { TextProps } from '../text/text.component';
 
-type TopNavigationStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default' | 'control'>;
-}>;
+type AlignmentProp = 'start' | 'center';
 
-export interface TopNavigationProps extends ViewProps, TopNavigationStyledProps {
+export interface TopNavigationProps extends ViewProps {
   title?: RenderProp<TextProps> | React.ReactText;
   subtitle?: RenderProp<TextProps> | React.ReactText;
   accessoryLeft?: () => React.ReactElement;
   accessoryRight?: () => React.ReactElement;
   alignment?: AlignmentProp;
+  appearance?: LiteralUnion<'default' | 'control'>;
 }
 
 export type TopNavigationElement = React.ReactElement<TopNavigationProps>;
 
-type AlignmentProp = 'start' | 'center';
-
 /**
  * TopNavigation provides a heading component for the entire page.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactText | ReactElement | (TextProps) => ReactElement} title - String, number or a function component
  * to render within the top navigation.
@@ -96,87 +91,94 @@ type AlignmentProp = 'start' | 'center';
  * />
  * ```
  */
-@styled('TopNavigation')
-export class TopNavigation extends React.Component<TopNavigationProps> {
 
-  private getAlignmentDependentStyles = (alignment: AlignmentProp): StyleType => {
-    if (alignment === 'center') {
-      return {
-        container: styles.containerCentered,
-        titleContainer: styles.titleContainerCentered,
-      };
-    }
+const getComponentStyle = (source: StyleType): StyleType => {
+  const {
+    titleTextAlign,
+    titleFontFamily,
+    titleFontSize,
+    titleFontWeight,
+    titleColor,
+    subtitleTextAlign,
+    subtitleFontFamily,
+    subtitleFontSize,
+    subtitleFontWeight,
+    subtitleColor,
+    ...containerParameters
+  } = source;
 
-    return {
-      rightControlsContainer: styles.rightControlsContainerStart,
-    };
+  return {
+    container: containerParameters,
+    title: {
+      textAlign: titleTextAlign,
+      fontFamily: titleFontFamily,
+      fontSize: titleFontSize,
+      fontWeight: titleFontWeight,
+      color: titleColor,
+    },
+    subtitle: {
+      textAlign: subtitleTextAlign,
+      fontFamily: subtitleFontFamily,
+      fontSize: subtitleFontSize,
+      color: subtitleColor,
+      fontWeight: subtitleFontWeight,
+    },
   };
+};
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      titleTextAlign,
-      titleFontFamily,
-      titleFontSize,
-      titleFontWeight,
-      titleColor,
-      subtitleTextAlign,
-      subtitleFontFamily,
-      subtitleFontSize,
-      subtitleFontWeight,
-      subtitleColor,
-      ...containerParameters
-    } = source;
-
+const getAlignmentDependentStyles = (alignment?: AlignmentProp): StyleType => {
+  if (alignment === 'center') {
     return {
-      container: containerParameters,
-      title: {
-        textAlign: titleTextAlign,
-        fontFamily: titleFontFamily,
-        fontSize: titleFontSize,
-        fontWeight: titleFontWeight,
-        color: titleColor,
-      },
-      subtitle: {
-        textAlign: subtitleTextAlign,
-        fontFamily: subtitleFontFamily,
-        fontSize: subtitleFontSize,
-        color: subtitleColor,
-        fontWeight: subtitleFontWeight,
-      },
+      container: styles.containerCentered,
+      titleContainer: styles.titleContainerCentered,
     };
-  };
-
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, title, subtitle, alignment, accessoryLeft, accessoryRight, ...viewProps } = this.props;
-
-    const evaStyles = this.getComponentStyle(eva.style);
-    const alignmentStyles = this.getAlignmentDependentStyles(alignment);
-
-    return (
-      <View
-        style={[evaStyles.container, styles.container, alignmentStyles.container, style]}
-        {...viewProps}
-      >
-        <View style={styles.leftControlContainer}>
-          <FalsyFC component={accessoryLeft} />
-        </View>
-        <View style={alignmentStyles.titleContainer || styles.titleContainer}>
-          <FalsyText
-            style={evaStyles.title}
-            component={title}
-          />
-          <FalsyText
-            style={evaStyles.subtitle}
-            component={subtitle}
-          />
-        </View>
-        <View style={[styles.rightControlsContainer, alignmentStyles.rightControlsContainer]}>
-          <FalsyFC component={accessoryRight} />
-        </View>
-      </View>
-    );
   }
-}
+
+  return {
+    rightControlsContainer: styles.rightControlsContainerStart,
+  };
+};
+
+export const TopNavigation: React.FC<TopNavigationProps> = ({
+  style,
+  title,
+  subtitle,
+  alignment,
+  appearance,
+  accessoryLeft,
+  accessoryRight,
+  ...viewProps
+}) => {
+  const { style: evaStyleRaw } = useStyled('TopNavigation', { appearance });
+  const evaStyles = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
+  const alignmentStyles = useMemo(() => getAlignmentDependentStyles(alignment), [alignment]);
+
+  return (
+    <View
+      style={[evaStyles.container, styles.container, alignmentStyles.container, style]}
+      {...viewProps}
+    >
+      <View style={styles.leftControlContainer}>
+        <FalsyFC component={accessoryLeft} />
+      </View>
+      <View style={alignmentStyles.titleContainer || styles.titleContainer}>
+        <FalsyText
+          style={evaStyles.title}
+          component={title}
+        />
+        <FalsyText
+          style={evaStyles.subtitle}
+          component={subtitle}
+        />
+      </View>
+      <View style={[styles.rightControlsContainer, alignmentStyles.rightControlsContainer]}>
+        <FalsyFC component={accessoryRight} />
+      </View>
+    </View>
+  );
+};
+
+TopNavigation.displayName = 'TopNavigation';
 
 const styles = StyleSheet.create({
   container: {

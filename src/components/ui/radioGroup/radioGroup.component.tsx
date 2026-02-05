@@ -4,19 +4,17 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   ViewProps,
 } from 'react-native';
 import {
   ChildrenWithProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import {
@@ -24,23 +22,31 @@ import {
   RadioProps,
 } from '../radio/radio.component';
 
-type RadioGroupStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
-
-export interface RadioGroupProps extends ViewProps, RadioGroupStyledProps {
+export interface RadioGroupProps extends ViewProps {
   children?: ChildrenWithProps<RadioProps>;
   selectedIndex?: number;
   onChange?: (index: number) => void;
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type RadioGroupElement = React.ReactElement<RadioGroupProps>;
+
+const getComponentStyle = (source: StyleType): StyleType => {
+  const { itemMarginVertical, ...containerParameters } = source;
+
+  return {
+    container: containerParameters,
+    item: {
+      marginVertical: itemMarginVertical,
+    },
+  };
+};
 
 /**
  * Provides to select a single state from multiple options.
  * RadioGroup should contain Radio components to provide a useful component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {number} selectedIndex - Index of currently checked radio.
  *
@@ -50,52 +56,38 @@ export type RadioGroupElement = React.ReactElement<RadioGroupProps>;
  *
  * @overview-example RadioGroupSimpleUsage
  */
-@styled('RadioGroup')
-export class RadioGroup extends React.Component<RadioGroupProps> {
+export const RadioGroup: React.FC<RadioGroupProps> = ({
+  style,
+  children,
+  selectedIndex = -1,
+  onChange,
+  appearance,
+  ...viewProps
+}) => {
+  const { style: evaStyleRaw } = useStyled('RadioGroup', { appearance });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
 
-  static defaultProps: Partial<RadioGroupProps> = {
-    selectedIndex: -1,
-  };
+  const onRadioChange = useCallback((index: number): void => {
+    onChange?.(index);
+  }, [onChange]);
 
-  private onRadioChange = (index: number): void => {
-    this.props.onChange?.(index);
-  };
-
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const { itemMarginVertical, ...containerParameters } = source;
-
-    return {
-      container: containerParameters,
-      item: {
-        marginVertical: itemMarginVertical,
-      },
-    };
-  };
-
-  private renderRadioElements = (source: ChildrenWithProps<RadioProps>, style: StyleType): RadioElement[] => {
-    return React.Children.map(source, (element: RadioElement, index: number): RadioElement => {
-      return React.cloneElement(element, {
-        key: index,
-        style: [style, element.props.style],
-        checked: this.props.selectedIndex === index,
-        onChange: () => this.onRadioChange(index),
-      });
+  const radioElements: RadioElement[] = React.Children.map(children, (element: RadioElement, index: number): RadioElement => {
+    return React.cloneElement(element, {
+      key: index,
+      style: [evaStyle.item, element.props.style],
+      checked: selectedIndex === index,
+      onChange: () => onRadioChange(index),
     });
-  };
+  });
 
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, children, ...viewProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+  return (
+    <View
+      {...viewProps}
+      style={[evaStyle.container, style]}
+    >
+      {radioElements}
+    </View>
+  );
+};
 
-    const radioElements: RadioElement[] = this.renderRadioElements(children, evaStyle.item);
-
-    return (
-      <View
-        {...viewProps}
-        style={[evaStyle.container, style]}
-      >
-        {radioElements}
-      </View>
-    );
-  }
-}
+RadioGroup.displayName = 'RadioGroup';

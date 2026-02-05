@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -14,12 +14,10 @@ import {
 } from 'react-native';
 import {
   ChildrenWithProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import {
@@ -31,15 +29,12 @@ import {
   TabIndicatorElement,
 } from '../shared/tabIndicator.component';
 
-type BottomNavigationStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default' | 'noIndicator'>;
-}>;
-
-export interface BottomNavigationProps extends ViewProps, BottomNavigationStyledProps {
+export interface BottomNavigationProps extends ViewProps {
   children?: ChildrenWithProps<BottomNavigationTabProps>;
   selectedIndex?: number;
   onSelect?: (index: number) => void;
   indicatorStyle?: StyleProp<ViewStyle>;
+  appearance?: LiteralUnion<'default' | 'noIndicator'>;
 }
 
 export type BottomNavigationElement = React.ReactElement<BottomNavigationProps>;
@@ -48,7 +43,7 @@ export type BottomNavigationElement = React.ReactElement<BottomNavigationProps>;
  * A bar with tabs styled by Eva.
  * BottomNavigation should contain BottomNavigationTab components to provide a usable navigation component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactElement<TabProps> | ReactElement<TabProps>[]} children - Tabs to be rendered within the bar.
  *
@@ -132,80 +127,73 @@ export type BottomNavigationElement = React.ReactElement<BottomNavigationProps>;
  * To remove indicator, `appearance` property may be used.
  */
 
-@styled('BottomNavigation')
-export class BottomNavigation extends React.Component<BottomNavigationProps> {
+const getComponentStyle = (source: StyleType): StyleType => {
+  const { indicatorHeight, indicatorBackgroundColor, ...containerParameters } = source;
 
-  static defaultProps: Partial<BottomNavigationProps> = {
-    selectedIndex: 0,
+  return {
+    container: containerParameters,
+    indicator: {
+      height: indicatorHeight,
+      backgroundColor: indicatorBackgroundColor,
+    },
   };
+};
 
-  private onTabSelect = (index: number): void => {
-    this.props.onSelect?.(index);
-  };
+export const BottomNavigation: React.FC<BottomNavigationProps> = ({
+  style,
+  children,
+  selectedIndex = 0,
+  onSelect,
+  indicatorStyle,
+  appearance,
+  testID,
+  ...viewProps
+}) => {
+  const { style: evaStyleRaw } = useStyled('BottomNavigation', { appearance });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const { indicatorHeight, indicatorBackgroundColor, ...containerParameters } = source;
+  const onTabSelect = useCallback((index: number) => {
+    onSelect?.(index);
+  }, [onSelect]);
 
-    return {
-      container: containerParameters,
-      indicator: {
-        height: indicatorHeight,
-        backgroundColor: indicatorBackgroundColor,
-      },
-    };
-  };
-
-  private renderIndicatorElement = (positions: number, style: ViewStyle): TabIndicatorElement => {
-    const { indicatorStyle, selectedIndex } = this.props;
-
+  const renderIndicatorElement = (positions: number, indicatorStyleProp: ViewStyle): TabIndicatorElement => {
     return (
       <TabIndicator
         key={0}
-        style={[style, indicatorStyle]}
+        style={[indicatorStyleProp, indicatorStyle]}
         selectedPosition={selectedIndex}
         positions={positions}
       />
     );
   };
 
-  private renderTabElement = (element: BottomNavigationTabElement, index: number): BottomNavigationTabElement => {
+  const renderTabElement = (element: BottomNavigationTabElement, index: number): BottomNavigationTabElement => {
     return React.cloneElement(element, {
       key: index,
       style: [styles.item, element.props.style],
-      selected: index === this.props.selectedIndex,
-      onSelect: () => this.onTabSelect(index),
+      selected: index === selectedIndex,
+      onSelect: () => onTabSelect(index),
     });
   };
 
-  private renderTabElements = (source: ChildrenWithProps<BottomNavigationTabProps>): BottomNavigationTabElement[] => {
-    return React.Children.map(source, this.renderTabElement);
+  const renderTabElements = (source: ChildrenWithProps<BottomNavigationTabProps>): BottomNavigationTabElement[] => {
+    return React.Children.map(source, renderTabElement);
   };
 
-  private renderComponentChildren = (style: StyleType): React.ReactNodeArray => {
-    const tabElements: BottomNavigationTabElement[] = this.renderTabElements(this.props.children);
-    const hasIndicator: boolean = style.indicator.height > 0;
+  const tabElements = renderTabElements(children);
+  const hasIndicator = evaStyle.indicator.height > 0;
 
-    return [
-      hasIndicator && this.renderIndicatorElement(tabElements.length, style.indicator),
-      ...tabElements,
-    ];
-  };
-
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, testID } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-    const [indicatorElement, ...tabElements] = this.renderComponentChildren(evaStyle);
-
-    return (
-      <View testID={testID}>
-        {indicatorElement}
-        <View style={[evaStyle.container, styles.elementsContainer, style]}>
-          {tabElements}
-        </View>
+  return (
+    <View testID={testID} {...viewProps}>
+      {hasIndicator && renderIndicatorElement(tabElements.length, evaStyle.indicator)}
+      <View style={[evaStyle.container, styles.elementsContainer, style]}>
+        {tabElements}
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
+
+BottomNavigation.displayName = 'BottomNavigation';
 
 const styles = StyleSheet.create({
   elementsContainer: {

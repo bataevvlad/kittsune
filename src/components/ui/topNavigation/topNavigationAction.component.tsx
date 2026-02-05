@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   GestureResponderEvent,
   ImageProps,
@@ -17,22 +17,17 @@ import {
   TouchableWeb,
   TouchableWebElement,
   TouchableWebProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 
-type TopNavigationActionStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default' | 'control'>;
-}>;
-
-export interface TopNavigationActionProps extends TouchableWebProps, TopNavigationActionStyledProps {
+export interface TopNavigationActionProps extends TouchableWebProps {
   icon?: RenderProp<Partial<ImageProps>>;
+  appearance?: LiteralUnion<'default' | 'control'>;
 }
 
 export type TopNavigationActionElement = React.ReactElement<TopNavigationActionProps>;
@@ -42,7 +37,7 @@ export type TopNavigationActionElement = React.ReactElement<TopNavigationActionP
  * Actions should be rendered within TopNavigation by providing them through `accessory` props
  * to provide a usable component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactElement | (ImageProps) => ReactElement} icon - Function component
  * to render within the action.
@@ -56,79 +51,89 @@ export type TopNavigationActionElement = React.ReactElement<TopNavigationActionP
  *
  * @overview-example TopNavigationActionSimpleUsage
  */
-@styled('TopNavigationAction')
-export class TopNavigationAction extends React.Component<TopNavigationActionProps> {
 
-  public onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onBlur?.(event);
+const getComponentStyle = (source: StyleType): StyleType => {
+  const {
+    iconTintColor,
+    iconWidth,
+    iconHeight,
+    iconMarginHorizontal,
+  } = source;
+
+  return {
+    container: {
+      marginHorizontal: iconMarginHorizontal,
+    },
+    icon: {
+      width: iconWidth,
+      height: iconHeight,
+      tintColor: iconTintColor,
+    },
   };
+};
 
-  private onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.HOVER]);
-    this.props.onMouseEnter?.(event);
-  };
+export const TopNavigationAction: React.FC<TopNavigationActionProps> = ({
+  style,
+  icon,
+  appearance,
+  onMouseEnter: onMouseEnterProp,
+  onMouseLeave: onMouseLeaveProp,
+  onFocus: onFocusProp,
+  onBlur: onBlurProp,
+  onPressIn: onPressInProp,
+  onPressOut: onPressOutProp,
+  ...touchableProps
+}): TouchableWebElement => {
+  const { style: evaStyleRaw, dispatch } = useStyled('TopNavigationAction', { appearance });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
 
-  private onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onMouseLeave?.(event);
-  };
+  const onMouseEnter = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+    dispatch([Interaction.HOVER]);
+    onMouseEnterProp?.(event);
+  }, [dispatch, onMouseEnterProp]);
 
-  private onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.FOCUSED]);
-    this.props.onFocus?.(event);
-  };
+  const onMouseLeave = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+    dispatch([]);
+    onMouseLeaveProp?.(event);
+  }, [dispatch, onMouseLeaveProp]);
 
-  private onPressIn = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([Interaction.ACTIVE]);
-    this.props.onPressIn?.(event);
-  };
+  const onFocus = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+    dispatch([Interaction.FOCUSED]);
+    onFocusProp?.(event);
+  }, [dispatch, onFocusProp]);
 
-  private onPressOut = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([]);
-    this.props.onPressOut?.(event);
-  };
+  const onBlur = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+    dispatch([]);
+    onBlurProp?.(event);
+  }, [dispatch, onBlurProp]);
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      iconTintColor,
-      iconWidth,
-      iconHeight,
-      iconMarginHorizontal,
-    } = source;
+  const onPressIn = useCallback((event: GestureResponderEvent) => {
+    dispatch([Interaction.ACTIVE]);
+    onPressInProp?.(event);
+  }, [dispatch, onPressInProp]);
 
-    return {
-      container: {
-        marginHorizontal: iconMarginHorizontal,
-      },
-      icon: {
-        width: iconWidth,
-        height: iconHeight,
-        tintColor: iconTintColor,
-      },
-    };
-  };
+  const onPressOut = useCallback((event: GestureResponderEvent) => {
+    dispatch([]);
+    onPressOutProp?.(event);
+  }, [dispatch, onPressOutProp]);
 
-  public render(): TouchableWebElement {
-    const { eva, style, icon, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+  return (
+    <TouchableWeb
+      {...touchableProps}
+      style={[evaStyle.container, style]}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+    >
+      <FalsyFC
+        style={evaStyle.icon}
+        component={icon}
+      />
+    </TouchableWeb>
+  );
+};
 
-    return (
-      <TouchableWeb
-        {...touchableProps}
-        style={[evaStyle.container, style]}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        onPressIn={this.onPressIn}
-        onPressOut={this.onPressOut}
-      >
-        <FalsyFC
-          style={evaStyle.icon}
-          component={icon}
-        />
-      </TouchableWeb>
-    );
-  }
-}
+TopNavigationAction.displayName = 'TopNavigationAction';

@@ -4,14 +4,14 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import {
   ChildrenWithProps,
   Overwrite,
 } from '../../devsupport';
 import {
-  styled,
+  useStyled,
   StyleType,
 } from '../../theme';
 import {
@@ -22,7 +22,6 @@ import {
 import { MenuItemProps } from '../menu/menuItem.component';
 import {
   Popover,
-  PopoverElement,
   PopoverProps,
 } from '../popover/popover.component';
 
@@ -38,7 +37,7 @@ export type OverflowMenuElement = React.ReactElement<OverflowMenuProps>;
  * Displays a menu relative to another view.
  * Menu should contain MenuItem components to provide a useful component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactElement<MenuItemProps> | ReactElement<MenuItemProps>[]} children -
  * Items to be rendered within menu.
@@ -102,55 +101,55 @@ export type OverflowMenuElement = React.ReactElement<OverflowMenuProps>;
  * @example OverflowMenuWithoutDivider
  * To disable dividers within the menu, `appearance` property may be used.
  */
-@styled('OverflowMenu')
-export class OverflowMenu extends React.Component<OverflowMenuProps> {
 
-  private get itemsCount(): number {
-    return React.Children.count(this.props.children);
-  }
+const getComponentStyle = (source: StyleType): StyleType => {
+  const { indicatorBackgroundColor, ...containerParameters } = source;
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const { indicatorBackgroundColor, ...containerParameters } = source;
-
-    return {
-      container: containerParameters,
-      indicator: {
-        backgroundColor: indicatorBackgroundColor,
-      },
-    };
+  return {
+    container: containerParameters,
+    indicator: {
+      backgroundColor: indicatorBackgroundColor,
+    },
   };
+};
 
-  private renderPopoverContentElement = (): MenuElement => {
-    const { eva, children, style, ...menuProps } = this.props;
+export const OverflowMenu: React.FC<OverflowMenuProps> = ({
+  style,
+  children,
+  appearance,
+  ...popoverProps
+}) => {
+  // Use the hook to get Eva styles
+  const { style: evaStyleRaw } = useStyled('OverflowMenu', { appearance });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
 
+  const itemsCount = React.Children.count(children);
+
+  const renderPopoverContentElement = (): MenuElement => {
     return (
       <Menu
-        {...menuProps}
+        {...popoverProps}
         style={styles.menu}
-        initialNumToRender={this.itemsCount}
+        initialNumToRender={itemsCount}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        {this.props.children}
+        {children}
       </Menu>
     );
   };
 
-  public render(): PopoverElement {
-    const { eva, style, children, appearance, ...popoverProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-    const contentElement: MenuElement = this.renderPopoverContentElement();
+  return (
+    <Popover
+      {...popoverProps}
+      style={[styles.popover, evaStyle.container, style]}
+    >
+      {renderPopoverContentElement()}
+    </Popover>
+  );
+};
 
-    return (
-      <Popover
-        {...popoverProps}
-        style={[styles.popover, evaStyle.container, style]}
-      >
-        {contentElement}
-      </Popover>
-    );
-  }
-}
+OverflowMenu.displayName = 'OverflowMenu';
 
 const styles = StyleSheet.create({
   popover: {

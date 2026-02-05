@@ -1,10 +1,4 @@
-/**
- * @license
- * Copyright Akveo. All Rights Reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- */
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ImageProps,
   StyleSheet,
@@ -18,12 +12,11 @@ import {
   Overwrite,
 } from '../../devsupport';
 import {
-  styled,
+  useStyled,
   StyleType,
 } from '../../theme';
 import {
   Popover,
-  PopoverElement,
   PopoverProps,
 } from '../popover/popover.component';
 import { PopoverIndicator } from '../popover/popoverIndicator.component';
@@ -43,7 +36,7 @@ export type TooltipElement = React.ReactElement<TooltipProps>;
 /**
  * Tooltip displays informative text when users focus on or tap an element.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {() => ReactElement} anchor - A component relative to which content component will be shown.
  *
@@ -98,47 +91,55 @@ export type TooltipElement = React.ReactElement<TooltipProps>;
  * </Tooltip>
  * ```
  */
-@styled('Tooltip')
-export class Tooltip extends React.Component<TooltipProps> {
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      indicatorBackgroundColor,
-      iconWidth,
-      iconHeight,
-      iconMarginHorizontal,
-      iconTintColor,
-      textMarginHorizontal,
-      textFontSize,
-      textFontWeight,
-      textFontFamily,
-      textColor,
-      ...containerParameters
-    } = source;
+const getComponentStyle = (source: StyleType): StyleType => {
+  const {
+    indicatorBackgroundColor,
+    iconWidth,
+    iconHeight,
+    iconMarginHorizontal,
+    iconTintColor,
+    textMarginHorizontal,
+    textFontSize,
+    textFontWeight,
+    textFontFamily,
+    textColor,
+    ...containerParameters
+  } = source;
 
-    return {
-      container: containerParameters,
-      indicator: {
-        backgroundColor: indicatorBackgroundColor,
-      },
-      icon: {
-        width: iconWidth,
-        height: iconHeight,
-        marginHorizontal: iconMarginHorizontal,
-        tintColor: iconTintColor,
-      },
-      text: {
-        marginHorizontal: textMarginHorizontal,
-        fontSize: textFontSize,
-        fontWeight: textFontWeight,
-        fontFamily: textFontFamily,
-        color: textColor,
-      },
-    };
+  return {
+    container: containerParameters,
+    indicator: {
+      backgroundColor: indicatorBackgroundColor,
+    },
+    icon: {
+      width: iconWidth,
+      height: iconHeight,
+      marginHorizontal: iconMarginHorizontal,
+      tintColor: iconTintColor,
+    },
+    text: {
+      marginHorizontal: textMarginHorizontal,
+      fontSize: textFontSize,
+      fontWeight: textFontWeight,
+      fontFamily: textFontFamily,
+      color: textColor,
+    },
   };
+};
 
-  private renderPopoverIndicatorElement = (props: ViewProps): React.ReactElement => {
-    const evaStyle = this.getComponentStyle(this.props.eva.style);
+export const Tooltip: React.FC<TooltipProps> = ({
+  style,
+  accessoryLeft,
+  accessoryRight,
+  children,
+  ...popoverProps
+}) => {
+  // Use the hook to get Eva styles
+  const { style: evaStyleRaw } = useStyled('Tooltip', {});
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
+
+  const renderPopoverIndicatorElement = (props: ViewProps): React.ReactElement => {
     return (
       <PopoverIndicator
         {...props}
@@ -147,34 +148,31 @@ export class Tooltip extends React.Component<TooltipProps> {
     );
   };
 
-  public render(): PopoverElement {
-    const { eva, style, accessoryLeft, accessoryRight, children, ...popoverProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+  return (
+    <Popover
+      {...popoverProps}
+      style={[evaStyle.container, style]}
+      indicator={renderPopoverIndicatorElement}
+    >
+      <View style={styles.content}>
+        <FalsyFC
+          style={evaStyle.icon}
+          component={accessoryLeft}
+        />
+        <FalsyText
+          style={evaStyle.text}
+          component={children}
+        />
+        <FalsyFC
+          style={evaStyle.icon}
+          component={accessoryRight}
+        />
+      </View>
+    </Popover>
+  );
+};
 
-    return (
-      <Popover
-        {...popoverProps}
-        style={[evaStyle.container, style]}
-        indicator={this.renderPopoverIndicatorElement}
-      >
-        <View style={styles.content}>
-          <FalsyFC
-            style={evaStyle.icon}
-            component={accessoryLeft}
-          />
-          <FalsyText
-            style={evaStyle.text}
-            component={children}
-          />
-          <FalsyFC
-            style={evaStyle.icon}
-            component={accessoryRight}
-          />
-        </View>
-      </Popover>
-    );
-  }
-}
+Tooltip.displayName = 'Tooltip';
 
 const styles = StyleSheet.create({
   content: {

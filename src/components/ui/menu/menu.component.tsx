@@ -4,15 +4,14 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { GestureResponderEvent, ListRenderItemInfo } from 'react-native';
 import {
   ChildrenWithProps,
   IndexPath,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
-import { styled } from '../../theme';
+import { useStyled } from '../../theme';
 import { Divider } from '../divider/divider.component';
 import {
   List,
@@ -28,16 +27,13 @@ import {
   MenuService,
 } from './menu.service';
 
-type MenuStyledProps = Overwrite<ListProps, {
-  appearance?: LiteralUnion<'default' | 'noDivider'>;
-}>;
-
-type MenuListProps = Omit<MenuStyledProps, 'data' | 'renderItem'>;
+type MenuListProps = Omit<ListProps, 'data' | 'renderItem'>;
 
 export interface MenuProps extends MenuListProps {
   children?: ChildrenWithProps<MenuItemProps>;
   selectedIndex?: IndexPath;
   onSelect?: (index: IndexPath) => void;
+  appearance?: LiteralUnion<'default' | 'noDivider'>;
 }
 
 export type MenuElement = React.ReactElement<MenuProps>;
@@ -107,39 +103,41 @@ export type MenuElement = React.ReactElement<MenuProps>;
  * In most cases this is redundant, if [custom theme is configured](guides/branding).
  *
  */
-@styled('Menu')
-export class Menu extends React.Component<MenuProps> {
+export interface MenuRef {
+  clear: () => void;
+}
 
-  private service: MenuService = new MenuService();
+export const Menu: React.FC<MenuProps> = ({
+  children,
+  selectedIndex,
+  onSelect,
+  appearance,
+  ...listProps
+}) => {
+  useStyled('Menu', { appearance });
+  const serviceRef = useRef<MenuService>(new MenuService());
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get data(): any[] {
-    return React.Children.toArray(this.props.children || []);
-  }
+  const data: any[] = useMemo(() => {
+    return React.Children.toArray(children || []);
+  }, [children]);
 
-  private get shouldRenderDividers(): boolean {
-    return this.props.appearance !== 'noDivider';
-  }
+  const shouldRenderDividers = appearance !== 'noDivider';
 
-  public clear = (): void => {
-    this.props.onSelect?.(null);
-  };
+  const onItemPress = useCallback((descriptor: MenuItemDescriptor): void => {
+    onSelect?.(descriptor.index);
+  }, [onSelect]);
 
-  private onItemPress = (descriptor: MenuItemDescriptor): void => {
-    this.props.onSelect?.(descriptor.index);
-  };
+  const isItemSelected = useCallback((descriptor: MenuItemDescriptor): boolean => {
+    return descriptor.index.equals(selectedIndex);
+  }, [selectedIndex]);
 
-  private isItemSelected = (descriptor: MenuItemDescriptor): boolean => {
-    return descriptor.index.equals(this.props.selectedIndex);
-  };
-
-  // eslint-disable-next-line max-len
-  private cloneItemWithProps = (element: React.ReactElement<MenuItemProps>, props: MenuItemProps): React.ReactElement => {
+  const cloneItemWithProps = useCallback((element: React.ReactElement<MenuItemProps>, props: MenuItemProps): React.ReactElement => {
     const nestedElements = React.Children.map(element.props.children, (el: MenuItemElement, index: number) => {
-      const descriptor = this.service.createDescriptorForNestedElement(props.descriptor, index);
-      const selected: boolean = this.isItemSelected(descriptor);
+      const descriptor = serviceRef.current.createDescriptorForNestedElement(props.descriptor, index);
+      const selected: boolean = isItemSelected(descriptor);
 
-      return this.cloneItemWithProps(el, { ...props, selected, descriptor });
+      return cloneItemWithProps(el, { ...props, selected, descriptor });
     });
 
     const onPress = (descriptor: MenuItemDescriptor, event?: GestureResponderEvent): void => {
@@ -148,25 +146,23 @@ export class Menu extends React.Component<MenuProps> {
     };
 
     return React.cloneElement(element, { ...element.props, ...props, onPress }, nestedElements);
-  };
+  }, [isItemSelected]);
 
-  private renderItem = (info: ListRenderItemInfo<MenuItemElement>): React.ReactElement => {
-    const descriptor = this.service.createDescriptorForElement(info.item, info.index);
-    const selected: boolean = this.isItemSelected(descriptor);
+  const renderItem = useCallback((info: ListRenderItemInfo<MenuItemElement>): React.ReactElement => {
+    const descriptor = serviceRef.current.createDescriptorForElement(info.item, info.index);
+    const selected: boolean = isItemSelected(descriptor);
 
-    return this.cloneItemWithProps(info.item, { descriptor, selected, onPress: this.onItemPress });
-  };
+    return cloneItemWithProps(info.item, { descriptor, selected, onPress: onItemPress });
+  }, [cloneItemWithProps, isItemSelected, onItemPress]);
 
-  public render(): ListElement {
-    const { appearance, ...listProps } = this.props;
+  return (
+    <List
+      ItemSeparatorComponent={shouldRenderDividers && Divider}
+      {...listProps}
+      data={data}
+      renderItem={renderItem}
+    />
+  );
+};
 
-    return (
-      <List
-        ItemSeparatorComponent={this.shouldRenderDividers && Divider}
-        {...listProps}
-        data={this.data}
-        renderItem={this.renderItem}
-      />
-    );
-  }
-}
+Menu.displayName = 'Menu';

@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Animated,
   StyleSheet,
@@ -17,7 +17,6 @@ import {
 import {
   EvaSize,
   LiteralUnion,
-  Overwrite,
   Size,
   EvaStatus,
   RenderProp,
@@ -25,16 +24,11 @@ import {
 } from '@kitsuine/components/devsupport';
 import {
   IconProps,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
   Text,
 } from '@kitsuine/components';
 import { CircularProgressBarAnimation, CircularProgressBarAnimationConfig } from './animation';
-
-type CircularProgressBarStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
 
 interface IndicatorStyle {
   width: number;
@@ -58,7 +52,7 @@ interface ComponentStyles {
 
 type LoadingStates = LiteralUnion<'success' | 'error' | 'progress'>;
 
-export interface CircularProgressBarProps extends ViewProps, CircularProgressBarStyledProps {
+export interface CircularProgressBarProps extends ViewProps {
   progress?: number;
   animating?: boolean;
   renderIcon?: RenderProp<Partial<IconProps>>;
@@ -67,14 +61,19 @@ export interface CircularProgressBarProps extends ViewProps, CircularProgressBar
   textStyle?: TextStyle;
   iconStyle?: IconStyle;
   animationConfig?: Partial<CircularProgressBarAnimationConfig>;
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type CircularProgressBarElement = React.ReactElement<CircularProgressBarProps>;
 
+const clamp = (progress: number): number => {
+  return progress > 1 ? 1 : (progress < 0 ? 0 : progress);
+};
+
 /**
  * Displays the length of a process.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {number} progress - Current progress value of the process.
  * Can be from 0 to 1.
@@ -111,80 +110,40 @@ export type CircularProgressBarElement = React.ReactElement<CircularProgressBarP
  * Styling of CircularProgressBar is possible with [configuring a custom theme](guides/branding).
  *
  */
+export const CircularProgressBar: React.FC<CircularProgressBarProps> = ({
+  style,
+  progress = 0,
+  animating = true,
+  renderIcon,
+  size,
+  status,
+  textStyle,
+  iconStyle,
+  animationConfig,
+  appearance,
+  ...viewProps
+}) => {
+  const { style: evaStyleRaw } = useStyled('CircularProgressBar', { appearance, status, size });
+  const animationRef = useRef<CircularProgressBarAnimation>(new CircularProgressBarAnimation(animationConfig));
 
-@styled('CircularProgressBar')
-export class CircularProgressBar extends React.PureComponent<CircularProgressBarProps> {
-
-  static defaultProps: Partial<CircularProgressBarProps> = {
-    animating: true,
-    progress: 0,
-  };
-
-  private animation: CircularProgressBarAnimation;
-
-  constructor(props: CircularProgressBarProps) {
-    super(props);
-
-    this.animation = new CircularProgressBarAnimation(props.animationConfig);
-  }
-
-  private get containerSize(): Size {
-    const { width, height } = StyleSheet.flatten([this.props.eva.style, this.props.style]);
+  const containerSize = useMemo((): Size => {
+    const { width, height } = StyleSheet.flatten([evaStyleRaw, style]);
     // @ts-ignore: width and height are restricted to be a number
     return new Size(width, height);
-  }
+  }, [evaStyleRaw, style]);
 
-  public componentDidMount(): void {
-    if (this.props.animating) {
-      this.startAnimation();
-    }
-  }
-
-  public componentDidUpdate(prevProps: CircularProgressBarProps): void {
-    const progressChanged: boolean = this.props.progress !== prevProps.progress;
-    const animatingChanged: boolean = this.props.animating !== prevProps.animating;
-
-    if (progressChanged && this.props.animating) {
-      this.startAnimation();
-    }
-
-    if (animatingChanged && !this.props.animating) {
-      this.stopAnimation();
-    }
-  }
-
-  public componentWillUnmount(): void {
-    this.animation.release();
-  }
-
-  private startAnimation = (): void => {
-    const validProgress = this.clamp(this.props.progress);
-    this.animation.startDeterminate(validProgress);
-  };
-
-  private stopAnimation = (): void => {
-    this.animation.stop();
-  };
-
-  private clamp = (progress: number): number => {
-    return progress > 1 ? 1 : (progress < 0 ? 0 : progress);
-  };
-
-  private getComponentStyle = (source: StyleType): ComponentStyles => {
+  const getComponentStyle = useCallback((source: StyleType): ComponentStyles => {
     const {
-      trackWidth, // width of track/indicator
+      trackWidth,
       trackColor,
       indicatorColor,
-
-      iconWidth, // accessory icon
-
+      iconWidth,
       textFontFamily,
       textFontSize,
       textFontWeight,
     } = source;
 
-    const { width, height }: Size = this.containerSize;
-
+    const { width, height } = containerSize;
     const radius = width / 2;
     const elementWidth = trackWidth > radius ? radius : trackWidth;
 
@@ -214,10 +173,41 @@ export class CircularProgressBar extends React.PureComponent<CircularProgressBar
         fontWeight: textFontWeight,
       },
     };
-  };
+  }, [containerSize]);
 
-  private renderHalfCircle = (radius: number, style: IndicatorStyle): React.ReactElement<ViewProps> => {
-    const { width, color } = style;
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw, getComponentStyle]);
+
+  const startAnimation = useCallback(() => {
+    const validProgress = clamp(progress);
+    animationRef.current.startDeterminate(validProgress);
+  }, [progress]);
+
+  const stopAnimation = useCallback(() => {
+    animationRef.current.stop();
+  }, []);
+
+  useEffect(() => {
+    if (animating) {
+      startAnimation();
+    }
+  }, [animating, startAnimation]);
+
+  useEffect(() => {
+    if (!animating) {
+      stopAnimation();
+    }
+  }, [animating, stopAnimation]);
+
+  useEffect(() => {
+    return () => {
+      animationRef.current.release();
+    };
+  }, []);
+
+  const validProgress = clamp(progress);
+
+  const renderHalfCircle = (radius: number, indicatorStyle: IndicatorStyle): React.ReactElement<ViewProps> => {
+    const { width, color } = indicatorStyle;
     const containerSizeStyle = {
       width: radius * 2,
       height: radius,
@@ -238,13 +228,13 @@ export class CircularProgressBar extends React.PureComponent<CircularProgressBar
     );
   };
 
-  private renderHalf = (
-    evaStyle: ComponentStyles,
+  const renderHalf = (
+    componentStyle: ComponentStyles,
     viewStyle: ViewStyle,
     rotate: string,
     opacity?: number,
   ): React.ReactElement<ViewProps> => {
-    const { radius, indicator } = evaStyle;
+    const { radius, indicator } = componentStyle;
     const opacityProp = opacity || opacity === 0 ? { opacity } : undefined;
 
     return (
@@ -261,53 +251,51 @@ export class CircularProgressBar extends React.PureComponent<CircularProgressBar
           ],
         }}
         >
-          {this.renderHalfCircle(radius, indicator)}
+          {renderHalfCircle(radius, indicator)}
         </Animated.View>
       </View>
     );
   };
 
-  private renderCircularProgress = (
-    progress: number,
-    animating: boolean,
-    evaStyle: ComponentStyles
+  const renderCircularProgress = (
+    prog: number,
+    isAnimating: boolean,
+    componentStyle: ComponentStyles
   ): React.ReactElement<ViewProps> => {
     let firstHalfRotate;
     let secondHalfRotate;
 
-    if (animating) {
-      const { rotateFirstHalf, rotateSecondHalf } = this.animation.toProps();
-
+    if (isAnimating) {
+      const { rotateFirstHalf, rotateSecondHalf } = animationRef.current.toProps();
       firstHalfRotate = rotateFirstHalf;
       secondHalfRotate = rotateSecondHalf;
     } else {
-      firstHalfRotate = `${Math.min(progress, 0.5) * 360 - 180}deg`;
-      secondHalfRotate = `${Math.max(0.5, progress) * 360}deg`;
+      firstHalfRotate = `${Math.min(prog, 0.5) * 360 - 180}deg`;
+      secondHalfRotate = `${Math.max(0.5, prog) * 360}deg`;
     }
 
     const trackStyle = {
       ...StyleSheet.absoluteFillObject,
-      borderWidth: evaStyle.track.width,
-      borderColor: evaStyle.track.color,
-      borderRadius: evaStyle.radius,
+      borderWidth: componentStyle.track.width,
+      borderColor: componentStyle.track.color,
+      borderRadius: componentStyle.radius,
     };
 
     return (
       <View style={[styles.absoluteFill, styles.center, styles.rotate90]}>
         <View style={trackStyle} />
-        {this.renderHalf(evaStyle, styles.zIndex, firstHalfRotate)}
-        {this.renderHalf(evaStyle, styles.rotate180, secondHalfRotate)}
+        {renderHalf(componentStyle, styles.zIndex, firstHalfRotate)}
+        {renderHalf(componentStyle, styles.rotate180, secondHalfRotate)}
       </View>
     );
   };
 
-  private renderText = (progress: number, style: TextStyle): React.ReactElement<TextProps> => {
-    const label = `${Math.round(progress * 100)}%`;
-    const { status, textStyle } = this.props;
+  const renderText = (prog: number, textStyleProp: TextStyle): React.ReactElement<TextProps> => {
+    const label = `${Math.round(prog * 100)}%`;
 
     return (
       <Text
-        style={[style, textStyle]}
+        style={[textStyleProp, textStyle]}
         status={status}
       >
         {label}
@@ -315,54 +303,41 @@ export class CircularProgressBar extends React.PureComponent<CircularProgressBar
     );
   };
 
-  private renderIcon = (state: LoadingStates, style: IconStyle): React.ReactElement<IconProps> => {
+  const renderIconElement = (state: LoadingStates, iconStyleProp: IconStyle): React.ReactElement<IconProps> => {
     return (
       <FalsyFC
-        component={this.props.renderIcon}
-        style={[style, this.props.iconStyle]}
+        component={renderIcon}
+        style={[iconStyleProp, iconStyle]}
       />
     );
   };
 
-  private renderAccessory = (
-    progress: number,
-    status: EvaStatus,
-    evaStyle: ComponentStyles
+  const renderAccessory = (
+    prog: number,
+    componentStatus: EvaStatus,
+    componentStyle: ComponentStyles
   ): React.ReactElement<ViewProps> => {
-    const showIcon = this.props.renderIcon;
+    const showIcon = renderIcon;
 
     return (
       <View style={[styles.absoluteFill, styles.center]}>
-        {showIcon ? this.renderIcon(status, evaStyle.icon) : this.renderText(progress, evaStyle.text)}
+        {showIcon ? renderIconElement(componentStatus, componentStyle.icon) : renderText(prog, componentStyle.text)}
       </View>
     );
   };
 
-  public render(): React.ReactElement<ViewProps> {
-    const {
-      eva,
-      style,
-      progress,
-      animating,
-      status,
-      size,
-      textStyle,
-      ...viewProps
-    } = this.props;
-    const validProgress = this.clamp(progress);
-    const evaStyle = this.getComponentStyle(eva.style);
+  return (
+    <View
+      {...viewProps}
+      style={[evaStyle.container, style]}
+    >
+      {renderCircularProgress(validProgress, animating, evaStyle)}
+      {renderAccessory(validProgress, status, evaStyle)}
+    </View>
+  );
+};
 
-    return (
-      <View
-        {...viewProps}
-        style={[evaStyle.container, style]}
-      >
-        {this.renderCircularProgress(validProgress, animating, evaStyle)}
-        {this.renderAccessory(validProgress, status, evaStyle)}
-      </View>
-    );
-  }
-}
+CircularProgressBar.displayName = 'CircularProgressBar';
 
 const styles = StyleSheet.create({
   absoluteFill: {

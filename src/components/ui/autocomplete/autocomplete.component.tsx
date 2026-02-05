@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import {
   ListRenderItemInfo,
   NativeSyntheticEvent,
@@ -18,6 +18,7 @@ import {
   Input,
   InputElement,
   InputProps,
+  InputRef,
 } from '../input/input.component';
 import { List } from '../list/list.component';
 import {
@@ -37,14 +38,17 @@ export interface AutocompleteProps extends InputProps {
 
 export type AutocompleteElement = React.ReactElement<AutocompleteProps>;
 
-interface State {
-  listVisible: boolean;
+export interface AutocompleteRef {
+  focus: () => void;
+  blur: () => void;
+  isFocused: () => boolean;
+  clear: () => void;
 }
 
 /**
  * Autocomplete is a normal text input enhanced by a panel of suggested options.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @method {() => void} focus - Focuses an input field and sets data list visible.
  *
@@ -107,149 +111,155 @@ interface State {
  * @example AutocompleteAsync
  * For requesting a real-world data by typing, http requests may be sent with debounce.
  */
-export class Autocomplete extends React.Component<AutocompleteProps, State> {
-
-  static defaultProps: Partial<AutocompleteProps> = {
-    placement: 'inner top',
-  };
-
-  public state: State = {
-    listVisible: false,
-  };
-
-  private inputRef = React.createRef<Input>();
-  private inputRefAnchor = React.createRef<Input>();
+const AutocompleteComponent = forwardRef<AutocompleteRef, AutocompleteProps>(({
+  children,
+  onSelect,
+  placement = 'inner top',
+  testID,
+  onFocus: onFocusProp,
+  onSubmitEditing: onSubmitEditingProp,
+  ...inputProps
+}, ref) => {
+  const [listVisible, setListVisible] = useState(false);
+  const inputRef = useRef<InputRef>(null);
+  const inputRefAnchor = useRef<InputRef>(null);
+  const prevChildCountRef = useRef(React.Children.count(children));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get data(): any[] {
-    return React.Children.toArray(this.props.children || []);
-  }
+  const data: any[] = useMemo(() => {
+    return React.Children.toArray(children || []);
+  }, [children]);
 
-  public focus = (): void => {
-    this.inputRef.current?.focus();
-  };
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current?.focus();
+    },
+    blur: () => {
+      inputRef.current?.blur();
+    },
+    isFocused: () => {
+      return inputRef.current?.isFocused() || false;
+    },
+    clear: () => {
+      inputRef.current?.clear();
+    },
+  }), []);
 
-  public blur = (): void => {
-    this.inputRef.current?.blur();
-  };
+  useEffect(() => {
+    const currentChildCount = data.length;
+    const isChildCountChanged = currentChildCount !== prevChildCountRef.current;
+    const shouldBecomeVisible = !listVisible && inputRef.current?.isFocused() && isChildCountChanged;
 
-  public isFocused = (): boolean => {
-    return this.inputRef.current?.isFocused();
-  };
-
-  public clear = (): void => {
-    this.inputRef.current?.clear();
-  };
-
-  public componentDidUpdate(prevProps: AutocompleteProps): void {
-    const { listVisible } = this.state;
-    const isChildCountChanged: boolean = this.data.length !== React.Children.count(prevProps.children);
-    const shouldBecomeVisible: boolean = !listVisible && this.isFocused() && isChildCountChanged;
-
-    shouldBecomeVisible && this.setState({ listVisible: shouldBecomeVisible });
-  }
-
-  private onInputFocus = (event: NativeSyntheticEvent<TextInputFocusEventData>): void => {
-    this.setOptionsListVisible();
-    this.props.onFocus?.(event);
-  };
-
-  private onAnchorInputFocus = (event: NativeSyntheticEvent<TextInputFocusEventData>): void => {
-    this.inputRefAnchor.current?.blur();
-    this.setOptionsListVisible();
-    this.focus();
-    this.props.onFocus?.(event);
-  };
-
-  private onInputSubmitEditing = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>): void => {
-    this.setOptionsListInvisible();
-    this.props.onSubmitEditing?.(e);
-  };
-
-  private onBackdropPress = (): void => {
-    this.blur();
-    this.inputRefAnchor.current?.blur();
-    this.setOptionsListInvisible();
-  };
-
-  private onItemPress = (index: number): void => {
-    if (this.props.onSelect) {
-      this.setOptionsListInvisible();
-      this.props.onSelect(index);
+    if (shouldBecomeVisible) {
+      setListVisible(true);
     }
-  };
 
-  private setOptionsListVisible = (): void => {
-    const hasData: boolean = this.data.length > 0;
-    hasData && this.setState({ listVisible: true });
-  };
+    prevChildCountRef.current = currentChildCount;
+  }, [data.length, listVisible]);
 
-  private setOptionsListInvisible = (): void => {
-    this.setState({ listVisible: false });
-  };
+  const setOptionsListVisible = useCallback(() => {
+    const hasData = data.length > 0;
+    if (hasData) {
+      setListVisible(true);
+    }
+  }, [data.length]);
 
-  private renderItem = (info: ListRenderItemInfo<AutocompleteItemElement>): AutocompleteItemElement => {
-    return React.cloneElement(info.item, { onPress: () => this.onItemPress(info.index) });
-  };
+  const setOptionsListInvisible = useCallback(() => {
+    setListVisible(false);
+  }, []);
 
-  private renderAnchorInputElement = (props: InputProps): InputElement => {
+  const onInputFocus = useCallback((event: NativeSyntheticEvent<TextInputFocusEventData>): void => {
+    setOptionsListVisible();
+    onFocusProp?.(event);
+  }, [setOptionsListVisible, onFocusProp]);
+
+  const onAnchorInputFocus = useCallback((event: NativeSyntheticEvent<TextInputFocusEventData>): void => {
+    inputRefAnchor.current?.blur();
+    setOptionsListVisible();
+    inputRef.current?.focus();
+    onFocusProp?.(event);
+  }, [setOptionsListVisible, onFocusProp]);
+
+  const onInputSubmitEditing = useCallback((e: NativeSyntheticEvent<TextInputSubmitEditingEventData>): void => {
+    setOptionsListInvisible();
+    onSubmitEditingProp?.(e);
+  }, [setOptionsListInvisible, onSubmitEditingProp]);
+
+  const onBackdropPress = useCallback((): void => {
+    inputRef.current?.blur();
+    inputRefAnchor.current?.blur();
+    setOptionsListInvisible();
+  }, [setOptionsListInvisible]);
+
+  const onItemPress = useCallback((index: number): void => {
+    if (onSelect) {
+      setOptionsListInvisible();
+      onSelect(index);
+    }
+  }, [onSelect, setOptionsListInvisible]);
+
+  const renderItem = useCallback((info: ListRenderItemInfo<AutocompleteItemElement>): AutocompleteItemElement => {
+    return React.cloneElement(info.item, { onPress: () => onItemPress(info.index) });
+  }, [onItemPress]);
+
+  const renderAnchorInputElement = useCallback((): InputElement => {
     return (
       <View>
         <Input
-          {...props}
-          ref={this.inputRefAnchor}
+          {...inputProps}
+          ref={inputRefAnchor}
           testID='@autocomplete/input-anchor'
           showSoftInputOnFocus={false}
-          onFocus={this.onAnchorInputFocus}
-          onSubmitEditing={this.onInputSubmitEditing}
+          onFocus={onAnchorInputFocus}
+          onSubmitEditing={onInputSubmitEditing}
         />
       </View>
     );
-  };
+  }, [inputProps, onAnchorInputFocus, onInputSubmitEditing]);
 
-  private renderInputElement = (props: InputProps): InputElement => {
+  const renderInputElement = useCallback((): InputElement => {
     return (
       <View>
         <Input
-          {...props}
-          ref={this.inputRef}
+          {...inputProps}
+          ref={inputRef}
           testID='@autocomplete/input'
           showSoftInputOnFocus={true}
           autoFocus={true}
-          onFocus={this.onInputFocus}
-          onSubmitEditing={this.onInputSubmitEditing}
+          onFocus={onInputFocus}
+          onSubmitEditing={onInputSubmitEditing}
         />
       </View>
     );
-  };
+  }, [inputProps, onInputFocus, onInputSubmitEditing]);
 
-  public render(): PopoverElement {
-    const { placement, children, testID, ...inputProps } = this.props;
+  return (
+    <Popover
+      style={styles.popover}
+      placement={placement}
+      testID={testID}
+      visible={listVisible}
+      fullWidth={true}
+      anchor={renderAnchorInputElement}
+      onBackdropPress={onBackdropPress}
+    >
+      <View>
+        {renderInputElement()}
+        <List
+          style={styles.list}
+          keyboardShouldPersistTaps='always'
+          data={data}
+          bounces={false}
+          renderItem={renderItem}
+        />
+      </View>
+    </Popover>
+  );
+});
 
-    return (
-      <Popover
-        style={styles.popover}
-        placement={placement}
-        testID={testID}
-        visible={this.state.listVisible}
-        fullWidth={true}
-        anchor={() => this.renderAnchorInputElement(inputProps)}
-        onBackdropPress={this.onBackdropPress}
-      >
-        <View>
-          {this.renderInputElement(inputProps)}
-          <List
-            style={styles.list}
-            keyboardShouldPersistTaps='always'
-            data={this.data}
-            bounces={false}
-            renderItem={this.renderItem}
-          />
-        </View>
-      </Popover>
-    );
-  }
-}
+AutocompleteComponent.displayName = 'Autocomplete';
+
+export const Autocomplete = AutocompleteComponent;
 
 const styles = StyleSheet.create({
   popover: {

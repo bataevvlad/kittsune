@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   ImageProps,
   NativeSyntheticEvent,
@@ -18,27 +18,22 @@ import {
   TouchableWeb,
   TouchableWebElement,
   TouchableWebProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { TextProps } from '../text/text.component';
 
-type TabStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
-
-export interface TabProps extends TouchableWebProps, TabStyledProps {
+export interface TabProps extends TouchableWebProps {
   children?: React.ReactElement;
   title?: RenderProp<TextProps> | React.ReactText;
   icon?: RenderProp<Partial<ImageProps>>;
   selected?: boolean;
   onSelect?: (selected: boolean) => void;
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type TabElement = React.ReactElement<TabProps>;
@@ -47,7 +42,7 @@ export type TabElement = React.ReactElement<TabProps>;
  * A single tab within the TabView or TabBar.
  * Tabs should be rendered within TabView or TabBar to provide a usable component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactElement} children - A component displayed below the tab.
  *
@@ -63,83 +58,88 @@ export type TabElement = React.ReactElement<TabProps>;
  *
  * @overview-example TabSimpleUsage
  */
-@styled('Tab')
-export class Tab extends React.Component<TabProps> {
 
-  static defaultProps: Partial<TabProps> = {
-    selected: false,
+const getComponentStyle = (source: StyleType): StyleType => {
+  const {
+    textMarginVertical,
+    textFontFamily,
+    textFontSize,
+    textFontWeight,
+    textColor,
+    iconWidth,
+    iconHeight,
+    iconMarginVertical,
+    iconTintColor,
+    ...containerParameters
+  } = source;
+
+  return {
+    container: containerParameters,
+    icon: {
+      width: iconWidth,
+      height: iconHeight,
+      marginVertical: iconMarginVertical,
+      tintColor: iconTintColor,
+    },
+    title: {
+      marginVertical: textMarginVertical,
+      fontFamily: textFontFamily,
+      fontSize: textFontSize,
+      fontWeight: textFontWeight,
+      color: textColor,
+    },
   };
+};
 
-  private onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.HOVER]);
-    this.props.onMouseEnter?.(event);
-  };
+export const Tab: React.FC<TabProps> = ({
+  style,
+  title,
+  icon,
+  selected = false,
+  onSelect,
+  appearance,
+  onMouseEnter: onMouseEnterProp,
+  onMouseLeave: onMouseLeaveProp,
+  ...touchableProps
+}): TouchableWebElement => {
+  const { style: evaStyleRaw, dispatch } = useStyled('Tab', { appearance, selected });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
 
-  private onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onMouseLeave?.(event);
-  };
+  const onMouseEnter = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+    dispatch([Interaction.HOVER]);
+    onMouseEnterProp?.(event);
+  }, [dispatch, onMouseEnterProp]);
 
-  private onPress = (): void => {
-    this.props.onSelect?.(!this.props.selected);
-  };
+  const onMouseLeave = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+    dispatch([]);
+    onMouseLeaveProp?.(event);
+  }, [dispatch, onMouseLeaveProp]);
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      textMarginVertical,
-      textFontFamily,
-      textFontSize,
-      textFontWeight,
-      textColor,
-      iconWidth,
-      iconHeight,
-      iconMarginVertical,
-      iconTintColor,
-      ...containerParameters
-    } = source;
+  const onPress = useCallback(() => {
+    onSelect?.(!selected);
+  }, [onSelect, selected]);
 
-    return {
-      container: containerParameters,
-      icon: {
-        width: iconWidth,
-        height: iconHeight,
-        marginVertical: iconMarginVertical,
-        tintColor: iconTintColor,
-      },
-      title: {
-        marginVertical: textMarginVertical,
-        fontFamily: textFontFamily,
-        fontSize: textFontSize,
-        fontWeight: textFontWeight,
-        color: textColor,
-      },
-    };
-  };
+  return (
+    <TouchableWeb
+      {...touchableProps}
+      style={[evaStyle.container, styles.container, style]}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onPress={onPress}
+    >
+      <FalsyFC
+        style={evaStyle.icon}
+        component={icon}
+      />
+      <FalsyText
+        style={evaStyle.title}
+        component={title}
+      />
+    </TouchableWeb>
+  );
+};
 
-  public render(): TouchableWebElement {
-    const { eva, style, title, icon, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-
-    return (
-      <TouchableWeb
-        {...touchableProps}
-        style={[evaStyle.container, styles.container, style]}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onPress={this.onPress}
-      >
-        <FalsyFC
-          style={evaStyle.icon}
-          component={icon}
-        />
-        <FalsyText
-          style={evaStyle.title}
-          component={title}
-        />
-      </TouchableWeb>
-    );
-  }
-}
+Tab.displayName = 'Tab';
 
 const styles = StyleSheet.create({
   container: {

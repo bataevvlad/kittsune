@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlexStyle,
   StyleSheet,
@@ -34,16 +34,10 @@ export interface ModalProps extends ViewProps, BackdropPresentingConfig, RNModal
 
 export type ModalElement = React.ReactElement<ModalProps>;
 
-interface State {
-  contentFrame: Frame;
-  forceMeasure: boolean;
-  contentPosition: Point;
-}
-
 /**
  * A wrapper that presents content above an enclosing view.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactNode} children - Component to render within the modal.
  *
@@ -82,89 +76,96 @@ interface State {
  * @overview-example ModalWithBackdrop
  * To configure underlying view, `backdropStyle` and `onBackdropPress` properties may be used.
  */
-export class Modal extends React.PureComponent<ModalProps, State> {
+export const Modal: React.FC<ModalProps> = ({
+  style,
+  visible = false,
+  shouldUseContainer = true,
+  children,
+  backdropStyle,
+  onBackdropPress,
+  animationType,
+  hardwareAccelerated,
+  supportedOrientations,
+  onShow,
+  ...viewProps
+}) => {
+  const [contentPosition, setContentPosition] = useState<Point>(Point.outscreen());
+  const [forceMeasure, setForceMeasure] = useState(false);
+  const prevVisibleRef = useRef(visible);
 
-  static defaultProps: Partial<ModalProps> = {
-    shouldUseContainer: true,
-  };
+  useEffect(() => {
+    if (!visible) {
+      setContentPosition(Point.outscreen());
+    }
+  }, [visible]);
 
-  public state: State = {
-    contentFrame: Frame.zero(),
-    forceMeasure: false,
-    contentPosition: Point.outscreen(),
-  };
+  useEffect(() => {
+    if (visible && !forceMeasure) {
+      setForceMeasure(true);
+    }
+    prevVisibleRef.current = visible;
+  }, [visible, forceMeasure]);
 
-  private get contentFlexPosition(): FlexStyle {
-    const derivedStyle: ViewStyle = StyleSheet.flatten(this.props.style || {});
-    const { x: centerX, y: centerY } = this.state.contentPosition;
+  const contentFlexPosition = useMemo((): FlexStyle => {
+    const derivedStyle: ViewStyle = StyleSheet.flatten(style || {});
+    const { x: centerX, y: centerY } = contentPosition;
     return { left: derivedStyle.left || centerX, top: derivedStyle.top || centerY };
-  }
+  }, [style, contentPosition]);
 
-  public componentDidUpdate(): void {
-    if (this.props.visible && !this.state.forceMeasure) {
-      this.setState({ forceMeasure: true });
-      return;
-    }
-  }
-
-  public static getDerivedStateFromProps(props: ModalProps, state: State): State {
-    if (!props.visible) {
-      return {
-        ...state,
-        contentPosition: Point.outscreen(),
-      };
-    }
-    return null;
-  }
-
-  private onContentMeasure = (contentFrame: Frame): void => {
+  const onContentMeasure = useCallback((contentFrame: Frame): void => {
     const displayFrame: Frame = contentFrame.centerOf(Frame.window());
-    this.setState({ contentPosition: displayFrame.origin });
-  };
+    setContentPosition(displayFrame.origin);
+  }, []);
 
-  private renderContentElement = (): React.ReactElement<ViewProps> => {
+  const renderContentElement = (): React.ReactElement<ViewProps> => {
     return (
       <View
-        {...this.props}
-        style={[this.props.style, styles.modalView, this.contentFlexPosition]}
-      />
+        {...viewProps}
+        style={[style, styles.modalView, contentFlexPosition]}
+      >
+        {children}
+      </View>
     );
   };
 
-  private renderMeasuringContentElement = (): MeasuringElement => {
+  const renderMeasuringContentElement = (): MeasuringElement => {
     return (
       <MeasureElement
         shouldUseTopInsets={ModalService.getShouldUseTopInsets}
-        onMeasure={this.onContentMeasure}
+        onMeasure={onContentMeasure}
       >
-        {this.renderContentElement()}
+        {renderContentElement()}
       </MeasureElement>
     );
   };
 
-  public render(): React.ReactNode {
-    return this.props.visible && (
-      <RNModal
-        transparent={true}
-        visible={this.props.visible}
-        supportedOrientations={this.props.supportedOrientations}
-        statusBarTranslucent={ModalService.getShouldUseTopInsets}
-        animationType={this.props.animationType}
-        hardwareAccelerated={this.props.hardwareAccelerated}
-        onRequestClose={this.props.onBackdropPress}
-        onShow={this.props.onShow}
-      >
-        <Backdrop
-          visible={this.props.visible}
-          backdropStyle={this.props.backdropStyle}
-          onBackdropPress={this.props.onBackdropPress}
-        >
-          {this.props.shouldUseContainer ? this.renderMeasuringContentElement() : this.props.children}
-        </Backdrop>
-      </RNModal>
-    );
+  if (!visible) {
+    return null;
   }
-}
+
+  return (
+    <RNModal
+      transparent={true}
+      visible={visible}
+      supportedOrientations={supportedOrientations}
+      statusBarTranslucent={ModalService.getShouldUseTopInsets}
+      animationType={animationType}
+      hardwareAccelerated={hardwareAccelerated}
+      onRequestClose={onBackdropPress}
+      onShow={onShow}
+    >
+      <Backdrop
+        visible={visible}
+        backdropStyle={backdropStyle}
+        onBackdropPress={onBackdropPress}
+      >
+        {shouldUseContainer ? renderMeasuringContentElement() : children}
+      </Backdrop>
+    </RNModal>
+  );
+};
+
+Modal.displayName = 'Modal';
 
 const styles = StyleSheet.create({
   modalView: {

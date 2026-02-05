@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -17,20 +17,20 @@ import {
   TabElement,
   TabProps,
 } from './tab.component';
-import { TabBar } from './tabBar.component';
+import { TabBar, TabBarRef } from './tabBar.component';
 import {
   ViewPager,
   ViewPagerProps,
 } from '../viewPager/viewPager.component';
 
-class TabViewChildElement {
+interface TabViewChildElement {
   tab: TabElement;
   content: React.ReactElement;
 }
 
-class TabViewChildren {
-  tabs: TabElement[] = [];
-  contents: React.ReactElement[] = [];
+interface TabViewChildren {
+  tabs: TabElement[];
+  contents: React.ReactElement[];
 }
 
 export interface TabViewProps extends ViewPagerProps<TabProps> {
@@ -43,7 +43,7 @@ export type TabViewElement = React.ReactElement<TabViewProps>;
 /**
  * A view with tabs and swipeable contents.
  *
- * @extends React.Component
+ * @extends React.FC
  **
  * @property {ReactElement<TabProps> | ReactElement<TabProps>[]} children - Tabs to be rendered within the view.
  *
@@ -69,74 +69,78 @@ export type TabViewElement = React.ReactElement<TabViewProps>;
  * @overview-example TabViewLazyLoading
  * Tab contents may be loaded lazily, by configuring `shouldLoadComponent` property.
  */
-export class TabView extends React.Component<TabViewProps> {
 
-  static defaultProps: Partial<TabViewProps> = {
-    selectedIndex: 0,
-  };
+export const TabView: React.FC<TabViewProps> = ({
+  style,
+  children,
+  selectedIndex = 0,
+  tabBarStyle,
+  indicatorStyle,
+  onSelect,
+  shouldLoadComponent,
+  ...viewProps
+}) => {
+  const viewPagerRef = useRef<ViewPager>(null);
+  const tabBarRef = useRef<TabBarRef>(null);
 
-  private viewPagerRef = React.createRef<ViewPager>();
-  private tabBarRef = React.createRef<TabBar>();
+  const onBarSelect = useCallback((index: number) => {
+    onSelect?.(index);
+  }, [onSelect]);
 
-  private onBarSelect = (index: number): void => {
-    this.props.onSelect?.(index);
-  };
+  const onPagerSelect = useCallback((index: number) => {
+    onSelect?.(index);
+  }, [onSelect]);
 
-  private onPagerSelect = (index: number): void => {
-    this.props.onSelect?.(index);
-  };
-
-  private renderComponentChild = (element: TabElement, index: number): TabViewChildElement => {
+  const renderComponentChild = (element: TabElement, index: number): TabViewChildElement => {
     return {
       tab: React.cloneElement(element, { key: index }),
       content: element.props.children,
     };
   };
 
-  private renderComponentChildren = (source: ChildrenWithProps<TabProps>): TabViewChildren => {
-    const children = React.Children.toArray(source) as TabElement[];
+  const renderComponentChildren = (source: ChildrenWithProps<TabProps>): TabViewChildren => {
+    const childrenArray = React.Children.toArray(source) as TabElement[];
 
-    return children.reduce((acc: TabViewChildren, element: TabElement, index: number) => {
-      const { tab, content } = this.renderComponentChild(element, index);
+    return childrenArray.reduce((acc: TabViewChildren, element: TabElement, index: number) => {
+      const { tab, content } = renderComponentChild(element, index);
       return {
         tabs: [...acc.tabs, tab],
         contents: [...acc.contents, content],
       };
-    }, new TabViewChildren());
+    }, { tabs: [], contents: [] });
   };
 
-  public render(): React.ReactElement<ViewProps> {
-    const { style, selectedIndex, children, tabBarStyle, indicatorStyle, ...viewProps } = this.props;
-    const { tabs, contents } = this.renderComponentChildren(children);
+  const { tabs, contents } = renderComponentChildren(children);
 
-    return (
-      <View
+  return (
+    <View
+      {...viewProps}
+      style={[styles.container, style]}
+    >
+      <TabBar
+        style={tabBarStyle}
+        ref={tabBarRef}
+        selectedIndex={selectedIndex}
+        indicatorStyle={indicatorStyle}
+        onSelect={onBarSelect}
+      >
+        {tabs}
+      </TabBar>
+      <ViewPager
+        ref={viewPagerRef}
         {...viewProps}
         style={[styles.container, style]}
+        selectedIndex={selectedIndex}
+        shouldLoadComponent={shouldLoadComponent}
+        onSelect={onPagerSelect}
       >
-        <TabBar
-          style={tabBarStyle}
-          ref={this.tabBarRef}
-          selectedIndex={selectedIndex}
-          indicatorStyle={indicatorStyle}
-          onSelect={this.onBarSelect}
-        >
-          {tabs}
-        </TabBar>
-        <ViewPager
-          ref={this.viewPagerRef}
-          {...viewProps}
-          style={[styles.container, style]}
-          selectedIndex={selectedIndex}
-          shouldLoadComponent={this.props.shouldLoadComponent}
-          onSelect={this.onPagerSelect}
-        >
-          {contents}
-        </ViewPager>
-      </View>
-    );
-  }
-}
+        {contents}
+      </ViewPager>
+    </View>
+  );
+};
+
+TabView.displayName = 'TabView';
 
 const styles = StyleSheet.create({
   container: {

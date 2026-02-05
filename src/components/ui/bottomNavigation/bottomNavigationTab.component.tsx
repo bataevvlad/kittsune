@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   ImageProps,
   NativeSyntheticEvent,
@@ -18,26 +18,21 @@ import {
   TouchableWeb,
   TouchableWebElement,
   TouchableWebProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { TextProps } from '../text/text.component';
 
-type BottomNavigationTabStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default' | string>;
-}>;
-
-export interface BottomNavigationTabProps extends TouchableWebProps, BottomNavigationTabStyledProps {
+export interface BottomNavigationTabProps extends TouchableWebProps {
   title?: RenderProp<TextProps> | React.ReactText;
   icon?: RenderProp<Partial<ImageProps>>;
   selected?: boolean;
   onSelect?: (selected: boolean) => void;
+  appearance?: LiteralUnion<'default' | string>;
 }
 
 export type BottomNavigationTabElement = React.ReactElement<BottomNavigationTabProps>;
@@ -46,7 +41,7 @@ export type BottomNavigationTabElement = React.ReactElement<BottomNavigationTabP
  * A single tab within the BottomNavigation.
  * Bottom tabs should be rendered within BottomNavigation to provide a usable navigation component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactText | ReactElement | (TextProps) => ReactElement} title - String, number or a function component
  * to render within the tab.
@@ -61,79 +56,87 @@ export type BottomNavigationTabElement = React.ReactElement<BottomNavigationTabP
  * @overview-example BottomNavigationTabSimpleUsage
  */
 
-@styled('BottomNavigationTab')
-export class BottomNavigationTab extends React.Component<BottomNavigationTabProps> {
+const getComponentStyle = (source: StyleType): StyleType => {
+  const {
+    iconWidth,
+    iconHeight,
+    iconMarginVertical,
+    iconTintColor,
+    textMarginVertical,
+    textFontFamily,
+    textFontSize,
+    textFontWeight,
+    textColor,
+    ...containerParameters
+  } = source;
 
-  private onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.HOVER]);
-    this.props.onMouseEnter?.(event);
+  return {
+    container: containerParameters,
+    text: {
+      marginVertical: textMarginVertical,
+      fontFamily: textFontFamily,
+      fontSize: textFontSize,
+      fontWeight: textFontWeight,
+      color: textColor,
+    },
+    icon: {
+      width: iconWidth,
+      height: iconHeight,
+      marginVertical: iconMarginVertical,
+      tintColor: iconTintColor,
+    },
   };
+};
 
-  private onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onMouseLeave?.(event);
-  };
+export const BottomNavigationTab: React.FC<BottomNavigationTabProps> = ({
+  style,
+  title,
+  icon,
+  selected,
+  onSelect,
+  appearance,
+  onMouseEnter: onMouseEnterProp,
+  onMouseLeave: onMouseLeaveProp,
+  ...touchableProps
+}): TouchableWebElement => {
+  const { style: evaStyleRaw, dispatch } = useStyled('BottomNavigationTab', { appearance, selected });
+  const evaStyle = useMemo(() => getComponentStyle(evaStyleRaw), [evaStyleRaw]);
 
-  private onPress = (): void => {
-    this.props.onSelect?.(!this.props.selected);
-  };
+  const onMouseEnter = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+    dispatch([Interaction.HOVER]);
+    onMouseEnterProp?.(event);
+  }, [dispatch, onMouseEnterProp]);
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      iconWidth,
-      iconHeight,
-      iconMarginVertical,
-      iconTintColor,
-      textMarginVertical,
-      textFontFamily,
-      textFontSize,
-      textFontWeight,
-      textColor,
-      ...containerParameters
-    } = source;
+  const onMouseLeave = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+    dispatch([]);
+    onMouseLeaveProp?.(event);
+  }, [dispatch, onMouseLeaveProp]);
 
-    return {
-      container: containerParameters,
-      text: {
-        marginVertical: textMarginVertical,
-        fontFamily: textFontFamily,
-        fontSize: textFontSize,
-        fontWeight: textFontWeight,
-        color: textColor,
-      },
-      icon: {
-        width: iconWidth,
-        height: iconHeight,
-        marginVertical: iconMarginVertical,
-        tintColor: iconTintColor,
-      },
-    };
-  };
+  const onPress = useCallback(() => {
+    onSelect?.(!selected);
+  }, [onSelect, selected]);
 
-  public render(): TouchableWebElement {
-    const { eva, style, title, icon, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+  return (
+    <TouchableWeb
+      {...touchableProps}
+      style={[evaStyle.container, styles.container, style]}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onPress={onPress}
+    >
+      <FalsyFC
+        style={evaStyle.icon}
+        component={icon}
+      />
+      <FalsyText
+        style={evaStyle.text}
+        component={title}
+      />
+    </TouchableWeb>
+  );
+};
 
-    return (
-      <TouchableWeb
-        {...touchableProps}
-        style={[evaStyle.container, styles.container, style]}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onPress={this.onPress}
-      >
-        <FalsyFC
-          style={evaStyle.icon}
-          component={icon}
-        />
-        <FalsyText
-          style={evaStyle.text}
-          component={title}
-        />
-      </TouchableWeb>
-    );
-  }
-}
+BottomNavigationTab.displayName = 'BottomNavigationTab';
 
 const styles = StyleSheet.create({
   container: {
