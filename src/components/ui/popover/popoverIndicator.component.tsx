@@ -4,15 +4,14 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, forwardRef } from 'react';
 import {
-  StyleProp,
   StyleSheet,
   View,
   ViewProps,
   ViewStyle,
 } from 'react-native';
-import { StyleType } from '@kitsuine/components';
+import { StyleType } from '../../theme';
 
 export type PopoverIndicatorProps = ViewProps;
 export type PopoverIndicatorElement = React.ReactElement<PopoverIndicatorProps>;
@@ -21,12 +20,12 @@ export type PopoverIndicatorElement = React.ReactElement<PopoverIndicatorProps>;
  * Triangle indicator component for Popover.
  * Creates a triangle shape using CSS borders.
  */
-export const PopoverIndicator: React.FC<PopoverIndicatorProps> = ({
+export const PopoverIndicator = forwardRef<View, PopoverIndicatorProps>(({
   style,
   ...props
-}) => {
+}, ref) => {
   const componentStyle = useMemo((): StyleType => {
-    const flatStyle: ViewStyle = StyleSheet.flatten(style);
+    const flatStyle: ViewStyle = StyleSheet.flatten(style) || {};
 
     return {
       container: {
@@ -46,12 +45,12 @@ export const PopoverIndicator: React.FC<PopoverIndicatorProps> = ({
 
   return (
     <View
+      ref={ref}
       {...props}
-      style={[style, styles.container, componentStyle.container]}
+      style={[style, componentStyle.container]}
     />
   );
-};
-
-const styles = StyleSheet.create({
-  container: {},
 });
+
+// Display name for debugging
+PopoverIndicator.displayName = 'PopoverIndicator';

@@ -68,12 +68,30 @@ export const AppNavigator = (): React.ReactElement => {
   const [selectedIndexLabel, setSelectedIndexLabel] = React.useState<IndexPath | undefined>(undefined);
   const [toggleBasic, setToggleBasic] = React.useState(true);
 
-  // Popover state
+  // Popover state - using separate states to isolate each example
   const [popoverVisible, setPopoverVisible] = React.useState(false);
   const [popoverPlacementVisible, setPopoverPlacementVisible] = React.useState(false);
   const [popoverFullWidthVisible, setPopoverFullWidthVisible] = React.useState(false);
   const [popoverBackdropVisible, setPopoverBackdropVisible] = React.useState(false);
+  const [popoverCallbackVisible, setPopoverCallbackVisible] = React.useState(false);
+  const [actualPlacement, setActualPlacement] = React.useState<string>('bottom');
   const [selectedPlacementIndex, setSelectedPlacementIndex] = React.useState<IndexPath>(new IndexPath(3));
+
+  // Helper to close all popovers - ensures only one is open at a time
+  const closeAllPopovers = React.useCallback(() => {
+    setPopoverVisible(false);
+    setPopoverPlacementVisible(false);
+    setPopoverFullWidthVisible(false);
+    setPopoverBackdropVisible(false);
+    setPopoverCallbackVisible(false);
+  }, []);
+
+  // Open specific popover (closes others first)
+  const openPopover = React.useCallback((setter: React.Dispatch<React.SetStateAction<boolean>>) => {
+    closeAllPopovers();
+    // Use setTimeout to ensure state updates don't conflict
+    setTimeout(() => setter(true), 0);
+  }, [closeAllPopovers]);
   const placements = [
     'top', 'top start', 'top end',
     'bottom', 'bottom start', 'bottom end',
@@ -561,7 +579,7 @@ export const AppNavigator = (): React.ReactElement => {
               <Popover
                 visible={popoverVisible}
                 anchor={() => (
-                  <Button onPress={() => setPopoverVisible(true)}>
+                  <Button onPress={() => openPopover(setPopoverVisible)}>
                     TOGGLE POPOVER
                   </Button>
                 )}
@@ -591,7 +609,7 @@ export const AppNavigator = (): React.ReactElement => {
                 visible={popoverPlacementVisible}
                 placement={placements[selectedPlacementIndex.row]}
                 anchor={() => (
-                  <Button onPress={() => setPopoverPlacementVisible(true)}>
+                  <Button onPress={() => openPopover(setPopoverPlacementVisible)}>
                     SHOW POPOVER
                   </Button>
                 )}
@@ -612,7 +630,7 @@ export const AppNavigator = (): React.ReactElement => {
                 anchor={() => (
                   <Button
                     style={styles.wideButton}
-                    onPress={() => setPopoverFullWidthVisible(true)}
+                    onPress={() => openPopover(setPopoverFullWidthVisible)}
                   >
                     WIDE BUTTON - FULL WIDTH POPOVER
                   </Button>
@@ -634,7 +652,7 @@ export const AppNavigator = (): React.ReactElement => {
                 anchor={() => (
                   <Button
                     status="warning"
-                    onPress={() => setPopoverBackdropVisible(true)}
+                    onPress={() => openPopover(setPopoverBackdropVisible)}
                   >
                     WITH BACKDROP
                   </Button>
@@ -643,6 +661,33 @@ export const AppNavigator = (): React.ReactElement => {
               >
                 <Layout style={styles.popoverContent}>
                   <Text>Notice the semi-transparent backdrop</Text>
+                </Layout>
+              </Popover>
+            </View>
+          </SubSection>
+
+          <SubSection title="Placement Change Callback">
+            <Text category="c1" style={styles.callbackInfo}>
+              Actual placement: {actualPlacement}
+            </Text>
+            <View style={styles.popoverContainer}>
+              <Popover
+                visible={popoverCallbackVisible}
+                placement="top"
+                onPlacementChange={(placement) => setActualPlacement(placement.rawValue)}
+                anchor={() => (
+                  <Button
+                    status="info"
+                    onPress={() => openPopover(setPopoverCallbackVisible)}
+                  >
+                    REQUEST TOP PLACEMENT
+                  </Button>
+                )}
+                onBackdropPress={() => setPopoverCallbackVisible(false)}
+              >
+                <Layout style={styles.popoverContent}>
+                  <Text>Requested: top</Text>
+                  <Text category="c1">Actual: {actualPlacement}</Text>
                 </Layout>
               </Popover>
             </View>
@@ -863,5 +908,10 @@ const styles = StyleSheet.create({
   },
   popoverBackdrop: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  callbackInfo: {
+    textAlign: 'center',
+    marginBottom: 8,
+    color: '#8F9BB3',
   },
 });

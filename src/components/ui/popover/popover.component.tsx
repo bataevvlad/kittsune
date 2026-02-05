@@ -40,112 +40,76 @@ export interface PopoverProps extends PopoverViewProps, PopoverModalProps, RNMod
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   anchor: RenderFCProp<any>;
   fullWidth?: boolean;
+  /**
+   * Called when the actual placement changes.
+   * This can differ from the requested placement if there's not enough space.
+   * Useful for adjusting UI based on actual popover position.
+   */
+  onPlacementChange?: (placement: PopoverPlacement) => void;
 }
 
 export type PopoverElement = React.ReactElement<PopoverProps>;
 
+// ============================================================================
+// Custom Hook: usePopoverMeasurement
+// Extracted for reusability in Tooltip, OverflowMenu, etc.
+// ============================================================================
+
+export interface UsePopoverMeasurementOptions {
+  placement: PopoverPlacement | string;
+  fullWidth: boolean;
+  visible: boolean;
+  onPlacementChange?: (placement: PopoverPlacement) => void;
+}
+
+export interface UsePopoverMeasurementResult {
+  childFrame: Frame;
+  actualPlacement: PopoverPlacement;
+  contentPosition: Point;
+  contentFlexPosition: StyleProp<ViewStyle>;
+  forceMeasure: boolean;
+  onChildMeasure: (frame: Frame) => void;
+  onContentMeasure: (frame: Frame) => void;
+}
+
 /**
- * Displays a content positioned relative to another view.
- *
- * @extends React.Component
- *
- * @property {boolean} visible - Whether content component is visible.
- * Defaults to false.
- * The property is more specific that the show/hide methods, so do not use them at the same time.
- *
- * @property {() => ReactElement} anchor - A component relative to which content component will be shown.
- *
- * @property {ReactElement} children - A component displayed within the popover.
- *
- * @property {() => void} onBackdropPress - Called when popover is visible and the underlying view was touched.
- * Useful when needed to close the modal on outside touches.
- *
- * @property {boolean} fullWidth - Whether a content component should take the width of `anchor`.
- *
- * @property {string | PopoverPlacement} placement - Position of the content component relative to the `anchor`.
- * Can be `left`, `top`, `right`, `bottom`, `left start`, `left end`, `top start`, `top end`, `right start`,
- * `right end`, `bottom start`, `bottom end`, `inner`, `inner top` or `inner bottom`.
- * Defaults to *bottom*.
- *
- * @property {boolean} hardwareAccelerated - Controls whether to force hardware acceleration for the underlying window.
- * Defaults to false.
- *
- * @property {'none' | 'slide' | 'fade'} animationType - Controls how the modal animates.
- * Defaults to 'none'.
- *
- * @property {Array<'portrait' | 'portrait-upside-down' | 'landscape' | 'landscape-left' | 'landscape-right'>}
- * supportedOrientations -
- * Allows the modal to be rotated to any of the specified orientations.
- * On iOS, the modal is still restricted by what's specified
- * in your app's Info.plist's UISupportedInterfaceOrientations field
- *
- * @property {StyleProp<ViewStyle>} backdropStyle - Style of backdrop.
- *
- * @property {(event: NativeSyntheticEvent<any>) => void} onShow -
- * Allows passing a function that will be called once the modal has been shown.
- *
- * @property {ViewProps} ...ViewProps - Any props applied to View component.
- *
- * @overview-example PopoverSimpleUsage
- * Popover accepts it's content as child element and is displayed relative to `anchor` view.
- *
- * @overview-example PopoverPlacement
- * By default, it is displayed to the bottom of `anchor` view, but it is configurable with `placement` property.
- *
- * @overview-example PopoverFullWidth
- * Popover may take the full width of the anchor view by configuring `fullWidth` property.
- *
- * @overview-example PopoverStyledBackdrop
- * To style the underlying view, `backdropStyle` property may be used.
+ * Custom hook for popover measurement and placement logic.
+ * Can be reused by Tooltip, OverflowMenu, and other popover-based components.
  */
-export const Popover = forwardRef<View, PopoverProps>(({
-  children,
-  placement = PopoverPlacements.BOTTOM,
-  anchor,
-  fullWidth = false,
-  visible = false,
-  backdropStyle,
-  animationType,
-  hardwareAccelerated,
-  supportedOrientations,
-  onShow,
-  onBackdropPress,
-  contentContainerStyle,
-  ...viewProps
-}, ref) => {
-  // State - mirrors the original class state exactly
+export function usePopoverMeasurement({
+  placement,
+  fullWidth,
+  visible,
+  onPlacementChange,
+}: UsePopoverMeasurementOptions): UsePopoverMeasurementResult {
+  // State
+  // Initialize position offscreen to prevent flash at (0,0) before measurement
   const [childFrame, setChildFrame] = useState<Frame>(Frame.zero());
   const [forceMeasure, setForceMeasure] = useState<boolean>(false);
   const [actualPlacement, setActualPlacement] = useState<PopoverPlacement>(() =>
     PopoverPlacements.parse(placement)
   );
-  const [contentPosition, setContentPosition] = useState<Point>(Point.zero());
+  const [contentPosition, setContentPosition] = useState<Point>(Point.outscreen());
 
   // Refs for values needed in callbacks without causing re-renders
-  // React 2026: Using refs to avoid stale closures in callbacks
   const childFrameRef = useRef<Frame>(childFrame);
   const contentPositionRef = useRef<Point>(contentPosition);
   const actualPlacementRef = useRef<PopoverPlacement>(actualPlacement);
-  const containerRef = useRef<View>(null);
 
   // Keep refs in sync with state
   childFrameRef.current = childFrame;
   contentPositionRef.current = contentPosition;
   actualPlacementRef.current = actualPlacement;
 
-  // Forward ref to the container View
-  useImperativeHandle(ref, () => containerRef.current as View, []);
-
-  // Service instance - stable across renders (React 2026: lazy initialization)
+  // Service instance - stable across renders
   const placementService = useRef(new PopoverPlacementService()).current;
 
-  // Computed value - equivalent to the class getter
+  // Computed preferred placement
   const preferredPlacement = useMemo(
     () => PopoverPlacements.parse(placement),
     [placement]
   );
 
-  // Equivalent to componentDidUpdate
   // When visible becomes true and forceMeasure is false, trigger measurement
   useEffect(() => {
     if (visible && !forceMeasure) {
@@ -153,13 +117,17 @@ export const Popover = forwardRef<View, PopoverProps>(({
     }
   }, [visible, forceMeasure]);
 
-  // Equivalent to getDerivedStateFromProps
   // When becoming invisible, reset position to offscreen
   useEffect(() => {
     if (!visible && !Point.outscreen().equals(contentPositionRef.current)) {
       setContentPosition(Point.outscreen());
     }
   }, [visible]);
+
+  // Notify when actual placement changes
+  useEffect(() => {
+    onPlacementChange?.(actualPlacement);
+  }, [actualPlacement, onPlacementChange]);
 
   // Computed style for positioning
   const contentFlexPosition = useMemo((): StyleProp<ViewStyle> => {
@@ -209,7 +177,116 @@ export const Popover = forwardRef<View, PopoverProps>(({
     [findPlacementOptions, placementService, preferredPlacement]
   );
 
-  // Render helpers - React 2026: plain functions are fine, React Compiler optimizes these
+  return {
+    childFrame,
+    actualPlacement,
+    contentPosition,
+    contentFlexPosition,
+    forceMeasure,
+    onChildMeasure,
+    onContentMeasure,
+  };
+}
+
+// ============================================================================
+// Popover Component
+// ============================================================================
+
+/**
+ * Displays a content positioned relative to another view.
+ *
+ * @extends React.Component
+ *
+ * @property {boolean} visible - Whether content component is visible.
+ * Defaults to false.
+ * The property is more specific that the show/hide methods, so do not use them at the same time.
+ *
+ * @property {() => ReactElement} anchor - A component relative to which content component will be shown.
+ *
+ * @property {ReactElement} children - A component displayed within the popover.
+ *
+ * @property {() => void} onBackdropPress - Called when popover is visible and the underlying view was touched.
+ * Useful when needed to close the modal on outside touches.
+ *
+ * @property {boolean} fullWidth - Whether a content component should take the width of `anchor`.
+ *
+ * @property {string | PopoverPlacement} placement - Position of the content component relative to the `anchor`.
+ * Can be `left`, `top`, `right`, `bottom`, `left start`, `left end`, `top start`, `top end`, `right start`,
+ * `right end`, `bottom start`, `bottom end`, `inner`, `inner top` or `inner bottom`.
+ * Defaults to *bottom*.
+ *
+ * @property {(placement: PopoverPlacement) => void} onPlacementChange - Called when the actual placement changes.
+ * This can differ from the requested placement if there's not enough space.
+ *
+ * @property {boolean} hardwareAccelerated - Controls whether to force hardware acceleration for the underlying window.
+ * Defaults to false.
+ *
+ * @property {'none' | 'slide' | 'fade'} animationType - Controls how the modal animates.
+ * Defaults to 'none'.
+ *
+ * @property {Array<'portrait' | 'portrait-upside-down' | 'landscape' | 'landscape-left' | 'landscape-right'>}
+ * supportedOrientations -
+ * Allows the modal to be rotated to any of the specified orientations.
+ * On iOS, the modal is still restricted by what's specified
+ * in your app's Info.plist's UISupportedInterfaceOrientations field
+ *
+ * @property {StyleProp<ViewStyle>} backdropStyle - Style of backdrop.
+ *
+ * @property {(event: NativeSyntheticEvent<any>) => void} onShow -
+ * Allows passing a function that will be called once the modal has been shown.
+ *
+ * @property {ViewProps} ...ViewProps - Any props applied to View component.
+ *
+ * @overview-example PopoverSimpleUsage
+ * Popover accepts it's content as child element and is displayed relative to `anchor` view.
+ *
+ * @overview-example PopoverPlacement
+ * By default, it is displayed to the bottom of `anchor` view, but it is configurable with `placement` property.
+ *
+ * @overview-example PopoverFullWidth
+ * Popover may take the full width of the anchor view by configuring `fullWidth` property.
+ *
+ * @overview-example PopoverStyledBackdrop
+ * To style the underlying view, `backdropStyle` property may be used.
+ */
+export const Popover = forwardRef<View, PopoverProps>(({
+  children,
+  placement = PopoverPlacements.BOTTOM,
+  anchor,
+  fullWidth = false,
+  visible = false,
+  backdropStyle,
+  animationType,
+  hardwareAccelerated,
+  supportedOrientations,
+  onShow,
+  onBackdropPress,
+  onPlacementChange,
+  contentContainerStyle,
+  ...viewProps
+}, ref) => {
+  // Use the extracted custom hook for measurement logic
+  const {
+    childFrame,
+    actualPlacement,
+    contentFlexPosition,
+    forceMeasure,
+    onChildMeasure,
+    onContentMeasure,
+  } = usePopoverMeasurement({
+    placement,
+    fullWidth,
+    visible,
+    onPlacementChange,
+  });
+
+  // Ref for the container
+  const containerRef = useRef<View>(null);
+
+  // Forward ref to the container View
+  useImperativeHandle(ref, () => containerRef.current as View, []);
+
+  // Render helpers
   const renderContentElement = (): React.ReactElement => {
     const contentElement = children as React.ReactElement;
     const fullWidthStyle = { width: childFrame.size.width };

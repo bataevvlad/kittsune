@@ -19,42 +19,49 @@ const PLACEMENT_FAMILIES: string[] = [
   PopoverPlacements.INNER.rawValue,
 ];
 
+/**
+ * Service for finding the best popover placement that fits within bounds.
+ * Tries preferred placement first, then falls back to alternatives.
+ */
 export class PopoverPlacementService {
 
   public find(preferredValue: PopoverPlacement, options: PlacementOptions): PopoverPlacement {
-    const placement: PopoverPlacement = this.findRecursive(preferredValue, [...PLACEMENT_FAMILIES], options);
-
+    const placement = this.findRecursive(preferredValue, [...PLACEMENT_FAMILIES], options);
     return placement || preferredValue;
   }
 
-  private findRecursive(placement: PopoverPlacement, families: string[], options: PlacementOptions): PopoverPlacement {
-    const oneOfCurrentFamily: PopoverPlacement = this.findFromFamily(placement, options);
-
+  private findRecursive(
+    placement: PopoverPlacement,
+    families: string[],
+    options: PlacementOptions,
+  ): PopoverPlacement | null {
+    // Try to find a fitting placement in the current family
+    const oneOfCurrentFamily = this.findFromFamily(placement, options);
     if (oneOfCurrentFamily) {
       return oneOfCurrentFamily;
     }
 
-    const oneOfReversedFamily: PopoverPlacement = this.findFromFamily(placement.reverse(), options);
-
+    // Try the reversed family (e.g., if bottom doesn't fit, try top)
+    const oneOfReversedFamily = this.findFromFamily(placement.reverse(), options);
     if (oneOfReversedFamily) {
       return oneOfReversedFamily;
     }
 
-    delete families[families.indexOf(placement.parent().rawValue)];
-    delete families[families.indexOf(placement.reverse().parent().rawValue)];
+    // Remove tried families and try the next one
+    // Fix: Using filter instead of delete to avoid array holes
+    const remainingFamilies = families.filter(
+      (f) => f !== placement.parent().rawValue && f !== placement.reverse().parent().rawValue
+    );
 
-    const firstTruthy: string = families.filter(Boolean)[0];
-
-    if (firstTruthy) {
-      const nextPlacement: PopoverPlacement = PopoverPlacements.parse(firstTruthy);
-
-      return this.findRecursive(nextPlacement, families, options);
+    if (remainingFamilies.length > 0) {
+      const nextPlacement = PopoverPlacements.parse(remainingFamilies[0]);
+      return this.findRecursive(nextPlacement, remainingFamilies, options);
     }
 
     return null;
   }
 
-  private findFromFamily(placement: PopoverPlacement, options: PlacementOptions): PopoverPlacement {
+  private findFromFamily(placement: PopoverPlacement, options: PlacementOptions): PopoverPlacement | null {
     const preferredFrame: Frame = placement.frame(options);
 
     if (placement.fits(preferredFrame, options.bounds)) {
@@ -63,8 +70,7 @@ export class PopoverPlacementService {
 
     return placement.family().find((familyValue: PopoverPlacement): boolean => {
       const familyFrame = familyValue.frame(options);
-
       return familyValue.fits(familyFrame, options.bounds);
-    });
+    }) || null;
   }
 }

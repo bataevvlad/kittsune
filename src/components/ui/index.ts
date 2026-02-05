@@ -166,6 +166,9 @@ export {
   Popover,
   PopoverProps,
   PopoverElement,
+  usePopoverMeasurement,
+  UsePopoverMeasurementOptions,
+  UsePopoverMeasurementResult,
 } from './popover/popover.component';
 export { PopoverPlacements } from './popover/type';
 export {
