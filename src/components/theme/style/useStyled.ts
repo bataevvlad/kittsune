@@ -8,9 +8,11 @@ import { useContext, useMemo, useState, useCallback, useRef } from 'react';
 import { ThemeStyleType } from '@kitsuine/processor';
 import { StyleConsumerService } from './styleConsumer.service';
 import { Interaction, StyleType } from './style.service';
+import { styleCache } from './styleCache';
 import { MappingContext } from '../mapping/mappingContext';
 import { ThemeContext } from '../theme/themeContext';
 import { ThemeType } from '../theme/theme.service';
+import { ThemedThemeType } from '../theme/themeStore';
 
 export interface UseStyledResult {
   style: StyleType;
@@ -61,13 +63,46 @@ export function useStyled(
   const service = serviceRef.current;
   const defaultProps = defaultPropsRef.current;
 
-  // Compute style - use refs to avoid unnecessary recomputation
+  // Compute style with caching
   const style = useMemo(() => {
     if (!service || !mapping || !theme || Object.keys(theme).length === 0) {
       return {};
     }
 
-    // Merge default props with provided options
+    // Get theme ID for cache key (from ThemeStore or fallback)
+    const themeId = (theme as ThemedThemeType).__themeId ?? 'default';
+
+    // Build variants object for cache key
+    const variants: Record<string, string | boolean | undefined> = {
+      status: options.status,
+      size: options.size,
+      category: options.category,
+      level: options.level,
+      shape: options.shape,
+      disabled: options.disabled,
+      checked: options.checked,
+      selected: options.selected,
+      indeterminate: options.indeterminate,
+      bounding: options.bounding,
+      today: options.today,
+      range: options.range,
+    };
+
+    // Try cache first
+    const cacheKey = styleCache.buildKey(
+      componentName,
+      options.appearance,
+      variants,
+      interactions,
+      themeId,
+    );
+
+    const cached = styleCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    // Cache miss - compute style
     const mergedProps: Record<string, unknown> = { ...defaultProps };
     Object.keys(options).forEach((key) => {
       if (options[key] !== undefined) {
@@ -75,15 +110,21 @@ export function useStyled(
       }
     });
 
-    return service.createStyleProp(
+    const computed = service.createStyleProp(
       mergedProps,
       mapping as ThemeStyleType,
       theme,
       interactions,
     );
+
+    // Store in cache
+    styleCache.set(cacheKey, computed);
+
+    return computed;
   }, [
     service,
     defaultProps,
+    componentName,
     // Common props used by most styled components
     options.appearance,
     options.status,

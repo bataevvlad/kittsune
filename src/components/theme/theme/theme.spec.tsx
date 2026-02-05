@@ -158,7 +158,7 @@ describe('@theme: ui component checks', () => {
 
     const themedComponent: ReactTestInstance = component.getByTestId(themeConsumerTestId);
 
-    expect(themedComponent.props.eva.theme).toEqual({
+    expect(themedComponent.props.eva.theme).toMatchObject({
       defaultColor: '#000000',
       disabledColor: '#646464',
       activeColor: '#3366FF',
@@ -182,7 +182,7 @@ describe('@theme: ui component checks', () => {
 
     const themedComponent: ReactTestInstance = component.getByTestId(themeConsumerTestId);
 
-    expect(themedComponent.props.eva.theme).toEqual({
+    expect(themedComponent.props.eva.theme).toMatchObject({
       defaultColor: '#ffffff',
       disabledColor: '#646464',
       activeColor: '#3366FF',

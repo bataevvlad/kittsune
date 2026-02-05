@@ -41,3 +41,16 @@ export {
   ThemeType,
   useTheme,
 } from './theme/theme.service';
+export {
+  ThemeStore,
+  ThemeStoreContext,
+  ThemedThemeType,
+} from './theme/themeStore';
+export {
+  useThemeValue,
+  useThemeValues,
+} from './theme/useThemeValue';
+export {
+  styleCache,
+  StyleCacheClass,
+} from './style/styleCache';
