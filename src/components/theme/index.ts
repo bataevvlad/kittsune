@@ -6,8 +6,9 @@ export {
 export {
   ModalService,
 } from './modal/modal.service';
+// Note: @styled decorator has been removed in favor of useStyled hook
+// StyledComponentProps and EvaProp are kept for backward compatibility
 export {
-  styled,
   StyledComponentProps,
   EvaProp,
 } from './style/styled';

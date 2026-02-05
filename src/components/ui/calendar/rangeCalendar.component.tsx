@@ -4,34 +4,51 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
-import {
-  styled,
-  StyledComponentProps,
-} from '../../theme';
-import {
-  BaseCalendarComponent,
-  BaseCalendarProps,
-} from './baseCalendar.component';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo } from 'react';
+import { View } from 'react-native';
+import { useStyled, StyleType } from '../../theme';
+import { BaseCalendarProps } from './baseCalendar.component';
 import { CalendarPickerCellProps } from './components/picker/calendarPickerCell.component';
-import { DateBatch } from './service/calendarData.service';
+import { CalendarHeader } from './components/calendarHeader.component';
+import { CalendarMonthHeader } from './components/calendarMonthHeader.component';
+import { CalendarPicker } from './components/picker/calendarPicker.component';
+import { CalendarDateContent, CalendarDateContentElement } from './components/calendarDateContent.component';
+import { Divider } from '../divider/divider.component';
+import { CalendarDateInfo, CalendarRange, CalendarViewModes } from './type';
+import { TranslationWidth } from './i18n/type';
+import { DateService } from './service/date.service';
+import { NativeDateService } from './service/nativeDate.service';
+import { CalendarDataService } from './service/calendarData.service';
 import { RangeDateService } from './service/rangeDate.service';
-import { CalendarRange } from './type';
+import {
+  useCalendarState,
+  useCalendarNavigation,
+  useCalendarStyles,
+  useCalendarTitle,
+} from './hooks';
 
-export interface RangeCalendarProps<D = Date> extends StyledComponentProps, BaseCalendarProps<D> {
+export interface RangeCalendarProps<D = Date> extends BaseCalendarProps<D> {
   range?: CalendarRange<D>;
   onSelect?: (range: CalendarRange<D>) => void;
 }
 
 export type RangeCalendarElement<D = Date> = React.ReactElement<RangeCalendarProps<D>>;
 
+export interface RangeCalendarRef<D = Date> {
+  scrollToToday: () => void;
+  scrollToDate: (date: D) => void;
+  getVisibleDate: () => D;
+}
+
+const PICKER_ROWS = 4;
+const PICKER_COLUMNS = 3;
+const EMPTY_RANGE: CalendarRange<any> = {};
+
 /**
  * Range Calendar provides a simple way to select a date range.
  *
  * Supports locales and different date objects like Moment.js or date-fns.
  * Composes date picker components in a horizontal pageable list.
- *
- * @extends React.Component
  *
  * @method {() => void} scrollToToday - Show the current date in the calendar.
  *
@@ -109,71 +126,345 @@ export type RangeCalendarElement<D = Date> = React.ReactElement<RangeCalendarPro
  * }
  * ```
  */
-@styled('Calendar')
-export class RangeCalendar<D = Date> extends BaseCalendarComponent<RangeCalendarProps<D>, D> {
 
-  static defaultProps: Partial<RangeCalendarProps> = {
-    ...BaseCalendarComponent.defaultProps,
-    range: {},
-  };
+function RangeCalendarComponent<D = Date>(
+  props: RangeCalendarProps<D>,
+  ref: React.Ref<RangeCalendarRef<D>>,
+): React.ReactElement<RangeCalendarProps<D>> {
+  const {
+    range: rangeProp,
+    onSelect,
+    min,
+    max,
+    initialVisibleDate,
+    dateService: dateServiceProp,
+    boundingMonth = true,
+    startView = CalendarViewModes.DATE,
+    title: customTitle,
+    filter,
+    renderFooter,
+    renderDay,
+    renderMonth,
+    renderYear,
+    renderArrowLeft,
+    renderArrowRight,
+    onVisibleDateChange,
+    style,
+    ...viewProps
+  } = props;
 
-  private rangeDateService: RangeDateService<D> = new RangeDateService(this.dateService);
+  const { style: evaStyle } = useStyled('Calendar', {});
+  const range = useMemo(() => rangeProp || EMPTY_RANGE as CalendarRange<D>, [rangeProp]);
+  const dateService = useMemo(() => dateServiceProp || new NativeDateService() as unknown as DateService<D>, [dateServiceProp]);
+  const dataService = useMemo(() => new CalendarDataService<D>(dateService), [dateService]);
+  const rangeDateService = useMemo(() => new RangeDateService<D>(dateService), [dateService]);
 
-  constructor(props: RangeCalendarProps<D>) {
-    super(props);
+  const computedMin = useMemo(() => min || dateService.getYearStart(dateService.today()), [min, dateService]);
+  const computedMax = useMemo(() => max || dateService.getYearEnd(dateService.today()), [max, dateService]);
 
-    this.createDates = this.createDates.bind(this);
-    this.selectedDate = this.selectedDate.bind(this);
-    this.onDateSelect = this.onDateSelect.bind(this);
-    this.isDateSelected = this.isDateSelected.bind(this);
-    this.shouldUpdateDate = this.shouldUpdateDate.bind(this);
-  }
+  const computedInitialDate = useMemo(() => {
+    return initialVisibleDate || range?.startDate || dateService.today();
+  }, [initialVisibleDate, range?.startDate, dateService]);
 
-  // BaseCalendarComponent
+  const {
+    state,
+    setVisibleDate,
+    setPickerDate,
+    scrollToToday,
+    scrollToDate,
+    onPickerNavigationPress,
+    onMonthSelect,
+    onYearSelect,
+  } = useCalendarState<D>({
+    dateService,
+    initialVisibleDate: computedInitialDate,
+    startView,
+    onVisibleDateChange,
+  });
 
-  protected createDates(date: D): DateBatch<D> {
-    return this.dataService.createDayPickerData(date, this.props.range);
-  }
+  const { viewMode, visibleDate, pickerDate } = state;
 
-  protected selectedDate(): D | undefined {
-    return this.props.range?.startDate;
-  }
+  const {
+    onHeaderNavigationLeftPress,
+    onHeaderNavigationRightPress,
+    isHeaderNavigationAllowed,
+  } = useCalendarNavigation<D>({
+    dateService,
+    viewMode,
+    visibleDate,
+    pickerDate,
+    setVisibleDate,
+    setPickerDate,
+    onVisibleDateChange,
+  });
 
-  protected onDateSelect(date: D): void {
-    if (this.props.onSelect) {
-      const range: CalendarRange<D> = this.rangeDateService.createRange(this.props.range, date);
-      this.props.onSelect(range);
-    }
-  }
+  const calendarStyles = useCalendarStyles(evaStyle);
+  const headerTitle = useCalendarTitle<D>({
+    dateService,
+    visibleDate,
+    pickerDate,
+    viewMode,
+    customTitle,
+  });
 
-  protected isDateSelected(): boolean {
+  useImperativeHandle(ref, () => ({
+    scrollToToday,
+    scrollToDate,
+    getVisibleDate: () => visibleDate,
+  }), [scrollToToday, scrollToDate, visibleDate]);
+
+  const createDates = useCallback((dateParam: D) => {
+    return dataService.createDayPickerData(dateParam, range);
+  }, [dataService, range]);
+
+  const isDaySelected = useCallback((): boolean => {
+    // Range calendar doesn't use day selection - range props handle this
     return false;
-  }
+  }, []);
 
-  protected shouldUpdateDate(props: CalendarPickerCellProps<D>, nextProps: CalendarPickerCellProps<D>): boolean {
-    const dateChanged: boolean = this.dateService.compareDatesSafe(props.date.date, nextProps.date.date) !== 0;
+  const isDayDisabled = useCallback((info: CalendarDateInfo<D>): boolean => {
+    const minDayStart = dateService.createDate(
+      dateService.getYear(computedMin),
+      dateService.getMonth(computedMin),
+      dateService.getDate(computedMin),
+    );
+    const maxDayStart = dateService.createDate(
+      dateService.getYear(computedMax),
+      dateService.getMonth(computedMax),
+      dateService.getDate(computedMax),
+    );
+    const fitsFilter = filter && !filter(info.date) || false;
+    return !dateService.isBetweenIncludingSafe(info.date, minDayStart, maxDayStart) || fitsFilter;
+  }, [dateService, computedMin, computedMax, filter]);
 
-    if (dateChanged) {
-      return true;
+  const isDayToday = useCallback((info: CalendarDateInfo<D>): boolean => {
+    return dateService.isSameDaySafe(info.date, dateService.today());
+  }, [dateService]);
+
+  const isMonthSelected = useCallback((info: CalendarDateInfo<D>): boolean => {
+    return dateService.isSameMonthSafe(info.date, range?.startDate);
+  }, [dateService, range?.startDate]);
+
+  const isMonthDisabled = useCallback((info: CalendarDateInfo<D>): boolean => {
+    const minMonthStart = dateService.getMonthStart(computedMin);
+    const maxMonthStart = dateService.getMonthStart(computedMax);
+    return !dateService.isBetweenIncludingSafe(info.date, minMonthStart, maxMonthStart);
+  }, [dateService, computedMin, computedMax]);
+
+  const isMonthToday = useCallback((info: CalendarDateInfo<D>): boolean => {
+    return dateService.isSameMonthSafe(info.date, dateService.today());
+  }, [dateService]);
+
+  const isYearSelected = useCallback((info: CalendarDateInfo<D>): boolean => {
+    return dateService.isSameYearSafe(info.date, range?.startDate);
+  }, [dateService, range?.startDate]);
+
+  const isYearDisabled = useCallback((info: CalendarDateInfo<D>): boolean => {
+    const minYearStart = dateService.getYearStart(computedMin);
+    const maxYearStart = dateService.getYearEnd(computedMax);
+    return !dateService.isBetweenIncludingSafe(info.date, minYearStart, maxYearStart);
+  }, [dateService, computedMin, computedMax]);
+
+  const isYearToday = useCallback((info: CalendarDateInfo<D>): boolean => {
+    return dateService.isSameYearSafe(info.date, dateService.today());
+  }, [dateService]);
+
+  const onDaySelect = useCallback((info: CalendarDateInfo<D>): void => {
+    if (onSelect) {
+      const newRange = rangeDateService.createRange(range, info.date);
+      onSelect(newRange);
     }
+  }, [onSelect, rangeDateService, range]);
 
-    const selectionChanged: boolean = props.selected !== nextProps.selected;
-    const disablingChanged: boolean = props.disabled !== nextProps.disabled;
-    const rangeChanged: boolean = props.range !== nextProps.range;
-    const rangeStartPlaceChanged: boolean = props.firstRangeItem !== nextProps.firstRangeItem;
-    const rangeEndPlaceChanged: boolean = props.lastRangeItem !== nextProps.lastRangeItem;
+  const handleMonthSelect = useCallback((info: CalendarDateInfo<D>): void => {
+    onMonthSelect(info.date, onVisibleDateChange);
+  }, [onMonthSelect, onVisibleDateChange]);
 
-    const shouldUpdate: boolean =
-      selectionChanged ||
-      disablingChanged ||
-      rangeChanged ||
-      rangeStartPlaceChanged ||
-      rangeEndPlaceChanged;
+  const handleYearSelect = useCallback((info: CalendarDateInfo<D>): void => {
+    onYearSelect(info.date);
+  }, [onYearSelect]);
 
-    if (shouldUpdate) {
-      return true;
+  const shouldUpdateDate = useCallback((
+    cellProps: CalendarPickerCellProps<D>,
+    nextCellProps: CalendarPickerCellProps<D>,
+  ): boolean => {
+    const dateChanged = dateService.compareDatesSafe(cellProps.date.date, nextCellProps.date.date) !== 0;
+    if (dateChanged) return true;
+
+    const selectionChanged = cellProps.selected !== nextCellProps.selected;
+    const disablingChanged = cellProps.disabled !== nextCellProps.disabled;
+    const rangeChanged = cellProps.range !== nextCellProps.range;
+    const rangeStartPlaceChanged = cellProps.firstRangeItem !== nextCellProps.firstRangeItem;
+    const rangeEndPlaceChanged = cellProps.lastRangeItem !== nextCellProps.lastRangeItem;
+
+    return selectionChanged || disablingChanged || rangeChanged || rangeStartPlaceChanged || rangeEndPlaceChanged;
+  }, [dateService]);
+
+  const getWeekdayStyle = useCallback((): StyleType => ({
+    fontSize: evaStyle.weekdayTextFontSize,
+    fontWeight: evaStyle.weekdayTextFontWeight,
+    color: evaStyle.weekdayTextColor,
+    fontFamily: evaStyle.weekdayTextFontFamily,
+  }), [evaStyle]);
+
+  const renderWeekdayElement = useCallback((weekday: string, index: number): CalendarDateContentElement => {
+    return (
+      <CalendarDateContent
+        key={index}
+        textStyle={getWeekdayStyle()}
+      >
+        {weekday}
+      </CalendarDateContent>
+    );
+  }, [getWeekdayStyle]);
+
+  const renderDayElement = useCallback((info: CalendarDateInfo<D>, cellStyle: StyleType): CalendarDateContentElement => {
+    return (
+      <CalendarDateContent
+        style={cellStyle.container}
+        textStyle={cellStyle.text}
+      >
+        {dateService.getDate(info.date)}
+      </CalendarDateContent>
+    );
+  }, [dateService]);
+
+  const renderMonthElement = useCallback((info: CalendarDateInfo<D>, cellStyle: StyleType): CalendarDateContentElement => {
+    return (
+      <CalendarDateContent
+        style={cellStyle.container}
+        textStyle={cellStyle.text}
+      >
+        {dateService.getMonthName(info.date, TranslationWidth.SHORT)}
+      </CalendarDateContent>
+    );
+  }, [dateService]);
+
+  const renderYearElement = useCallback((info: CalendarDateInfo<D>, cellStyle: StyleType): CalendarDateContentElement => {
+    return (
+      <CalendarDateContent
+        style={cellStyle.container}
+        textStyle={cellStyle.text}
+      >
+        {dateService.getYear(info.date)}
+      </CalendarDateContent>
+    );
+  }, [dateService]);
+
+  const renderDayIfNeeded = useCallback((item: CalendarDateInfo<D>, cellStyle: StyleType): CalendarDateContentElement => {
+    const shouldRender = !item.bounding || boundingMonth;
+    if (shouldRender) {
+      const renderSelector = renderDay || renderDayElement;
+      return renderSelector(item, cellStyle);
     }
+    return null;
+  }, [boundingMonth, renderDay, renderDayElement]);
 
-    return props.eva.theme !== nextProps.eva.theme;
-  }
+  const renderDayPickerElement = useCallback((): React.ReactElement => {
+    return (
+      <>
+        <CalendarMonthHeader
+          style={calendarStyles.daysHeaderContainer}
+          data={dateService.getDayOfWeekNames()}
+        >
+          {renderWeekdayElement}
+        </CalendarMonthHeader>
+        <Divider style={calendarStyles.divider} />
+        <CalendarPicker
+          rowStyle={calendarStyles.row}
+          data={createDates(visibleDate)}
+          onSelect={onDaySelect}
+          isItemSelected={isDaySelected}
+          isItemDisabled={isDayDisabled}
+          isItemToday={isDayToday}
+          shouldItemUpdate={shouldUpdateDate}
+        >
+          {renderDayIfNeeded}
+        </CalendarPicker>
+      </>
+    );
+  }, [calendarStyles, dateService, visibleDate, createDates, onDaySelect, isDaySelected, isDayDisabled, isDayToday, shouldUpdateDate, renderWeekdayElement, renderDayIfNeeded]);
+
+  const renderMonthPickerElement = useCallback((): React.ReactElement => {
+    return (
+      <CalendarPicker
+        rowStyle={calendarStyles.row}
+        data={dataService.createMonthPickerData(pickerDate, PICKER_ROWS, PICKER_COLUMNS)}
+        onSelect={handleMonthSelect}
+        isItemSelected={isMonthSelected}
+        isItemDisabled={isMonthDisabled}
+        isItemToday={isMonthToday}
+      >
+        {renderMonth || renderMonthElement}
+      </CalendarPicker>
+    );
+  }, [calendarStyles, dataService, pickerDate, handleMonthSelect, isMonthSelected, isMonthDisabled, isMonthToday, renderMonth, renderMonthElement]);
+
+  const renderYearPickerElement = useCallback((): React.ReactElement => {
+    return (
+      <CalendarPicker
+        rowStyle={calendarStyles.row}
+        data={dataService.createYearPickerData(pickerDate, PICKER_ROWS, PICKER_COLUMNS)}
+        onSelect={handleYearSelect}
+        isItemSelected={isYearSelected}
+        isItemDisabled={isYearDisabled}
+        isItemToday={isYearToday}
+      >
+        {renderYear || renderYearElement}
+      </CalendarPicker>
+    );
+  }, [calendarStyles, dataService, pickerDate, handleYearSelect, isYearSelected, isYearDisabled, isYearToday, renderYear, renderYearElement]);
+
+  const renderPickerElement = useCallback((): React.ReactNode => {
+    switch (viewMode.id) {
+      case CalendarViewModes.DATE.id:
+        return renderDayPickerElement();
+      case CalendarViewModes.MONTH.id:
+        return renderMonthPickerElement();
+      case CalendarViewModes.YEAR.id:
+        return renderYearPickerElement();
+      default:
+        return null;
+    }
+  }, [viewMode.id, renderDayPickerElement, renderMonthPickerElement, renderYearPickerElement]);
+
+  const renderFooterElement = useCallback((): React.ReactElement | null => {
+    if (renderFooter) {
+      return renderFooter();
+    }
+    return null;
+  }, [renderFooter]);
+
+  const renderHeaderElement = useCallback((): React.ReactElement => {
+    return (
+      <CalendarHeader
+        viewModeId={viewMode.id}
+        style={calendarStyles.headerContainer}
+        title={headerTitle}
+        titleStyle={calendarStyles.title}
+        iconStyle={calendarStyles.icon}
+        lateralNavigationAllowed={isHeaderNavigationAllowed()}
+        onTitlePress={onPickerNavigationPress}
+        onNavigationLeftPress={onHeaderNavigationLeftPress}
+        onNavigationRightPress={onHeaderNavigationRightPress}
+        arrowLeftComponent={renderArrowLeft}
+        arrowRightComponent={renderArrowRight}
+      />
+    );
+  }, [viewMode.id, calendarStyles, headerTitle, isHeaderNavigationAllowed, onPickerNavigationPress, onHeaderNavigationLeftPress, onHeaderNavigationRightPress, renderArrowLeft, renderArrowRight]);
+
+  return (
+    <View
+      {...viewProps}
+      style={[calendarStyles.container, style]}
+    >
+      {renderHeaderElement()}
+      {renderPickerElement()}
+      {renderFooterElement()}
+    </View>
+  );
 }
+
+export const RangeCalendar = forwardRef(RangeCalendarComponent) as <D = Date>(
+  props: RangeCalendarProps<D> & { ref?: React.Ref<RangeCalendarRef<D>> }
+) => React.ReactElement<RangeCalendarProps<D>>;

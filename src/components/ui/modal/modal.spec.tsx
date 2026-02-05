@@ -14,8 +14,8 @@ import {
   fireEvent,
   render,
   RenderAPI,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -96,7 +96,7 @@ describe('@modal: component checks', () => {
 
     fireEvent.press(touchables.findToggleButton(component));
 
-    const text = await waitForElement(() => component.queryByText('I love Babel'));
+    const text = await waitFor(() => component.queryByText('I love Babel'));
     expect(text).toBeTruthy();
   });
 
@@ -106,11 +106,11 @@ describe('@modal: component checks', () => {
     );
 
     fireEvent.press(touchables.findToggleButton(component));
-    await waitForElement(() => {
+    await waitFor(() => {
       fireEvent.press(touchables.findToggleButton(component));
     });
 
-    const text = await waitForElement(() => component.queryByText('I love Babel'));
+    const text = await waitFor(() => component.queryByText('I love Babel'));
     expect(text).toBeFalsy();
   });
 
@@ -120,11 +120,11 @@ describe('@modal: component checks', () => {
     );
 
     fireEvent.press(touchables.findToggleButton(component));
-    await waitForElement(() => {
+    await waitFor(() => {
       fireEvent.press(touchables.findChangeTextButton(component));
     });
 
-    const text = await waitForElement(() => component.queryByText('I love Jest'));
+    const text = await waitFor(() => component.queryByText('I love Jest'));
     expect(text).toBeTruthy();
   });
 
@@ -135,9 +135,12 @@ describe('@modal: component checks', () => {
     );
 
     fireEvent.press(touchables.findToggleButton(component));
-    await waitForElement(() => {
-      fireEvent.press(touchables.findBackdropTouchable(component));
-    });
+    const backdrop = await waitFor(() => touchables.findBackdropTouchable(component));
+    // Backdrop uses PanResponder - call the handler directly
+    const responderRelease = backdrop.props.onResponderRelease;
+    if (responderRelease) {
+      responderRelease({ nativeEvent: {} });
+    }
 
     expect(onBackdropPress).toBeCalled();
   });
@@ -149,7 +152,7 @@ describe('@modal: component checks', () => {
     );
 
     fireEvent.press(touchables.findToggleButton(component));
-    const backdrop = await waitForElement(() => touchables.findBackdropTouchable(component));
+    const backdrop = await waitFor(() => touchables.findBackdropTouchable(component));
 
     expect(StyleSheet.flatten(backdrop.props.style).backgroundColor).toEqual('red');
   });

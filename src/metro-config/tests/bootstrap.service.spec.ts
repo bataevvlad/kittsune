@@ -1,6 +1,6 @@
 import Path from 'path';
 import Fs from 'fs';
-import Rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import BootstrapService from '../services/bootstrap.service';
 import { EvaConfig } from '../services/eva-config.service';
 
@@ -33,7 +33,7 @@ describe('@bootstrap-service: instance checks', () => {
     const [originalExports] = currentExports.split('exports.styles');
 
     Fs.writeFileSync(evaPackageIndexPath, originalExports);
-    Rimraf.sync(generatedFilePath);
+    rimrafSync(generatedFilePath);
 
     jest.resetAllMocks();
   });

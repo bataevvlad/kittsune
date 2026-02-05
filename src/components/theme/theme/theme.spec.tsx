@@ -15,8 +15,8 @@ import {
   fireEvent,
   render,
   RenderAPI,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import { ReactTestInstance } from 'react-test-renderer';
 import { ThemeProvider } from './themeProvider.component';
 import { withStyles } from './withStyles';
@@ -224,7 +224,7 @@ describe('@theme: ui component checks', () => {
 
     fireEvent.press(touchableComponent);
 
-    const themedComponent: ReactTestInstance = await waitForElement(() => {
+    const themedComponent: ReactTestInstance = await waitFor(() => {
       return component.getByTestId(themeConsumerTestId);
     });
 

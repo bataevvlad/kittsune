@@ -2,10 +2,14 @@ module.exports = {
   preset: 'react-native',
   cacheDirectory: '<rootDir>/dist/jest/cache',
   coverageDirectory: '<rootDir>/dist/jest/coverage',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleFileExtensions: [
     'ts',
     'tsx',
     'js',
+  ],
+  transformIgnorePatterns: [
+    'node_modules/(?!(react-native|@react-native|react-native-svg|@eva-design|@kitsuine)/)',
   ],
   moduleNameMapper: {
     '^@kitsuine/components/(.*)$': '<rootDir>/src/components/$1',

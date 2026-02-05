@@ -1,33 +1,27 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
-import { EvaProp, Interaction, styled } from '@kitsuine/components';
+import { Interaction, useStyled } from '@kitsuine/components';
 
-interface IProps {
-  eva: EvaProp;
-}
+const StyledComponent: React.FC = () => {
+  const { style, dispatch } = useStyled('StyledComponent', {});
 
-@styled('StyledComponent')
-class StyledComponent extends React.Component<IProps> {
-
-  onPressIn = (): void => {
-    this.props.eva.dispatch([Interaction.ACTIVE]);
+  const onPressIn = (): void => {
+    dispatch([Interaction.ACTIVE]);
   };
 
-  onPressOut = (): void => {
-    this.props.eva.dispatch([]);
+  const onPressOut = (): void => {
+    dispatch([]);
   };
 
-  render(): React.ReactElement {
-    return (
-      <TouchableOpacity
-        activeOpacity={1.0}
-        style={this.props.eva.style}
-        onPressIn={this.onPressIn}
-        onPressOut={this.onPressOut}
-      />
-    );
-  }
-}
+  return (
+    <TouchableOpacity
+      activeOpacity={1.0}
+      style={style}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+    />
+  );
+};
 
 // mapping.json
 // {

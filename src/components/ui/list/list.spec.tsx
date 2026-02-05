@@ -14,7 +14,7 @@ import {
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -130,7 +130,7 @@ I love Babel
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -159,7 +159,7 @@ I love Babel
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -174,7 +174,7 @@ I love Babel
       <TestListItem onPressIn={onPressIn} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressIn');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressIn');
     expect(onPressIn).toHaveBeenCalled();
   });
 
@@ -184,7 +184,7 @@ I love Babel
       <TestListItem onPressOut={onPressOut} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressOut');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressOut');
     expect(onPressOut).toHaveBeenCalled();
   });
 });
@@ -213,7 +213,7 @@ describe('@list: component checks', () => {
       <TestList />,
     );
 
-    expect(component.queryAllByType(ListItem).length).toEqual(2);
+    expect(component.UNSAFE_queryAllByType(ListItem).length).toEqual(2);
   });
 
   it('should call renderItem once per visible item', () => {

@@ -42,6 +42,21 @@ type WrappedComponent = React.ComponentType<WrappedComponentProps>;
 type StyledComponent = any;
 
 /**
+ * @deprecated Use the `useStyled` hook instead. The `@styled` decorator is no longer recommended.
+ *
+ * Example migration:
+ * ```tsx
+ * // Before (decorator):
+ * @styled('Button')
+ * class Button extends React.Component { ... }
+ *
+ * // After (hook):
+ * const Button = () => {
+ *   const { style, dispatch } = useStyled('Button', { status, size });
+ *   return <TouchableOpacity style={style} />;
+ * };
+ * ```
+ *
  * `@styled` is a High Order Function to apply style mapping on a component.
  * Used by all UI Kitten components and can be used when building custom components with Eva.
  *

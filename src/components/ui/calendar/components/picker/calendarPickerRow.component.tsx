@@ -22,21 +22,23 @@ export interface CalendarPickerRowProps<D> extends ViewPropsWithoutChildren {
 
 export type CalendarPickerRowElement<D> = React.ReactElement<CalendarPickerRowProps<D>>;
 
-export class CalendarPickerRow<D> extends React.Component<CalendarPickerRowProps<D>> {
-
-  public render(): React.ReactElement<ViewProps> {
-    const { style, data, children, ...viewProps } = this.props;
-
-    return (
-      <View
-        {...viewProps}
-        style={[styles.container, style]}
-      >
-        {data.map(children)}
-      </View>
-    );
-  }
+function CalendarPickerRowComponent<D>({
+  style,
+  data,
+  children,
+  ...viewProps
+}: CalendarPickerRowProps<D>): React.ReactElement<ViewProps> {
+  return (
+    <View
+      {...viewProps}
+      style={[styles.container, style]}
+    >
+      {data.map(children)}
+    </View>
+  );
 }
+
+export const CalendarPickerRow = CalendarPickerRowComponent;
 
 const styles = StyleSheet.create({
   container: {

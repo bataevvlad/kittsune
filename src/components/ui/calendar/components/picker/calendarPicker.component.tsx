@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   StyleProp,
   View,
@@ -40,9 +40,18 @@ export interface CalendarPickerProps<D> extends ViewPropsWithoutChildren {
 
 export type CalendarPickerElement<D> = React.ReactElement<CalendarPickerProps<D>>;
 
-export class CalendarPicker<D> extends React.Component<CalendarPickerProps<D>> {
-
-  private renderCellElement = (item: CalendarDateInfo<D>, index: number): CalendarPickerCellElement<D> => {
+function CalendarPickerComponent<D>({
+  data,
+  isItemSelected,
+  isItemDisabled,
+  isItemToday,
+  onSelect,
+  children,
+  shouldItemUpdate,
+  rowStyle,
+  ...viewProps
+}: CalendarPickerProps<D>): React.ReactElement<ViewProps> {
+  const renderCellElement = useCallback((item: CalendarDateInfo<D>, index: number): CalendarPickerCellElement<D> => {
     const firstRangeItem = !!(item.range & RangeRole.start);
     const lastRangeItem = !!(item.range & RangeRole.end);
 
@@ -50,42 +59,38 @@ export class CalendarPicker<D> extends React.Component<CalendarPickerProps<D>> {
       <CalendarPickerCell
         key={index}
         date={item}
-        selected={this.props.isItemSelected(item)}
-        disabled={this.props.isItemDisabled(item)}
+        selected={isItemSelected(item)}
+        disabled={isItemDisabled(item)}
         bounding={item.bounding}
-        today={this.props.isItemToday(item)}
+        today={isItemToday(item)}
         range={!!item.range}
         firstRangeItem={firstRangeItem}
         lastRangeItem={lastRangeItem}
-        onSelect={this.props.onSelect}
-        shouldComponentUpdate={this.props.shouldItemUpdate}
+        onSelect={onSelect}
+        shouldComponentUpdate={shouldItemUpdate}
       >
-        {this.props.children}
+        {children}
       </CalendarPickerCell>
     );
-  };
+  }, [isItemSelected, isItemDisabled, isItemToday, onSelect, shouldItemUpdate, children]);
 
-  private renderRowElement = (item: CalendarDateInfo<D>[], index: number): CalendarPickerRowElement<D> => {
+  const renderRowElement = useCallback((item: CalendarDateInfo<D>[], index: number): CalendarPickerRowElement<D> => {
     return (
       <CalendarPickerRow
         key={index}
-        style={this.props.rowStyle}
+        style={rowStyle}
         data={item}
       >
-        {this.renderCellElement}
+        {renderCellElement}
       </CalendarPickerRow>
     );
-  };
+  }, [rowStyle, renderCellElement]);
 
-  public render(): React.ReactElement<ViewProps> {
-    const { data, children, ...viewProps } = this.props;
-
-    return (
-      <View
-        {...viewProps}
-      >
-        {data.map(this.renderRowElement)}
-      </View>
-    );
-  }
+  return (
+    <View {...viewProps}>
+      {data.map(renderRowElement)}
+    </View>
+  );
 }
+
+export const CalendarPicker = CalendarPickerComponent;

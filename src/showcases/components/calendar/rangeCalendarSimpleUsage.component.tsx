@@ -1,9 +1,9 @@
 import React from 'react';
-import { RangeCalendar } from '@kitsuine/components';
+import { CalendarRange, RangeCalendar } from '@kitsuine/components';
 
 export const RangeCalendarSimpleUsageShowcase = (): React.ReactElement => {
 
-  const [range, setRange] = React.useState({});
+  const [range, setRange] = React.useState<CalendarRange<Date>>({});
 
   return (
     <RangeCalendar

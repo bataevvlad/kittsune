@@ -14,8 +14,8 @@ import {
   fireEvent,
   render,
   RenderAPI,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -111,7 +111,7 @@ I love Babel
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -126,7 +126,7 @@ I love Babel
       <TestSelectItem onPress={onPress} />,
     );
 
-    fireEvent.press(component.queryByType(TouchableOpacity));
+    fireEvent.press(component.UNSAFE_queryByType(TouchableOpacity));
     expect(onPress).toHaveBeenCalled();
   });
 
@@ -137,7 +137,7 @@ I love Babel
       <TestSelectItem onPressIn={onPressIn} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressIn');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressIn');
     expect(onPressIn).toHaveBeenCalled();
   });
 
@@ -147,7 +147,7 @@ I love Babel
       <TestSelectItem onPressOut={onPressOut} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressOut');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressOut');
     expect(onPressOut).toHaveBeenCalled();
   });
 });
@@ -189,9 +189,9 @@ describe('@select: component checks', () => {
    * ...rest for options
    */
   const touchables = {
-    findControlTouchable: (api: RenderAPI) => api.queryAllByType(TouchableOpacity)[0],
-    findBackdropTouchable: (api: RenderAPI) => api.queryAllByType(TouchableOpacity)[1],
-    findOptionTouchable: (api: RenderAPI, index: number) => api.queryAllByType(TouchableOpacity)[index + 2],
+    findControlTouchable: (api: RenderAPI) => api.UNSAFE_queryAllByType(TouchableOpacity)[0],
+    findBackdropTouchable: (api: RenderAPI) => api.UNSAFE_queryAllByType(TouchableOpacity)[1],
+    findOptionTouchable: (api: RenderAPI, index: number) => api.UNSAFE_queryAllByType(TouchableOpacity)[index + 2],
   };
 
   it('should render placeholder', () => {
@@ -318,7 +318,7 @@ I love Babel
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -347,7 +347,7 @@ I love Babel
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -371,7 +371,7 @@ I love Babel
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    const firstOption = await waitForElement(() => component.queryByText('Option 1'));
+    const firstOption = await waitFor(() => component.queryByText('Option 1'));
     const secondOption = component.queryByText('Option 2');
 
     expect(firstOption).toBeTruthy();
@@ -385,10 +385,10 @@ I love Babel
 
     fireEvent.press(touchables.findControlTouchable(component));
 
-    const backdrop = await waitForElement(() => touchables.findBackdropTouchable(component));
+    const backdrop = await waitFor(() => touchables.findBackdropTouchable(component));
     fireEvent.press(backdrop);
 
-    const firstOption = await waitForElement(() => touchables.findOptionTouchable(component, 0));
+    const firstOption = await waitFor(() => touchables.findOptionTouchable(component, 0));
     const secondOption = component.queryByText('Option 2');
 
     expect(firstOption).toBeFalsy();
@@ -406,7 +406,7 @@ I love Babel
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    await waitForElement(() => null);
+    await waitFor(() => null);
 
     fireEvent.press(touchables.findOptionTouchable(component, 1));
   });
@@ -431,7 +431,7 @@ I love Babel
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    const optionTouchable = await waitForElement(() => component.queryByText('Option 2'));
+    const optionTouchable = await waitFor(() => component.queryByText('Option 2'));
 
     fireEvent.press(optionTouchable);
   });
@@ -442,7 +442,7 @@ I love Babel
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    const checkboxes = await waitForElement(() => component.queryAllByType(CheckBox));
+    const checkboxes = await waitFor(() => component.UNSAFE_queryAllByType(CheckBox));
 
     expect(checkboxes.length).toEqual(2);
   });
@@ -460,7 +460,7 @@ I love Babel
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    const option2Checkbox = await waitForElement(() => component.queryAllByType(CheckBox)[1]);
+    const option2Checkbox = await waitFor(() => component.UNSAFE_queryAllByType(CheckBox)[1]);
 
     fireEvent.press(option2Checkbox);
   });
@@ -473,7 +473,7 @@ I love Babel
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    await waitForElement(() => expect(onFocus).toHaveBeenCalled());
+    await waitFor(() => expect(onFocus).toHaveBeenCalled());
   });
 
   it('should call onBlur', async () => {
@@ -483,10 +483,10 @@ I love Babel
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    await waitForElement(() => null);
+    await waitFor(() => null);
 
     fireEvent.press(touchables.findBackdropTouchable(component));
-    await waitForElement(() => expect(onBlur).toHaveBeenCalled());
+    await waitFor(() => expect(onBlur).toHaveBeenCalled());
   });
 
   it('should call onPressIn', () => {
@@ -590,7 +590,7 @@ describe('@select: component checks with groups', () => {
   TestSelect.displayName = 'TestSelect';
 
   const touchables = {
-    findControlTouchable: (api: RenderAPI) => api.queryAllByType(TouchableOpacity)[0],
+    findControlTouchable: (api: RenderAPI) => api.UNSAFE_queryAllByType(TouchableOpacity)[0],
   };
 
   it('should select single option in group', async () => {
@@ -604,7 +604,7 @@ describe('@select: component checks with groups', () => {
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    const option12Touchable = await waitForElement(() => component.getByText('Option 1.2'));
+    const option12Touchable = await waitFor(() => component.getByText('Option 1.2'));
 
     fireEvent.press(option12Touchable);
   });
@@ -628,7 +628,7 @@ describe('@select: component checks with groups', () => {
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    const group2Touchable = await waitForElement(() => component.getByText('Group 2'));
+    const group2Touchable = await waitFor(() => component.getByText('Group 2'));
 
     fireEvent.press(group2Touchable);
   });

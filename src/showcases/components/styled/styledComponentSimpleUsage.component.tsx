@@ -1,19 +1,14 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
-import { EvaProp, styled } from '@kitsuine/components';
+import { useStyled } from '@kitsuine/components';
 
-interface IProps {
-  eva: EvaProp;
-}
+const StyledComponent: React.FC = () => {
+  const { style } = useStyled('StyledComponent', {});
 
-@styled('StyledComponent')
-class StyledComponent extends React.Component<IProps> {
-  render(): React.ReactElement {
-    return (
-      <TouchableOpacity style={this.props.eva.style} />
-    );
-  }
-}
+  return (
+    <TouchableOpacity style={style} />
+  );
+};
 
 // mapping.json
 // {

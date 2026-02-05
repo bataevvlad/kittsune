@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   ImageStyle,
   StyleProp,
@@ -56,11 +56,23 @@ export interface CalendarHeaderProps extends ViewProps {
 
 export type CalendarHeaderElement = React.ReactElement<CalendarHeaderProps>;
 
-export class CalendarHeader extends React.Component<CalendarHeaderProps> {
-
-  private renderTitleIcon = (): ChevronDownElement => {
-    const { tintColor, ...svgStyle } = this.props.iconStyle;
-    const rotation = this.props.viewModeId === CalendarViewModes.DATE.id ? 0 : 180;
+export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
+  style,
+  viewModeId,
+  title,
+  titleStyle,
+  iconStyle,
+  lateralNavigationAllowed,
+  onTitlePress,
+  onNavigationLeftPress,
+  onNavigationRightPress,
+  arrowLeftComponent: ArrowLeftComponent,
+  arrowRightComponent: ArrowRightComponent,
+  ...viewProps
+}) => {
+  const renderTitleIcon = useCallback((): ChevronDownElement => {
+    const { tintColor, ...svgStyle } = iconStyle || {};
+    const rotation = viewModeId === CalendarViewModes.DATE.id ? 0 : 180;
 
     return (
       <ChevronDown
@@ -69,10 +81,10 @@ export class CalendarHeader extends React.Component<CalendarHeaderProps> {
         fill={tintColor}
       />
     );
-  };
+  }, [iconStyle, viewModeId]);
 
-  private renderLeftIcon = (): ChevronLeftElement => {
-    const { tintColor, ...svgStyle } = this.props.iconStyle;
+  const renderLeftIcon = useCallback((): ChevronLeftElement => {
+    const { tintColor, ...svgStyle } = iconStyle || {};
     const IconComponent: React.ComponentType<SvgProps> = RTLService.select(ChevronLeft, ChevronRight);
 
     return (
@@ -81,10 +93,10 @@ export class CalendarHeader extends React.Component<CalendarHeaderProps> {
         fill={tintColor}
       />
     );
-  };
+  }, [iconStyle]);
 
-  private renderRightIcon = (): ChevronRightElement => {
-    const { tintColor, ...svgStyle } = this.props.iconStyle;
+  const renderRightIcon = useCallback((): ChevronRightElement => {
+    const { tintColor, ...svgStyle } = iconStyle || {};
     const IconComponent: React.ComponentType<SvgProps> = RTLService.select(ChevronRight, ChevronLeft);
 
     return (
@@ -93,78 +105,74 @@ export class CalendarHeader extends React.Component<CalendarHeaderProps> {
         fill={tintColor}
       />
     );
-  };
+  }, [iconStyle]);
 
-  private renderLeftArrow = (): React.ReactElement => {
-    const LeftArrowComponent = this.props.arrowLeftComponent;
-    if (LeftArrowComponent) {
-      return <LeftArrowComponent onPress={this.props.onNavigationLeftPress} />;
+  const renderLeftArrow = useCallback((): React.ReactElement => {
+    if (ArrowLeftComponent) {
+      return <ArrowLeftComponent onPress={onNavigationLeftPress} />;
     }
 
     return (
       <Button
         appearance='ghost'
-        accessoryRight={this.renderLeftIcon}
-        onPress={this.props.onNavigationLeftPress}
+        accessoryRight={renderLeftIcon}
+        onPress={onNavigationLeftPress}
       />
     );
-  };
+  }, [ArrowLeftComponent, onNavigationLeftPress, renderLeftIcon]);
 
-  private renderRightArrow = (): React.ReactElement => {
-    const RightArrowComponent = this.props.arrowRightComponent;
-    if (RightArrowComponent) {
-      return <RightArrowComponent onPress={this.props.onNavigationRightPress} />;
+  const renderRightArrow = useCallback((): React.ReactElement => {
+    if (ArrowRightComponent) {
+      return <ArrowRightComponent onPress={onNavigationRightPress} />;
     }
 
     return (
       <Button
         appearance='ghost'
-        accessoryRight={this.renderRightIcon}
-        onPress={this.props.onNavigationRightPress}
+        accessoryRight={renderRightIcon}
+        onPress={onNavigationRightPress}
       />
     );
-  };
+  }, [ArrowRightComponent, onNavigationRightPress, renderRightIcon]);
 
-  private renderLateralNavigationControls = (): React.ReactElement<ViewProps> => {
+  const renderLateralNavigationControls = (): React.ReactElement<ViewProps> => {
     return (
       <View style={styles.subContainer}>
-        {this.renderLeftArrow()}
-        {this.renderRightArrow()}
+        {renderLeftArrow()}
+        {renderRightArrow()}
       </View>
     );
   };
 
-  private renderTitleElement = (props: TextProps): React.ReactElement => {
+  const renderTitleElement = useCallback((props: TextProps): React.ReactElement => {
     return (
       <Text
         {...props}
-        style={[props.style, styles.headerButtonText, this.props.titleStyle]}
+        style={[props.style, styles.headerButtonText, titleStyle]}
       >
-        {this.props.title}
+        {title}
       </Text>
     );
-  };
+  }, [title, titleStyle]);
 
-  public render(): React.ReactElement<ViewProps> {
-    const { style, titleStyle, onTitlePress, title, lateralNavigationAllowed, viewModeId, ...viewProps } = this.props;
-
-    return (
-      <View
-        {...viewProps}
-        style={[styles.container, style]}
+  return (
+    <View
+      {...viewProps}
+      style={[styles.container, style]}
+    >
+      <Button
+        appearance='ghost'
+        accessoryRight={renderTitleIcon}
+        onPress={onTitlePress}
       >
-        <Button
-          appearance='ghost'
-          accessoryRight={this.renderTitleIcon}
-          onPress={onTitlePress}
-        >
-          {(props) => this.renderTitleElement(props)}
-        </Button>
-        {lateralNavigationAllowed && this.renderLateralNavigationControls()}
-      </View>
-    );
-  }
-}
+        {renderTitleElement}
+      </Button>
+      {lateralNavigationAllowed && renderLateralNavigationControls()}
+    </View>
+  );
+};
+
+CalendarHeader.displayName = 'CalendarHeader';
 
 const styles = StyleSheet.create({
   container: {

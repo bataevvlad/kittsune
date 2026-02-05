@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -13,15 +13,14 @@ import {
 } from 'react-native';
 import { TouchableWithoutFeedback } from '../../../../devsupport';
 import {
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../../../theme';
 import { CalendarDateInfo } from '../../type';
 
 type ChildrenProp<D> = (date: CalendarDateInfo<D>, style: StyleType) => React.ReactElement;
 
-export interface CalendarPickerCellProps<D> extends StyledComponentProps {
+export interface CalendarPickerCellProps<D> {
   date: CalendarDateInfo<D>;
   selected?: boolean;
   bounding?: boolean;
@@ -38,99 +37,123 @@ export interface CalendarPickerCellProps<D> extends StyledComponentProps {
 
 export type CalendarPickerCellElement<D> = React.ReactElement<CalendarPickerCellProps<D>>;
 
-@styled('CalendarCell')
-export class CalendarPickerCell<D> extends React.Component<CalendarPickerCellProps<D>> {
+const getContainerBorderRadius = (
+  borderRadius: number,
+  firstRangeItem?: boolean,
+  lastRangeItem?: boolean
+): StyleType => {
+  const borderStyle = {
+    borderBottomRightRadius: 0,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 0,
+    borderTopLeftRadius: 0,
+  };
 
-  public shouldComponentUpdate(nextProps: CalendarPickerCellProps<D>): boolean {
-    if (nextProps.shouldComponentUpdate) {
-      return nextProps.shouldComponentUpdate(this.props, nextProps);
-    }
-    return true;
+  if (firstRangeItem) {
+    borderStyle.borderBottomLeftRadius = borderRadius;
+    borderStyle.borderTopLeftRadius = borderRadius;
   }
 
-  private onPress = (): void => {
-    this.props.onSelect?.(this.props.date);
+  if (lastRangeItem) {
+    borderStyle.borderBottomRightRadius = borderRadius;
+    borderStyle.borderTopRightRadius = borderRadius;
+  }
+
+  return borderStyle;
+};
+
+const getComponentStyle = (
+  source: StyleType,
+  firstRangeItem?: boolean,
+  lastRangeItem?: boolean
+): StyleType => {
+  const {
+    contentBorderWidth,
+    contentBorderRadius,
+    contentBorderColor,
+    contentBackgroundColor,
+    contentTextFontSize,
+    contentTextFontWeight,
+    contentTextColor,
+    contentTextFontFamily,
+    borderRadius,
+    ...containerParameters
+  } = source;
+
+  return {
+    container: {
+      ...containerParameters,
+      ...getContainerBorderRadius(borderRadius, firstRangeItem, lastRangeItem),
+    },
+    contentContainer: {
+      borderWidth: contentBorderWidth,
+      borderRadius: contentBorderRadius,
+      borderColor: contentBorderColor,
+      backgroundColor: contentBackgroundColor,
+    },
+    contentText: {
+      fontSize: contentTextFontSize,
+      fontWeight: contentTextFontWeight,
+      color: contentTextColor,
+      fontFamily: contentTextFontFamily,
+    },
   };
+};
 
-  private getContainerBorderRadius = (borderRadius: number): StyleType => {
-    const { firstRangeItem, lastRangeItem } = this.props;
+// Not using React.memo - the parent CalendarPicker handles optimization via shouldItemUpdate
+function CalendarPickerCellComponent<D>({
+  style,
+  date,
+  bounding,
+  children,
+  selected,
+  today,
+  range,
+  firstRangeItem,
+  lastRangeItem,
+  onSelect,
+  disabled,
+  ...touchableProps
+}: CalendarPickerCellProps<D>): React.ReactElement<TouchableOpacityProps> {
+  const { style: evaStyleRaw } = useStyled('CalendarCell', {
+    selected,
+    bounding,
+    today,
+    range,
+    disabled,
+  });
 
-    const borderStyle = {
-      borderBottomRightRadius: 0,
-      borderTopRightRadius: 0,
-      borderBottomLeftRadius: 0,
-      borderTopLeftRadius: 0,
-    };
+  const evaStyle = useMemo(
+    () => getComponentStyle(evaStyleRaw, firstRangeItem, lastRangeItem),
+    [evaStyleRaw, firstRangeItem, lastRangeItem]
+  );
 
-    if (firstRangeItem) {
-      borderStyle.borderBottomLeftRadius = borderRadius;
-      borderStyle.borderTopLeftRadius = borderRadius;
-    }
+  const onPress = useCallback((): void => {
+    onSelect?.(date);
+  }, [onSelect, date]);
 
-    if (lastRangeItem) {
-      borderStyle.borderBottomRightRadius = borderRadius;
-      borderStyle.borderTopRightRadius = borderRadius;
-    }
-
-    return borderStyle;
-  };
-
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      contentBorderWidth,
-      contentBorderRadius,
-      contentBorderColor,
-      contentBackgroundColor,
-      contentTextFontSize,
-      contentTextFontWeight,
-      contentTextColor,
-      contentTextFontFamily,
-      borderRadius,
-      ...containerParameters
-    } = source;
-
-    return {
-      container: {
-        ...containerParameters,
-        ...this.getContainerBorderRadius(borderRadius),
-      },
-      contentContainer: {
-        borderWidth: contentBorderWidth,
-        borderRadius: contentBorderRadius,
-        borderColor: contentBorderColor,
-        backgroundColor: contentBackgroundColor,
-      },
-      contentText: {
-        fontSize: contentTextFontSize,
-        fontWeight: contentTextFontWeight,
-        color: contentTextColor,
-        fontFamily: contentTextFontFamily,
-      },
-    };
-  };
-
-  private renderContentElement = (source: ChildrenProp<D>, evaStyle): React.ReactElement => {
-    return source?.(this.props.date, {
+  const renderContentElement = (source: ChildrenProp<D>): React.ReactElement => {
+    return source?.(date, {
       container: evaStyle.contentContainer,
       text: evaStyle.contentText,
     });
   };
 
-  public render(): React.ReactElement<TouchableOpacityProps> {
-    const { eva, style, date, bounding, children, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-
-    return (
-      <TouchableWithoutFeedback
-        {...touchableProps}
-        style={[evaStyle.container, styles.container, style]}
-        onPress={this.onPress}
-      >
-        {this.renderContentElement(children, evaStyle)}
-      </TouchableWithoutFeedback>
-    );
-  }
+  return (
+    <TouchableWithoutFeedback
+      {...touchableProps}
+      disabled={disabled}
+      style={[evaStyle.container, styles.container, style]}
+      onPress={onPress}
+    >
+      {renderContentElement(children)}
+    </TouchableWithoutFeedback>
+  );
 }
+
+export const CalendarPickerCell = CalendarPickerCellComponent as <D>(
+  props: CalendarPickerCellProps<D>
+) => React.ReactElement<TouchableOpacityProps>;
 
 const styles = StyleSheet.create({
   container: {

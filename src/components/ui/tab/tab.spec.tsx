@@ -9,7 +9,7 @@ import {
   fireEvent,
   render,
   RenderAPI,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -51,7 +51,7 @@ describe('@tab: component checks', () => {
       <TestTab icon={Icon} />,
     );
 
-    const image = component.queryByType(Image);
+    const image = component.UNSAFE_queryByType(Image);
 
     expect(image).toBeTruthy();
     expect(image.props.source).toEqual({ uri: 'https://akveo.github.io/eva-icons/fill/png/128/star.png' });
@@ -68,7 +68,7 @@ describe('@tab: component checks', () => {
       <TestTab icon={Icon} />,
     );
 
-    const image = component.queryByType(Image);
+    const image = component.UNSAFE_queryByType(Image);
 
     expect(image).toBeTruthy();
     expect(image.props.source).toEqual({ uri: 'https://akveo.github.io/eva-icons/fill/png/128/star.png' });
@@ -134,7 +134,7 @@ describe('@tab-bar: component checks', () => {
   };
 
   const touchables = {
-    findTabTouchable: (api: RenderAPI, index: number) => api.queryAllByType(TouchableOpacity)[index],
+    findTabTouchable: (api: RenderAPI, index: number) => api.UNSAFE_queryAllByType(TouchableOpacity)[index],
   };
 
   it('should render 2 tabs passed to children', () => {
@@ -142,7 +142,7 @@ describe('@tab-bar: component checks', () => {
       <TestTabBar />,
     );
 
-    expect(component.queryAllByType(Tab).length).toEqual(2);
+    expect(component.UNSAFE_queryAllByType(Tab).length).toEqual(2);
   });
 
   it('should set tab selected by passing selectedIndex prop', () => {
@@ -150,7 +150,7 @@ describe('@tab-bar: component checks', () => {
       <TestTabBar selectedIndex={1} />,
     );
 
-    expect(component.queryAllByType(Tab)[1].props.selected).toEqual(true);
+    expect(component.UNSAFE_queryAllByType(Tab)[1].props.selected).toEqual(true);
   });
 
   it('should set tab selected by pressing it', () => {
@@ -159,7 +159,7 @@ describe('@tab-bar: component checks', () => {
     );
 
     fireEvent.press(touchables.findTabTouchable(component, 1));
-    expect(component.queryAllByType(Tab)[1].props.selected).toEqual(true);
+    expect(component.UNSAFE_queryAllByType(Tab)[1].props.selected).toEqual(true);
   });
 
   it('should render tab indicator correctly', () => {
@@ -203,7 +203,7 @@ describe('@tab-view: component checks', () => {
       <TestTabView />,
     );
 
-    expect(component.queryAllByType(Tab).length).toEqual(2);
+    expect(component.UNSAFE_queryAllByType(Tab).length).toEqual(2);
   });
 
   it('should render 2 content elements passed to tab children', () => {

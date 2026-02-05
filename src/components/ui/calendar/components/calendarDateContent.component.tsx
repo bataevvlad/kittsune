@@ -21,23 +21,25 @@ export interface CalendarDateContentProps extends ViewProps {
 
 export type CalendarDateContentElement = React.ReactElement<CalendarDateContentProps>;
 
-export class CalendarDateContent extends React.Component<CalendarDateContentProps> {
+export const CalendarDateContent: React.FC<CalendarDateContentProps> = ({
+  style,
+  textStyle,
+  children,
+  ...viewProps
+}) => {
+  return (
+    <View
+      {...viewProps}
+      style={[styles.container, style]}
+    >
+      <Text style={textStyle}>
+        {children}
+      </Text>
+    </View>
+  );
+};
 
-  public render(): React.ReactElement<ViewProps> {
-    const { style, textStyle, children, ...viewProps } = this.props;
-
-    return (
-      <View
-        {...viewProps}
-        style={[styles.container, style]}
-      >
-        <Text style={textStyle}>
-          {children}
-        </Text>
-      </View>
-    );
-  }
-}
+CalendarDateContent.displayName = 'CalendarDateContent';
 
 const styles = StyleSheet.create({
   container: {

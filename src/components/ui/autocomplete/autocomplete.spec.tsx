@@ -15,8 +15,8 @@ import {
 import {
   fireEvent,
   render,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -120,7 +120,7 @@ I love Babel
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -135,7 +135,7 @@ I love Babel
       <TestAutocompleteItem onPress={onPress} />,
     );
 
-    fireEvent.press(component.queryByType(TouchableOpacity));
+    fireEvent.press(component.UNSAFE_queryByType(TouchableOpacity));
     expect(onPress).toHaveBeenCalled();
   });
 
@@ -145,7 +145,7 @@ I love Babel
       <TestAutocompleteItem onPressIn={onPressIn} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressIn');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressIn');
     expect(onPressIn).toBeCalled();
   });
 
@@ -155,7 +155,7 @@ I love Babel
       <TestAutocompleteItem onPressOut={onPressOut} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressOut');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressOut');
     expect(onPressOut).toBeCalled();
   });
 });
@@ -220,7 +220,7 @@ describe('@autocomplete: component checks', () => {
       <TestAutocomplete />,
     );
 
-    expect(component.queryByType(TextInput)).toBeTruthy();
+    expect(component.UNSAFE_queryByType(TextInput)).toBeTruthy();
   });
 
   it('should render placeholder', () => {
@@ -228,7 +228,7 @@ describe('@autocomplete: component checks', () => {
       <TestAutocomplete placeholder='I love Babel' />,
     );
 
-    expect(component.queryByPlaceholder('I love Babel')).toBeTruthy();
+    expect(component.queryByPlaceholderText('I love Babel')).toBeTruthy();
   });
 
   it('should not render options when not focused', () => {
@@ -245,8 +245,8 @@ describe('@autocomplete: component checks', () => {
       <TestAutocomplete />,
     );
 
-    fireEvent(component.queryByType(TextInput), 'focus');
-    const firstOption = await waitForElement(() => component.queryByText('Option 1'));
+    fireEvent(component.UNSAFE_queryByType(TextInput), 'focus');
+    const firstOption = await waitFor(() => component.queryByText('Option 1'));
     const secondOption = component.queryByText('Option 2');
 
     expect(firstOption).toBeTruthy();
@@ -259,7 +259,7 @@ describe('@autocomplete: component checks', () => {
       <TestAutocomplete onChangeText={onChangeText} />,
     );
 
-    fireEvent.changeText(component.queryByType(TextInput), 'I love Babel');
+    fireEvent.changeText(component.UNSAFE_queryByType(TextInput), 'I love Babel');
     expect(onChangeText).toBeCalledWith('I love Babel');
   });
 
@@ -268,15 +268,17 @@ describe('@autocomplete: component checks', () => {
       <TestAutocomplete />,
     );
 
-    fireEvent(component.queryByTestId('@autocomplete/input-anchor'), 'focus');
-    await waitForElement(() => null);
+    fireEvent(component.UNSAFE_queryByType(TextInput), 'focus');
+    await waitFor(() => expect(component.queryByText('Option 1')).toBeTruthy());
 
-    fireEvent.changeText(component.queryByTestId('@autocomplete/input'), '2');
-    const firstOption = await waitForElement(() => component.queryByText('Option 1'));
-    const secondOption = component.queryByText('Option 2');
+    // After options are shown, there may be multiple TextInputs - use the first one
+    fireEvent.changeText(component.UNSAFE_queryAllByType(TextInput)[0], '2');
 
-    expect(firstOption).toBeFalsy();
-    expect(secondOption).toBeTruthy();
+    // Wait for the filter to take effect
+    await waitFor(() => {
+      expect(component.queryByText('Option 1')).toBeFalsy();
+    });
+    expect(component.queryByText('Option 2')).toBeTruthy();
   });
 
   it('should call onSelect when option is pressed', async () => {
@@ -284,10 +286,12 @@ describe('@autocomplete: component checks', () => {
     const component = render(
       <TestAutocomplete onSelect={onSelect} />,
     );
-    fireEvent(component.queryByTestId('@autocomplete/input-anchor'), 'focus');
-    await waitForElement(() => null);
+    fireEvent(component.UNSAFE_queryByType(TextInput), 'focus');
+    await waitFor(() => expect(component.queryByText('Option 2')).toBeTruthy());
 
-    fireEvent.press(component.queryAllByType(TouchableWithoutFeedback)[3]);
+    // Press Option 2 (index 1)
+    const option2 = component.getByText('Option 2');
+    fireEvent.press(option2);
     expect(onSelect).toBeCalledWith(1);
   });
 
@@ -298,11 +302,11 @@ describe('@autocomplete: component checks', () => {
 
     fireEvent(component.queryByTestId('@autocomplete/input-anchor'), 'focus');
 
-    await waitForElement(() => {
+    await waitFor(() => {
       fireEvent.press(component.queryByTestId('@backdrop'));
     });
 
-    const firstOption = await waitForElement(() => component.queryAllByType(TouchableWithoutFeedback)[2]);
+    const firstOption = await waitFor(() => component.UNSAFE_queryAllByType(TouchableWithoutFeedback)[2]);
     const secondOption = component.queryByText('Option 2');
 
     expect(firstOption).toBeFalsy();
@@ -315,7 +319,7 @@ describe('@autocomplete: component checks', () => {
       <TestAutocomplete onFocus={onFocus} />,
     );
 
-    fireEvent(component.queryByType(TextInput), 'focus');
+    fireEvent(component.UNSAFE_queryByType(TextInput), 'focus');
     expect(onFocus).toBeCalled();
   });
 
@@ -325,7 +329,7 @@ describe('@autocomplete: component checks', () => {
       <TestAutocomplete onBlur={onBlur} />,
     );
 
-    fireEvent(component.queryByType(TextInput), 'blur');
+    fireEvent(component.UNSAFE_queryByType(TextInput), 'blur');
     expect(onBlur).toBeCalled();
   });
 

@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`@processor: service checks * processes mapping properly 1`] = `
-Array [
-  Object {
+[
+  {
     "appearance": "filled",
     "name": "Button",
-    "states": Array [
+    "states": [
       "disabled",
       "disabled.active",
       "active",
     ],
-    "variants": Array [
+    "variants": [
       "primary.tiny",
       "primary.small",
       "primary.medium",
@@ -38,15 +38,15 @@ Array [
       "danger.giant",
     ],
   },
-  Object {
+  {
     "appearance": "outline",
     "name": "Button",
-    "states": Array [
+    "states": [
       "disabled",
       "disabled.active",
       "active",
     ],
-    "variants": Array [
+    "variants": [
       "primary.tiny",
       "primary.small",
       "primary.medium",

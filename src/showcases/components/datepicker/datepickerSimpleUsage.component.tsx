@@ -12,7 +12,7 @@ export const DatepickerSimpleUsageShowcase = (): React.ReactElement => {
       level='1'
     >
 
-      <Text category='h6'>
+      <Text category='s1'>
         {`Selected date: ${date.toLocaleDateString()}`}
       </Text>
 

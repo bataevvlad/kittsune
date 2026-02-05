@@ -13,8 +13,8 @@ import { Moment } from 'moment';
 import {
   fireEvent,
   render,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -29,17 +29,6 @@ import { MomentDateService } from '@kitsuine/moment';
 import { Text } from '../text/text.component';
 
 describe('@calendar: component checks', () => {
-
-  /*
-   * Get rid of useNativeDriver warnings
-   */
-  beforeAll(() => {
-    jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
-  });
-
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
 
   const now: Date = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
@@ -98,7 +87,7 @@ describe('@calendar: component checks', () => {
     );
 
     fireEvent.press(component.queryByText('Jul'));
-    const dayCell = await waitForElement(() => component.queryByText('7'));
+    const dayCell = await waitFor(() => component.queryByText('7'));
 
     fireEvent.press(dayCell);
   });
@@ -116,10 +105,10 @@ describe('@calendar: component checks', () => {
     );
 
     fireEvent.press(component.queryByText(`${now.getFullYear() + 1}`));
-    const monthCell = await waitForElement(() => component.queryByText('Jul'));
+    const monthCell = await waitFor(() => component.queryByText('Jul'));
 
     fireEvent.press(monthCell);
-    const dayCell = await waitForElement(() => component.queryByText('7'));
+    const dayCell = await waitFor(() => component.queryByText('7'));
 
     fireEvent.press(dayCell);
   });
@@ -133,7 +122,7 @@ describe('@calendar: component checks', () => {
       />,
     );
 
-    expect(componentRef.current.state.viewMode).toEqual(CalendarViewModes.YEAR);
+    expect(componentRef.current.getViewMode()).toEqual(CalendarViewModes.YEAR);
   });
 
   it('should change month to next when navigation button pressed', () => {
@@ -142,14 +131,14 @@ describe('@calendar: component checks', () => {
       <TestCalendar ref={componentRef} />,
     );
 
-    const initialDate = componentRef.current.state.visibleDate;
-    const navigationNextButton = component.queryAllByType(TouchableOpacity)[2];
+    const initialDate = componentRef.current.getVisibleDate();
+    const navigationNextButton = component.UNSAFE_queryAllByType(TouchableOpacity)[2];
 
     fireEvent.press(navigationNextButton);
 
     const nextMonth = new Date(initialDate.getFullYear(), initialDate.getMonth() + 1, initialDate.getDate());
 
-    expect(componentRef.current.state.visibleDate).toEqual(nextMonth);
+    expect(componentRef.current.getVisibleDate()).toEqual(nextMonth);
   });
 
   it('should change month to previous when navigation button pressed', () => {
@@ -158,14 +147,14 @@ describe('@calendar: component checks', () => {
       <TestCalendar ref={componentRef} />,
     );
 
-    const initialDate = componentRef.current.state.visibleDate;
-    const navigationPrevButton = component.queryAllByType(TouchableOpacity)[1];
+    const initialDate = componentRef.current.getVisibleDate();
+    const navigationPrevButton = component.UNSAFE_queryAllByType(TouchableOpacity)[1];
 
     fireEvent.press(navigationPrevButton);
 
     const previousMonth = new Date(initialDate.getFullYear(), initialDate.getMonth() - 1, initialDate.getDate());
 
-    expect(componentRef.current.state.visibleDate).toEqual(previousMonth);
+    expect(componentRef.current.getVisibleDate()).toEqual(previousMonth);
   });
 
   it('should change year to next when navigation button pressed', () => {
@@ -177,15 +166,15 @@ describe('@calendar: component checks', () => {
       />,
     );
 
-    const initialDate = componentRef.current.state.visibleDate;
-    const navigationPrevButton = component.queryAllByType(TouchableOpacity)[2];
+    const initialDate = componentRef.current.getVisibleDate();
+    const navigationPrevButton = component.UNSAFE_queryAllByType(TouchableOpacity)[2];
 
     fireEvent.press(navigationPrevButton);
 
     const nextYear = new Date(initialDate.getFullYear() + 12, initialDate.getMonth(), initialDate.getDate());
 
-    expect(componentRef.current.state.visibleDate).toEqual(initialDate);
-    expect(componentRef.current.state.pickerDate).toEqual(nextYear);
+    expect(componentRef.current.getVisibleDate()).toEqual(initialDate);
+    expect(componentRef.current.getPickerDate()).toEqual(nextYear);
   });
 
   it('should change year to previous when navigation button pressed', () => {
@@ -197,15 +186,15 @@ describe('@calendar: component checks', () => {
       />,
     );
 
-    const initialDate = componentRef.current.state.visibleDate;
-    const navigationPrevButton = component.queryAllByType(TouchableOpacity)[1];
+    const initialDate = componentRef.current.getVisibleDate();
+    const navigationPrevButton = component.UNSAFE_queryAllByType(TouchableOpacity)[1];
 
     fireEvent.press(navigationPrevButton);
 
     const nextYear = new Date(initialDate.getFullYear() - 12, initialDate.getMonth(), initialDate.getDate());
 
-    expect(componentRef.current.state.visibleDate).toEqual(initialDate);
-    expect(componentRef.current.state.pickerDate).toEqual(nextYear);
+    expect(componentRef.current.getVisibleDate()).toEqual(initialDate);
+    expect(componentRef.current.getPickerDate()).toEqual(nextYear);
   });
 
   it('should show the selected date on load provided by date prop', () => {
@@ -218,7 +207,7 @@ describe('@calendar: component checks', () => {
       />,
     );
 
-    const visibleDate = componentRef.current.state.visibleDate;
+    const visibleDate = componentRef.current.getVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(date.getFullYear());
     expect(visibleDate.getMonth()).toEqual(date.getMonth());
   });
@@ -234,7 +223,7 @@ describe('@calendar: component checks', () => {
       />,
     );
 
-    const visibleDate = componentRef.current.state.visibleDate;
+    const visibleDate = componentRef.current.getVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(initialDate.getFullYear());
     expect(visibleDate.getMonth()).toEqual(initialDate.getMonth());
   });
@@ -250,7 +239,7 @@ describe('@calendar: component checks', () => {
 
     componentRef.current.scrollToToday();
 
-    expect(componentRef.current.state.visibleDate.getMonth()).toEqual(today.getMonth());
+    expect(componentRef.current.getVisibleDate().getMonth()).toEqual(today.getMonth());
   });
 
   it('should scroll to the specific date when scrollToDate called', () => {
@@ -265,7 +254,7 @@ describe('@calendar: component checks', () => {
 
     componentRef.current.scrollToDate(dateToScroll);
 
-    const visibleDate = componentRef.current.state.visibleDate;
+    const visibleDate = componentRef.current.getVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(dateToScroll.getFullYear());
     expect(visibleDate.getMonth()).toEqual(dateToScroll.getMonth());
   });
@@ -338,8 +327,8 @@ describe('@calendar: component checks', () => {
       <TestCalendar onVisibleDateChange={onVisibleDateChange} />,
     );
 
-    const navigationPrevButton = component.queryAllByType(TouchableOpacity)[1];
-    const navigationNextButton = component.queryAllByType(TouchableOpacity)[2];
+    const navigationPrevButton = component.UNSAFE_queryAllByType(TouchableOpacity)[1];
+    const navigationNextButton = component.UNSAFE_queryAllByType(TouchableOpacity)[2];
 
     fireEvent.press(navigationPrevButton);
     expect(onVisibleDateChange).toBeCalledTimes(1);

@@ -20,21 +20,23 @@ export interface CalendarMonthHeaderProps extends ViewPropsWithoutChildren {
 
 export type CalendarMonthHeaderElement = React.ReactElement<CalendarMonthHeaderProps>;
 
-export class CalendarMonthHeader extends React.Component<CalendarMonthHeaderProps> {
+export const CalendarMonthHeader: React.FC<CalendarMonthHeaderProps> = ({
+  style,
+  data,
+  children,
+  ...viewProps
+}) => {
+  return (
+    <View
+      {...viewProps}
+      style={[styles.container, style]}
+    >
+      {data.map(children)}
+    </View>
+  );
+};
 
-  public render(): React.ReactElement<ViewProps> {
-    const { style, data, children, ...viewProps } = this.props;
-
-    return (
-      <View
-        {...viewProps}
-        style={[styles.container, style]}
-      >
-        {data.map(children)}
-      </View>
-    );
-  }
-}
+CalendarMonthHeader.displayName = 'CalendarMonthHeader';
 
 const styles = StyleSheet.create({
   container: {

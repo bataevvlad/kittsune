@@ -14,7 +14,7 @@ import {
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -96,7 +96,7 @@ describe('@drawer-item: component checks', () => {
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -125,7 +125,7 @@ describe('@drawer-item: component checks', () => {
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -140,7 +140,7 @@ describe('@drawer-item: component checks', () => {
       <TestDrawerItem onPress={onPress} />,
     );
 
-    fireEvent.press(component.queryByType(TouchableOpacity));
+    fireEvent.press(component.UNSAFE_queryByType(TouchableOpacity));
 
     expect(onPress).toHaveBeenCalled();
   });
@@ -165,7 +165,7 @@ describe('@drawer: component checks', () => {
       <TestDrawer />,
     );
 
-    const items = component.queryAllByType(DrawerItem);
+    const items = component.UNSAFE_queryAllByType(DrawerItem);
     expect(items.length).toEqual(2);
   });
 

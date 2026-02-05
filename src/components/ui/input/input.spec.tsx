@@ -14,7 +14,7 @@ import {
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -82,7 +82,7 @@ describe('@input: component checks', () => {
       <TestInput disabled={true} />,
     );
 
-    const textInput = component.queryByType(TextInput);
+    const textInput = component.UNSAFE_queryByType(TextInput);
     expect(textInput.props.editable).toEqual(false);
   });
 
@@ -91,7 +91,7 @@ describe('@input: component checks', () => {
       <TestInput placeholder='I love Babel' />,
     );
 
-    expect(component.queryByPlaceholder('I love Babel')).toBeTruthy();
+    expect(component.queryByPlaceholderText('I love Babel')).toBeTruthy();
   });
 
   it('should render text passed to label prop', () => {
@@ -176,7 +176,7 @@ describe('@input: component checks', () => {
       <TestInput caption={Caption} />,
     );
 
-    const caption = component.queryByType(Image);
+    const caption = component.UNSAFE_queryByType(Image);
 
     expect(caption).toBeTruthy();
     expect(caption.props.source.uri).toEqual('https://akveo.github.io/eva-icons/fill/png/128/star.png');
@@ -204,7 +204,7 @@ describe('@input: component checks', () => {
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -233,7 +233,7 @@ describe('@input: component checks', () => {
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -248,7 +248,7 @@ describe('@input: component checks', () => {
       <TestInput onChangeText={onChangeText} />,
     );
 
-    fireEvent.changeText(component.queryByType(TextInput), 'I love Babel');
+    fireEvent.changeText(component.UNSAFE_queryByType(TextInput), 'I love Babel');
     expect(onChangeText).toBeCalledWith('I love Babel');
   });
 
@@ -258,7 +258,7 @@ describe('@input: component checks', () => {
       <TestInput onFocus={onFocus} />,
     );
 
-    fireEvent(component.queryByType(TextInput), 'focus');
+    fireEvent(component.UNSAFE_queryByType(TextInput), 'focus');
     expect(onFocus).toBeCalled();
   });
 
@@ -268,7 +268,7 @@ describe('@input: component checks', () => {
       <TestInput onBlur={onBlur} />,
     );
 
-    fireEvent(component.queryByType(TextInput), 'blur');
+    fireEvent(component.UNSAFE_queryByType(TextInput), 'blur');
     expect(onBlur).toBeCalled();
   });
 });

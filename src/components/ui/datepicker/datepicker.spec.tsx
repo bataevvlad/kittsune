@@ -14,8 +14,8 @@ import {
   fireEvent,
   render,
   RenderAPI,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -75,12 +75,11 @@ describe('@datepicker: component checks', () => {
   /*
    * In this test:
    * [0] for input touchable
-   * [1] for backdrop
    * ...rest for calendar touchable components
    */
   const touchables = {
-    findInputTouchable: (api: RenderAPI) => api.queryAllByType(TouchableOpacity)[0],
-    findBackdropTouchable: (api: RenderAPI) => api.queryAllByType(TouchableOpacity)[1],
+    findInputTouchable: (api: RenderAPI) => api.UNSAFE_queryAllByType(TouchableOpacity)[0],
+    findBackdropTouchable: (api: RenderAPI) => api.queryByTestId('@backdrop'),
   };
 
   it('should not render calendar when not focused', () => {
@@ -88,7 +87,7 @@ describe('@datepicker: component checks', () => {
       <TestDatepicker />,
     );
 
-    expect(component.queryByType(Calendar)).toBeFalsy();
+    expect(component.UNSAFE_queryByType(Calendar)).toBeFalsy();
   });
 
   it('should render calendar when becomes focused', async () => {
@@ -97,7 +96,7 @@ describe('@datepicker: component checks', () => {
     );
 
     fireEvent.press(touchables.findInputTouchable(component));
-    const calendar = await waitForElement(() => component.queryByType(Calendar));
+    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
 
     expect(calendar).toBeTruthy();
   });
@@ -264,7 +263,7 @@ describe('@datepicker: component checks', () => {
     );
 
     fireEvent.press(touchables.findInputTouchable(component));
-    const dateTouchable = await waitForElement(() => component.queryAllByText('7')[0]);
+    const dateTouchable = await waitFor(() => component.queryAllByText('7')[0]);
 
     fireEvent.press(dateTouchable);
     expect(onSelect).toBeCalledWith(new Date(today.getFullYear(), today.getMonth(), 7));
@@ -276,7 +275,7 @@ describe('@datepicker: component checks', () => {
     );
 
     fireEvent.press(touchables.findInputTouchable(component));
-    const cells = await waitForElement(() => component.queryAllByTestId('@datepicker/cell'));
+    const cells = await waitFor(() => component.queryAllByTestId('@datepicker/cell'));
 
     expect(cells.length).not.toEqual(0);
   });
@@ -291,7 +290,7 @@ describe('@datepicker: component checks', () => {
 
     fireEvent.press(touchables.findInputTouchable(component));
 
-    const cells = await waitForElement(() => component.queryAllByTestId('@datepicker/cell'));
+    const cells = await waitFor(() => component.queryAllByTestId('@datepicker/cell'));
     expect(cells.length).not.toEqual(0);
   });
 
@@ -304,7 +303,7 @@ describe('@datepicker: component checks', () => {
     );
 
     fireEvent.press(touchables.findInputTouchable(component));
-    const cells = await waitForElement(() => component.queryAllByTestId('@datepicker/cell'));
+    const cells = await waitFor(() => component.queryAllByTestId('@datepicker/cell'));
 
     expect(cells.length).not.toEqual(0);
   });
@@ -315,11 +314,11 @@ describe('@datepicker: component checks', () => {
     );
 
     fireEvent.press(touchables.findInputTouchable(component));
-    const dateTouchable = await waitForElement(() => component.queryAllByText('7')[0]);
+    const dateTouchable = await waitFor(() => component.queryAllByText('7')[0]);
 
     fireEvent.press(dateTouchable);
 
-    const calendar = await waitForElement(() => component.queryByType(Calendar));
+    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
     expect(calendar).toBeFalsy();
   });
 
@@ -329,11 +328,11 @@ describe('@datepicker: component checks', () => {
     );
 
     fireEvent.press(touchables.findInputTouchable(component));
-    const dateTouchable = await waitForElement(() => component.queryAllByText('7')[0]);
+    const dateTouchable = await waitFor(() => component.queryAllByText('7')[0]);
 
     fireEvent.press(dateTouchable);
 
-    const calendar = await waitForElement(() => component.queryByType(Calendar));
+    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
     expect(calendar).toBeTruthy();
   });
 
@@ -344,10 +343,14 @@ describe('@datepicker: component checks', () => {
 
     fireEvent.press(touchables.findInputTouchable(component));
 
-    const backdrop = await waitForElement(() => touchables.findBackdropTouchable(component));
-    fireEvent.press(backdrop);
+    const backdrop = await waitFor(() => touchables.findBackdropTouchable(component));
+    // Backdrop uses PanResponder - call the handler directly
+    const responderRelease = backdrop.props.onResponderRelease;
+    if (responderRelease) {
+      responderRelease({ nativeEvent: {} });
+    }
 
-    const calendar = await waitForElement(() => component.queryByType(Calendar));
+    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
     expect(calendar).toBeFalsy();
   });
 
@@ -359,7 +362,7 @@ describe('@datepicker: component checks', () => {
 
     fireEvent.press(touchables.findInputTouchable(component));
 
-    await waitForElement(() => null);
+    await waitFor(() => null);
 
     expect(onFocus).toBeCalled();
   });
@@ -372,8 +375,12 @@ describe('@datepicker: component checks', () => {
 
     fireEvent.press(touchables.findInputTouchable(component));
 
-    const backdrop = await waitForElement(() => touchables.findBackdropTouchable(component));
-    fireEvent.press(backdrop);
+    const backdrop = await waitFor(() => touchables.findBackdropTouchable(component));
+    // Backdrop uses PanResponder - call the handler directly
+    const responderRelease = backdrop.props.onResponderRelease;
+    if (responderRelease) {
+      responderRelease({ nativeEvent: {} });
+    }
 
     expect(onBlur).toBeCalled();
   });
@@ -386,7 +393,7 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
-    const calendar = await waitForElement(() => component.queryByType(Calendar));
+    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
 
     expect(calendar).toBeTruthy();
   });
@@ -399,10 +406,10 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
-    await waitForElement(() => null);
+    await waitFor(() => null);
 
     componentRef.current.blur();
-    const calendar = await waitForElement(() => component.queryByType(Calendar));
+    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
 
     expect(calendar).toBeFalsy();
   });
@@ -425,7 +432,7 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
-    await waitForElement(() => null);
+    await waitFor(() => null);
 
     expect(componentRef.current.isFocused()).toEqual(true);
   });
@@ -442,7 +449,7 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.clear();
-    await waitForElement(() => null);
+    await waitFor(() => null);
 
     expect(onSelect).toBeCalledWith(null);
   });
@@ -490,10 +497,9 @@ describe('@datepicker: component checks', () => {
 
     componentRef.current.focus();
 
-    // @ts-ignore: private calendarRef
-    const calendarState = componentRef.current.calendarRef.current.state;
-    expect(calendarState.visibleDate.getFullYear()).toEqual(date.getFullYear());
-    expect(calendarState.visibleDate.getMonth()).toEqual(date.getMonth());
+    const visibleDate = componentRef.current.getCalendarVisibleDate();
+    expect(visibleDate.getFullYear()).toEqual(date.getFullYear());
+    expect(visibleDate.getMonth()).toEqual(date.getMonth());
   });
 
   it('should show the specific date on load provided by initialVisibleDate prop', () => {
@@ -511,7 +517,7 @@ describe('@datepicker: component checks', () => {
     componentRef.current.focus();
 
     // @ts-ignore: private calendarRef
-    const visibleDate = componentRef.current.calendarRef.current.state.visibleDate;
+    const visibleDate = componentRef.current.getCalendarVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(initialDate.getFullYear());
     expect(visibleDate.getMonth()).toEqual(initialDate.getMonth());
   });
@@ -530,7 +536,7 @@ describe('@datepicker: component checks', () => {
     componentRef.current.scrollToToday();
 
     // @ts-ignore: private calendarRef
-    const visibleDate = componentRef.current.calendarRef.current.state.visibleDate;
+    const visibleDate = componentRef.current.getCalendarVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(today.getFullYear());
     expect(visibleDate.getMonth()).toEqual(today.getMonth());
   });
@@ -550,7 +556,7 @@ describe('@datepicker: component checks', () => {
     componentRef.current.scrollToDate(dateToScroll);
 
     // @ts-ignore: private calendarRef
-    const visibleDate = componentRef.current.calendarRef.current.state.visibleDate;
+    const visibleDate = componentRef.current.getCalendarVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(dateToScroll.getFullYear());
     expect(visibleDate.getMonth()).toEqual(dateToScroll.getMonth());
   });

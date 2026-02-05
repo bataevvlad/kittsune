@@ -14,7 +14,7 @@ import {
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -52,7 +52,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction icon={Icon} />,
     );
 
-    const image = component.queryByType(Image);
+    const image = component.UNSAFE_queryByType(Image);
 
     expect(image).toBeTruthy();
     expect(image.props.source).toEqual({ uri: 'https://akveo.github.io/eva-icons/fill/png/128/star.png' });
@@ -69,7 +69,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction icon={Icon} />,
     );
 
-    const image = component.queryByType(Image);
+    const image = component.UNSAFE_queryByType(Image);
 
     expect(image).toBeTruthy();
     expect(image.props.source).toEqual({ uri: 'https://akveo.github.io/eva-icons/fill/png/128/star.png' });
@@ -81,7 +81,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction onPress={onPress} />,
     );
 
-    fireEvent.press(component.queryByType(TouchableOpacity));
+    fireEvent.press(component.UNSAFE_queryByType(TouchableOpacity));
     expect(onPress).toBeCalled();
   });
 
@@ -91,7 +91,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction onPressIn={onPressIn} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressIn');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressIn');
     expect(onPressIn).toBeCalled();
   });
 
@@ -101,7 +101,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction onPressOut={onPressOut} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressOut');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressOut');
     expect(onPressOut).toBeCalled();
   });
 
@@ -112,7 +112,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction onMouseEnter={onMouseEnter} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'mouseEnter');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'mouseEnter');
     expect(onMouseEnter).toBeCalled();
   });
 
@@ -123,7 +123,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction onMouseLeave={onMouseLeave} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'mouseLeave');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'mouseLeave');
     expect(onMouseLeave).toBeCalled();
   });
 
@@ -134,7 +134,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction onFocus={onFocus} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'focus');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'focus');
     expect(onFocus).toBeCalled();
   });
 
@@ -145,7 +145,7 @@ describe('@top-navigation-action: component checks', () => {
       <TestTopNavigationAction onBlur={onBlur} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'blur');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'blur');
     expect(onBlur).toBeCalled();
   });
 

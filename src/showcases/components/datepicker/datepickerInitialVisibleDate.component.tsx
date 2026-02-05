@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Datepicker, Layout, Text } from '@kitsuine/components';
+import { Button, Datepicker, DatepickerRef, Layout, Text } from '@kitsuine/components';
 
 const now = new Date();
 const date = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
@@ -10,7 +10,7 @@ export const DatepickerInitialVisibleDateShowcase = (): React.ReactElement => {
   const [selectedDate, setSelectedDate] = React.useState(date);
   const [initialVisibleDate, setInitialVisibleDate] = React.useState(initialDate);
 
-  const componentRef = React.createRef<Datepicker>();
+  const componentRef = React.useRef<DatepickerRef>(null);
 
   const scrollToSelected = (): void => {
     if (componentRef.current) {

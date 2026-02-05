@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`@style: service methods checks * styling * custom appearance * stateless 1`] = `
-Object {
+{
   "backgroundColor": "transparent",
   "borderColor": "#2196F3",
   "borderRadius": 6,
@@ -21,7 +21,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * custom appearance * with state * explicit (should apply own) 1`] = `
-Object {
+{
   "backgroundColor": "transparent",
   "borderColor": "#1E88E5",
   "borderRadius": 6,
@@ -41,7 +41,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * custom appearance * with state * implicit (should apply from default appearance) 1`] = `
-Object {
+{
   "backgroundColor": "transparent",
   "borderColor": "#2196F3",
   "borderRadius": 6,
@@ -61,7 +61,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * custom appearance * with variant * explicit (should apply own) 1`] = `
-Object {
+{
   "backgroundColor": "transparent",
   "borderColor": "#4CAF50",
   "borderRadius": 6,
@@ -81,7 +81,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * custom appearance * with variant * implicit (should apply from default appearance) 1`] = `
-Object {
+{
   "backgroundColor": "transparent",
   "borderColor": "#2196F3",
   "borderRadius": 6,
@@ -101,7 +101,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * stateless 1`] = `
-Object {
+{
   "backgroundColor": "#2196F3",
   "borderRadius": 6,
   "iconHeight": 13,
@@ -119,7 +119,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with state * multiple 1`] = `
-Object {
+{
   "backgroundColor": "#1E88E5",
   "borderRadius": 6,
   "iconHeight": 13,
@@ -137,7 +137,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with state * single 1`] = `
-Object {
+{
   "backgroundColor": "#1E88E5",
   "borderRadius": 6,
   "iconHeight": 13,
@@ -155,7 +155,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with variant * multiple * no state 1`] = `
-Object {
+{
   "backgroundColor": "#4CAF50",
   "borderRadius": 6,
   "iconHeight": 14,
@@ -173,7 +173,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with variant * multiple * with state * multiple 1`] = `
-Object {
+{
   "backgroundColor": "#43A047",
   "borderRadius": 6,
   "iconHeight": 14,
@@ -191,7 +191,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with variant * multiple * with state * single 1`] = `
-Object {
+{
   "backgroundColor": "#43A047",
   "borderRadius": 6,
   "iconHeight": 14,
@@ -209,7 +209,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with variant * single * no state 1`] = `
-Object {
+{
   "backgroundColor": "#4CAF50",
   "borderRadius": 6,
   "iconHeight": 13,
@@ -227,7 +227,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with variant * single * with state * multiple 1`] = `
-Object {
+{
   "backgroundColor": "#43A047",
   "borderRadius": 6,
   "iconHeight": 13,
@@ -245,7 +245,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with variant * single * with state * single explicit (should apply own) 1`] = `
-Object {
+{
   "backgroundColor": "#43A047",
   "borderRadius": 6,
   "iconHeight": 13,
@@ -263,7 +263,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * default appearance * with variant * single * with state * single implicit (should apply from appearance) 1`] = `
-Object {
+{
   "backgroundColor": "#43A047",
   "borderRadius": 6,
   "iconHeight": 13,
@@ -281,7 +281,7 @@ Object {
 `;
 
 exports[`@style: service methods checks * styling * undefined appearance * stateless (should apply default appearance) 1`] = `
-Object {
+{
   "backgroundColor": "#2196F3",
   "borderRadius": 6,
   "iconHeight": 13,

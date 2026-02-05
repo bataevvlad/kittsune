@@ -10,7 +10,7 @@ import {
   View,
   ViewProps,
 } from 'react-native';
-import { render } from 'react-native-testing-library';
+import { render } from '@testing-library/react-native';
 import { IconRegistry } from './iconRegistry.component';
 import {
   Icon,

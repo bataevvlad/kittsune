@@ -2,7 +2,7 @@ import React from 'react';
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -22,17 +22,6 @@ import { Text } from '../text/text.component';
  */
 
 describe('@range-calendar: component checks', () => {
-
-  /*
-   * Get rid of useNativeDriver warnings
-   */
-  beforeAll(() => {
-    jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
-  });
-
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
 
   const now: Date = new Date();
 
@@ -133,7 +122,7 @@ describe('@range-calendar: component checks', () => {
       />,
     );
 
-    const visibleDate = componentRef.current.state.visibleDate;
+    const visibleDate = componentRef.current.getVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(date.getFullYear());
     expect(visibleDate.getMonth()).toEqual(date.getMonth());
   });

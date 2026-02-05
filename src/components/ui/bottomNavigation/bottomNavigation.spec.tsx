@@ -15,7 +15,7 @@ import {
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -54,7 +54,7 @@ describe('@bottom-navigation-tab: component checks', () => {
       <TestBottomNavigationTab icon={Icon} />,
     );
 
-    const image = component.queryByType(Image);
+    const image = component.UNSAFE_queryByType(Image);
 
     expect(image).toBeTruthy();
     expect(image.props.source).toEqual({ uri: 'https://akveo.github.io/eva-icons/fill/png/128/star.png' });
@@ -114,7 +114,7 @@ describe('@bottom-navigation-tab: component checks', () => {
       <TestBottomNavigationTab onMouseEnter={onMouseEnter} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'mouseEnter');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'mouseEnter');
     expect(onMouseEnter).toBeCalled();
   });
 
@@ -125,7 +125,7 @@ describe('@bottom-navigation-tab: component checks', () => {
       <TestBottomNavigationTab onMouseLeave={onMouseLeave} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'mouseLeave');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'mouseLeave');
     expect(onMouseLeave).toBeCalled();
   });
 });
@@ -162,7 +162,7 @@ describe('@bottom-navigation: component checks', () => {
       <TestBottomNavigation />,
     );
 
-    expect(component.queryAllByType(BottomNavigationTab).length).toEqual(2);
+    expect(component.UNSAFE_queryAllByType(BottomNavigationTab).length).toEqual(2);
   });
 
   it('should set tab selected by passing selectedIndex prop', () => {
@@ -170,7 +170,7 @@ describe('@bottom-navigation: component checks', () => {
       <TestBottomNavigation selectedIndex={1} />,
     );
 
-    expect(component.queryAllByType(BottomNavigationTab)[1].props.selected).toEqual(true);
+    expect(component.UNSAFE_queryAllByType(BottomNavigationTab)[1].props.selected).toEqual(true);
   });
 
   it('should not render tab indicator', () => {
@@ -178,7 +178,7 @@ describe('@bottom-navigation: component checks', () => {
       <TestBottomNavigation appearance='noIndicator' />,
     );
 
-    expect(component.queryByType(TabIndicator)).toEqual(null);
+    expect(component.UNSAFE_queryByType(TabIndicator)).toEqual(null);
   });
 
   it('should render tab indicator correctly', () => {
@@ -199,8 +199,8 @@ describe('@bottom-navigation: component checks', () => {
       <TestBottomNavigation selectedIndex={1} />,
     );
 
-    fireEvent.press(component.queryAllByType(TouchableOpacity)[0]);
-    expect(component.queryAllByType(BottomNavigationTab)[0].props.selected).toEqual(true);
+    fireEvent.press(component.UNSAFE_queryAllByType(TouchableOpacity)[0]);
+    expect(component.UNSAFE_queryAllByType(BottomNavigationTab)[0].props.selected).toEqual(true);
   });
 
   it('should request selecting', () => {
@@ -210,7 +210,7 @@ describe('@bottom-navigation: component checks', () => {
       <TestBottomNavigation onSelect={onSelect} />,
     );
 
-    fireEvent.press(component.queryAllByType(TouchableOpacity)[1]);
+    fireEvent.press(component.UNSAFE_queryAllByType(TouchableOpacity)[1]);
     expect(onSelect).toHaveBeenCalledWith(1);
   });
 

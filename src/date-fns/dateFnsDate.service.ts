@@ -8,8 +8,7 @@ import {
   NativeDateService,
   NativeDateServiceOptions,
 } from '@kitsuine/components';
-import dateFnsParse from 'date-fns/parse';
-import dateFnsFormat from 'date-fns/format';
+import { parse as dateFnsParse, format as dateFnsFormat } from 'date-fns';
 
 export interface DateFnsOptions extends NativeDateServiceOptions {
   parseOptions?: {

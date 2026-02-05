@@ -27,6 +27,12 @@ export interface UseStyledOptions {
   checked?: boolean;
   selected?: boolean;
   indeterminate?: boolean;
+  level?: string;
+  shape?: string;
+  // Calendar-specific props
+  bounding?: boolean;
+  today?: boolean;
+  range?: boolean;
   [key: string]: unknown;
 }
 
@@ -78,7 +84,7 @@ export function useStyled(
   }, [
     service,
     defaultProps,
-    // Use individual values instead of JSON.stringify for better performance
+    // Common props used by most styled components
     options.appearance,
     options.status,
     options.size,
@@ -89,6 +95,10 @@ export function useStyled(
     options.indeterminate,
     options.level,
     options.shape,
+    // Calendar-specific props
+    options.bounding,
+    options.today,
+    options.range,
     mapping,
     theme,
     interactions,

@@ -9,7 +9,7 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import { render } from 'react-native-testing-library';
+import { render } from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -39,7 +39,7 @@ describe('@avatar: component checks', () => {
       <TestAvatar />,
     );
 
-    const avatar = component.queryByType(Image);
+    const avatar = component.UNSAFE_queryByType(Image);
 
     expect(avatar).toBeTruthy();
     expect(avatar.props.source).toEqual({ uri: 'https://akveo.github.io/eva-icons/fill/png/128/star.png' });
@@ -50,7 +50,7 @@ describe('@avatar: component checks', () => {
       <TestAvatar shape='round' />,
     );
 
-    const avatar = component.queryByType(Image);
+    const avatar = component.UNSAFE_queryByType(Image);
     const { borderRadius, height } = StyleSheet.flatten(avatar.props.style);
 
     expect(borderRadius).toEqual(height / 2);
@@ -61,7 +61,7 @@ describe('@avatar: component checks', () => {
       <TestAvatar shape='rounded' />,
     );
 
-    const avatar = component.queryByType(Image);
+    const avatar = component.UNSAFE_queryByType(Image);
     const { borderRadius, height } = StyleSheet.flatten(avatar.props.style);
 
     expect(borderRadius).toBeLessThan(height);
@@ -72,7 +72,7 @@ describe('@avatar: component checks', () => {
       <TestAvatar shape='square' />,
     );
 
-    const avatar = component.queryByType(Image);
+    const avatar = component.UNSAFE_queryByType(Image);
     const { borderRadius } = StyleSheet.flatten(avatar.props.style);
 
     expect(borderRadius).toEqual(0);

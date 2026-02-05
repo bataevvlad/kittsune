@@ -5,19 +5,18 @@
  */
 
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableWithoutFeedback, View } from 'react-native';
 import {
   fireEvent,
   render,
   RenderAPI,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import { ReactTestInstance } from 'react-test-renderer';
 import {
   light,
   mapping,
 } from '@kitsuine/eva';
-import { TouchableWeb } from '../../devsupport';
 import { ApplicationProvider } from '../../theme';
 import {
   Toggle,
@@ -36,7 +35,7 @@ describe('@toggle: component checks', () => {
   );
 
   const touchables = {
-    findRootTouchable: (api: RenderAPI) => api.queryByType(TouchableWeb).children[0] as ReactTestInstance,
+    findRootTouchable: (api: RenderAPI) => api.UNSAFE_queryByType(TouchableWithoutFeedback) as ReactTestInstance,
   };
 
   it('should request checking', async () => {
@@ -48,8 +47,8 @@ describe('@toggle: component checks', () => {
       />,
     );
 
-    fireEvent(touchables.findRootTouchable(component), 'responderRelease');
-    await waitForElement(() => {
+    fireEvent.press(touchables.findRootTouchable(component));
+    await waitFor(() => {
       expect(onCheckedChange).toBeCalledWith(true);
     });
   });
@@ -63,8 +62,8 @@ describe('@toggle: component checks', () => {
       />,
     );
 
-    fireEvent(touchables.findRootTouchable(component), 'responderRelease');
-    await waitForElement(() => {
+    fireEvent.press(touchables.findRootTouchable(component));
+    await waitFor(() => {
       expect(onCheckedChange).toBeCalledWith(false);
     });
   });

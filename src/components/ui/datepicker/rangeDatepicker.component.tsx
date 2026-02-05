@@ -4,22 +4,47 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
-import { styled } from '../../theme';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import {
-  BaseDatepickerComponent,
-  BaseDatepickerProps,
-} from './baseDatepicker.component';
+  GestureResponderEvent,
+  StyleSheet,
+  View,
+  ViewProps,
+} from 'react-native';
+import {
+  FalsyFC,
+  FalsyText,
+  RenderProp,
+  TouchableWithoutFeedback,
+} from '../../devsupport';
+import { useStyled, Interaction } from '../../theme';
+import { BaseDatepickerProps } from './baseDatepicker.component';
 import {
   RangeCalendar,
   RangeCalendarElement,
   RangeCalendarProps,
+  RangeCalendarRef,
 } from '../calendar/rangeCalendar.component';
-import { RenderProp } from '@kitsuine/components/devsupport';
-import { TextProps } from '@kitsuine/components';
+import { CalendarRange } from '../calendar/type';
+import { NativeDateService } from '../calendar/service/nativeDate.service';
+import { Popover } from '../popover/popover.component';
+import { PopoverPlacements } from '../popover/type';
+import { TextProps } from '../text/text.component';
+import { useDatepickerState } from './useDatepickerState';
+import { useDatepickerStyles } from './useDatepickerStyles';
 
 export type RangeDatepickerProps<D = Date> = BaseDatepickerProps<D> & RangeCalendarProps<D>;
 export type RangeDatepickerElement<D = Date> = React.ReactElement<RangeDatepickerProps<D>>;
+
+export interface RangeDatepickerRef<D = Date> {
+  focus: () => void;
+  blur: () => void;
+  isFocused: () => boolean;
+  clear: () => void;
+  scrollToToday: () => void;
+  scrollToDate: (date: D) => void;
+  getCalendarVisibleDate: () => D | undefined;
+}
 
 /**
  * Range date picker provides a simple way to select a date range within a picker displayed in modal.
@@ -137,63 +162,229 @@ export type RangeDatepickerElement<D = Date> = React.ReactElement<RangeDatepicke
  * Ranged picker works with special range object - CalendarRange: `{ startDate: Date, endDate: Date }`.
  * For incomplete ranges, there is only a `startDate` property.
  */
-@styled('Datepicker')
-export class RangeDatepicker<D = Date> extends BaseDatepickerComponent<RangeDatepickerProps<D>, D> {
 
-  static styledComponentName = 'Datepicker';
+function RangeDatepickerComponent<D = Date>(
+  props: RangeDatepickerProps<D>,
+  ref: React.Ref<RangeDatepickerRef<D>>,
+): React.ReactElement<ViewProps> {
+  const {
+    range = {},
+    onSelect,
+    min,
+    max,
+    initialVisibleDate,
+    dateService: dateServiceProp,
+    boundingMonth,
+    startView,
+    filter,
+    title,
+    renderDay,
+    renderMonth,
+    renderYear,
+    renderFooter,
+    renderArrowLeft,
+    renderArrowRight,
+    onVisibleDateChange,
+    style,
+    testID,
+    backdropStyle,
+    controlStyle,
+    placement = PopoverPlacements.BOTTOM_START,
+    placeholder = 'dd/mm/yyyy',
+    label,
+    caption,
+    accessoryLeft,
+    accessoryRight,
+    status,
+    size,
+    onFocus,
+    onBlur,
+    onPress,
+    onPressIn,
+    onPressOut,
+    ...touchableProps
+  } = props;
 
-  constructor(props: RangeDatepickerProps<D>) {
-    super(props);
-    this.clear = this.clear.bind(this);
-  }
+  const { style: evaStyle, dispatch } = useStyled('Datepicker', { status, size });
+  const dateService = useMemo(() => dateServiceProp || new NativeDateService(), [dateServiceProp]);
+  const calendarRef = useRef<RangeCalendarRef<D>>(null);
 
-  private get calendarProps(): RangeCalendarProps<D> {
-    return {
-      min: this.props.min,
-      max: this.props.max,
-      range: this.props.range,
-      initialVisibleDate: this.props.initialVisibleDate,
-      dateService: this.props.dateService,
-      boundingMonth: this.props.boundingMonth,
-      startView: this.props.startView,
-      filter: this.props.filter,
-      title: this.props.title,
-      onSelect: this.props.onSelect,
-      renderDay: this.props.renderDay,
-      renderMonth: this.props.renderMonth,
-      renderYear: this.props.renderYear,
-      renderFooter: this.props.renderFooter,
-      renderArrowRight: this.props.renderArrowRight,
-      renderArrowLeft: this.props.renderArrowLeft,
-      onVisibleDateChange: this.props.onVisibleDateChange,
-    };
-  }
+  const {
+    visible,
+    setPickerVisible,
+    setPickerInvisible,
+    focus,
+    blur,
+    isFocused,
+  } = useDatepickerState({ onFocus, onBlur });
 
-  public clear = (): void => {
-    this.props.onSelect?.({});
-  };
+  const componentStyles = useDatepickerStyles(evaStyle);
 
-  // BaseDatepickerComponent
+  const clear = useCallback((): void => {
+    onSelect?.({});
+  }, [onSelect]);
 
-  protected getComponentTitle(): RenderProp<TextProps> | React.ReactText {
-    const { startDate, endDate } = this.props.range;
+  const scrollToToday = useCallback((): void => {
+    calendarRef.current?.scrollToToday();
+  }, []);
+
+  const scrollToDate = useCallback((targetDate: D): void => {
+    calendarRef.current?.scrollToDate(targetDate);
+  }, []);
+
+  const getCalendarVisibleDate = useCallback((): D | undefined => {
+    return calendarRef.current?.getVisibleDate();
+  }, []);
+
+  useImperativeHandle(ref, () => ({
+    focus,
+    blur,
+    isFocused,
+    clear,
+    scrollToToday,
+    scrollToDate,
+    getCalendarVisibleDate,
+  }), [focus, blur, isFocused, clear, scrollToToday, scrollToDate, getCalendarVisibleDate]);
+
+  const getComponentTitle = useCallback((): RenderProp<TextProps> | React.ReactText => {
+    const { startDate, endDate } = range;
 
     if (startDate || endDate) {
-      const start: string = startDate ? this.props.dateService.format(startDate, null) : '';
-      const end: string = endDate ? this.props.dateService.format(endDate, null) : '';
-
+      const start: string = startDate ? dateService.format(startDate, null) : '';
+      const end: string = endDate ? dateService.format(endDate, null) : '';
       return `${start} - ${end}`;
-    } else {
-      return this.props.placeholder;
     }
-  }
+    return placeholder;
+  }, [range, dateService, placeholder]);
 
-  protected renderCalendar(): RangeCalendarElement<D> {
+  const handlePress = useCallback((event: GestureResponderEvent): void => {
+    setPickerVisible();
+    dispatch([Interaction.ACTIVE]);
+    onPress?.(event);
+  }, [setPickerVisible, dispatch, onPress]);
+
+  const handlePressIn = useCallback((event: GestureResponderEvent): void => {
+    dispatch([Interaction.ACTIVE]);
+    onPressIn?.(event);
+  }, [dispatch, onPressIn]);
+
+  const handlePressOut = useCallback((event: GestureResponderEvent): void => {
+    dispatch([]);
+    onPressOut?.(event);
+  }, [dispatch, onPressOut]);
+
+  const handleBackdropPress = useCallback((): void => {
+    setPickerInvisible();
+    dispatch([]);
+  }, [setPickerInvisible, dispatch]);
+
+  const calendarProps = useMemo((): RangeCalendarProps<D> => ({
+    min,
+    max,
+    range,
+    initialVisibleDate,
+    dateService,
+    boundingMonth,
+    startView,
+    filter,
+    title,
+    onSelect,
+    renderDay,
+    renderMonth,
+    renderYear,
+    renderFooter,
+    renderArrowRight,
+    renderArrowLeft,
+    onVisibleDateChange,
+  }), [
+    min, max, range, initialVisibleDate, dateService, boundingMonth, startView,
+    filter, title, onSelect, renderDay, renderMonth, renderYear,
+    renderFooter, renderArrowRight, renderArrowLeft, onVisibleDateChange,
+  ]);
+
+  const renderInputElement = useCallback((): React.ReactElement => {
+    return (
+      <TouchableWithoutFeedback
+        {...touchableProps}
+        style={[componentStyles.control, styles.control, controlStyle]}
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
+        <FalsyFC
+          style={componentStyles.icon}
+          component={accessoryLeft}
+        />
+        <FalsyText
+          style={componentStyles.text}
+          numberOfLines={1}
+          ellipsizeMode='tail'
+          component={getComponentTitle()}
+        />
+        <FalsyFC
+          style={componentStyles.icon}
+          component={accessoryRight}
+        />
+      </TouchableWithoutFeedback>
+    );
+  }, [
+    touchableProps, componentStyles, controlStyle, handlePress, handlePressIn,
+    handlePressOut, accessoryLeft, accessoryRight, getComponentTitle,
+  ]);
+
+  const renderCalendar = useCallback((): RangeCalendarElement<D> => {
     return (
       <RangeCalendar
-        ref={this.calendarRef}
-        {...this.calendarProps}
+        ref={calendarRef}
+        {...calendarProps}
       />
     );
-  }
+  }, [calendarProps]);
+
+  return (
+    <View
+      style={style}
+      testID={testID}
+    >
+      <FalsyText
+        style={[componentStyles.label, styles.label]}
+        component={label}
+      />
+      <Popover
+        style={[componentStyles.popover, styles.popover]}
+        backdropStyle={backdropStyle}
+        placement={placement}
+        visible={visible}
+        anchor={renderInputElement}
+        onBackdropPress={handleBackdropPress}
+      >
+        {renderCalendar()}
+      </Popover>
+      <FalsyText
+        style={[componentStyles.captionLabel, styles.captionLabel]}
+        component={caption}
+      />
+    </View>
+  );
 }
+
+export const RangeDatepicker = forwardRef(RangeDatepickerComponent) as <D = Date>(
+  props: RangeDatepickerProps<D> & { ref?: React.Ref<RangeDatepickerRef<D>> }
+) => React.ReactElement<ViewProps>;
+
+const styles = StyleSheet.create({
+  popover: {
+    borderWidth: 0,
+  },
+  control: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  label: {
+    textAlign: 'left',
+  },
+  captionLabel: {
+    textAlign: 'left',
+  },
+});

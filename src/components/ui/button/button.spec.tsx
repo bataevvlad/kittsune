@@ -15,7 +15,7 @@ import {
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -83,7 +83,7 @@ I love Babel
       />,
     );
 
-    const [accessoryLeft, accessoryRight] = component.queryAllByType(Image);
+    const [accessoryLeft, accessoryRight] = component.UNSAFE_queryAllByType(Image);
 
     expect(accessoryLeft).toBeTruthy();
     expect(accessoryRight).toBeTruthy();
@@ -140,7 +140,7 @@ I love Babel
       <TestButton onPress={onPress} />,
     );
 
-    fireEvent.press(component.queryByType(TouchableOpacity));
+    fireEvent.press(component.UNSAFE_queryByType(TouchableOpacity));
     expect(onPress).toBeCalled();
   });
 
@@ -151,7 +151,7 @@ I love Babel
       <TestButton onPressIn={onPressIn} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressIn');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressIn');
     expect(onPressIn).toBeCalled();
   });
 
@@ -162,7 +162,7 @@ I love Babel
       <TestButton onPressOut={onPressOut} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressOut');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressOut');
     expect(onPressOut).toBeCalled();
   });
 
@@ -173,7 +173,7 @@ I love Babel
       <TestButton onMouseEnter={onMouseEnter} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'mouseEnter');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'mouseEnter');
     expect(onMouseEnter).toBeCalled();
   });
 
@@ -184,7 +184,7 @@ I love Babel
       <TestButton onMouseLeave={onMouseLeave} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'mouseLeave');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'mouseLeave');
     expect(onMouseLeave).toBeCalled();
   });
 
@@ -195,7 +195,7 @@ I love Babel
       <TestButton onFocus={onFocus} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'focus');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'focus');
     expect(onFocus).toBeCalled();
   });
 
@@ -206,7 +206,7 @@ I love Babel
       <TestButton onBlur={onBlur} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'blur');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'blur');
     expect(onBlur).toBeCalled();
   });
 

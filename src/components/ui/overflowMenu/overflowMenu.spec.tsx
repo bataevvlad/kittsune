@@ -14,8 +14,8 @@ import {
   fireEvent,
   render,
   RenderAPI,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -53,7 +53,7 @@ describe('@overflow-menu: component checks', () => {
    */
   const touchables = {
     findToggleButton: (api: RenderAPI) => api.queryByTestId('@overflow-menu/toggle-button'),
-    findBackdropTouchable: (api: RenderAPI) => api.queryAllByType(TouchableOpacity)[1],
+    findBackdropTouchable: (api: RenderAPI) => api.queryByTestId('@backdrop'),
   };
 
   const TestOverflowMenu = React.forwardRef((props: Partial<OverflowMenuProps>,
@@ -104,7 +104,7 @@ describe('@overflow-menu: component checks', () => {
       <TestOverflowMenu visible={false} />,
     );
 
-    const options = await waitForElement(() => component.queryAllByType(MenuItem));
+    const options = await waitFor(() => component.UNSAFE_queryAllByType(MenuItem));
     expect(options.length).toEqual(0);
   });
 
@@ -115,7 +115,7 @@ describe('@overflow-menu: component checks', () => {
 
     fireEvent.press(touchables.findToggleButton(component));
 
-    const options = await waitForElement(() => component.queryAllByType(MenuItem));
+    const options = await waitFor(() => component.UNSAFE_queryAllByType(MenuItem));
     expect(options.length).toEqual(2);
   });
 
@@ -128,9 +128,12 @@ describe('@overflow-menu: component checks', () => {
 
     fireEvent.press(touchables.findToggleButton(component));
 
-    await waitForElement(() => {
-      fireEvent.press(touchables.findBackdropTouchable(component));
-    });
+    const backdrop = await waitFor(() => touchables.findBackdropTouchable(component));
+    // Backdrop uses PanResponder - call the handler directly
+    const responderRelease = backdrop.props.onResponderRelease;
+    if (responderRelease) {
+      responderRelease({ nativeEvent: {} });
+    }
 
     expect(onBackdropPress).toBeCalled();
   });
@@ -142,7 +145,7 @@ describe('@overflow-menu: component checks', () => {
     );
 
     fireEvent.press(touchables.findToggleButton(component));
-    const backdrop = await waitForElement(() => touchables.findBackdropTouchable(component));
+    const backdrop = await waitFor(() => touchables.findBackdropTouchable(component));
 
     expect(StyleSheet.flatten(backdrop.props.style).backgroundColor).toEqual('red');
   });
@@ -156,7 +159,7 @@ describe('@overflow-menu: component checks', () => {
 
     componentRef.current.show();
 
-    const options = await waitForElement(() => component.queryAllByType(MenuItem));
+    const options = await waitFor(() => component.UNSAFE_queryAllByType(MenuItem));
     expect(options.length).toEqual(2);
   });*/
 
@@ -168,11 +171,11 @@ describe('@overflow-menu: component checks', () => {
     );
 
     componentRef.current.show();
-    await waitForElement(() => null);
+    await waitFor(() => null);
 
     componentRef.current.hide();
 
-    const options = await waitForElement(() => component.queryAllByType(MenuItem));
+    const options = await waitFor(() => component.UNSAFE_queryAllByType(MenuItem));
     expect(options.length).toEqual(0);
   });*/
 

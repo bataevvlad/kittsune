@@ -70,10 +70,10 @@ export const AppNavigator = (): React.ReactElement => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text category="h1" style={styles.title}>Kitsune Components</Text>
         <Text category="p1" style={styles.subtitle}>Component Showcase</Text>
-        <Text category="c1" style={styles.legend}>✅ Migrated | ⏳ Class Component</Text>
+        <Text category="c1" style={styles.legend}>✅ All components migrated to functional components</Text>
 
         {/* =============================================
-           MIGRATED TO FUNCTIONAL COMPONENTS
+           ALL COMPONENTS MIGRATED TO FUNCTIONAL
            ============================================= */}
 
         {/* Basic Components - Migrated */}
@@ -179,10 +179,6 @@ export const AppNavigator = (): React.ReactElement => {
           <ModalSimpleUsageShowcase />
         </Section>
 
-        {/* =============================================
-           NOT YET MIGRATED - STILL CLASS COMPONENTS
-           ============================================= */}
-
         {/* Navigation Components */}
         <Section title="TopNavigation ✅">
           <TopNavigationSimpleUsageShowcase />
@@ -221,19 +217,19 @@ export const AppNavigator = (): React.ReactElement => {
         </Section>
 
         {/* Calendar/Date Components */}
-        <Section title="Calendar ⏳">
+        <Section title="Calendar ✅">
           <CalendarSimpleUsageShowcase />
         </Section>
 
-        <Section title="RangeCalendar ⏳">
+        <Section title="RangeCalendar ✅">
           <RangeCalendarSimpleUsageShowcase />
         </Section>
 
-        <Section title="Datepicker ⏳">
+        <Section title="Datepicker ✅">
           <DatepickerSimpleUsageShowcase />
         </Section>
 
-        <Section title="RangeDatepicker ⏳">
+        <Section title="RangeDatepicker ✅">
           <RangeDatepickerSimpleUsageShowcase />
         </Section>
 

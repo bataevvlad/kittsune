@@ -8,7 +8,6 @@ import React from 'react';
 import {
   TouchableOpacity,
   View,
-  ViewProps,
   Text,
   GestureResponderEvent,
 } from 'react-native';
@@ -16,20 +15,18 @@ import {
   fireEvent,
   render,
   RenderAPI,
-  waitForElement,
-} from 'react-native-testing-library';
+  waitFor,
+} from '@testing-library/react-native';
 import { ReactTestInstance } from 'react-test-renderer';
 import { StyleProvider } from './styleProvider.component';
-import {
-  styled,
-  StyledComponentProps,
-} from './styled';
+import { StyledComponentProps } from './styled';
 import { StyleConsumerService } from './styleConsumer.service';
 import {
   Interaction,
   StyleService,
   useStyleSheet,
 } from './style.service';
+import { useStyled } from './useStyled';
 import { ThemeStyleType } from '@kitsuine/processor';
 import { ThemeType } from '@kitsuine/components';
 
@@ -139,25 +136,36 @@ describe('@style-service: service method checks', () => {
 
 });
 
-describe('@style: ui component checks', () => {
+describe('@useStyled: functional component checks', () => {
 
   const styleConsumerTestId = '@style/consumer';
   const styleTouchableTestId = '@style/touchable';
 
-  @styled('Test')
-  class Test extends React.Component<{ disabled?: boolean }> {
-
-    static someStaticValueToCopy = 'Test';
-
-    public render(): React.ReactElement<ViewProps> {
-      return (
-        <View
-          {...this.props}
-          testID={styleConsumerTestId}
-        />
-      );
-    }
+  // Functional Test component using useStyled hook
+  interface TestProps {
+    disabled?: boolean;
+    testID?: string;
+    onStyleChange?: (result: { style: object; theme: object; dispatch: (i: Interaction[]) => void }) => void;
   }
+
+  const Test: React.FC<TestProps> = ({ disabled, testID, onStyleChange, ...restProps }) => {
+    const result = useStyled('Test', { disabled });
+
+    // Expose the styled result for testing
+    React.useEffect(() => {
+      if (onStyleChange) {
+        onStyleChange(result);
+      }
+    }, [result, onStyleChange]);
+
+    return (
+      <View
+        {...restProps}
+        testID={testID || styleConsumerTestId}
+        style={result.style}
+      />
+    );
+  };
 
   const Provider = ({ children }: { children: React.ReactNode }): React.ReactElement => {
     return (
@@ -170,26 +178,26 @@ describe('@style: ui component checks', () => {
     );
   };
 
-  it('styled component should not re-renderer because of parent render', async () => {
+  it('useStyled component should not re-render because of parent render (memoized)', async () => {
     const rerenderButtonText = 'Rerender parent';
     const getRenderCountText = (elementType: string, count: number): string => {
       return `${elementType}: render for ${count} ${count === 1 ? 'time' : 'times'}`;
     };
 
-    // eslint-disable-next-line react/no-multi-comp
-    @styled('Test')
-    class ChildStyledComponent extends React.Component {
-      renderCount = 0;
+    // Memoized child component using useStyled
+    const ChildStyledComponent = React.memo(() => {
+      const renderCountRef = React.useRef(0);
+      renderCountRef.current++;
+      useStyled('Test', {});
 
-      public render(): React.ReactElement<ViewProps> {
-        this.renderCount++;
-        return (
-          <Text>
-            {getRenderCountText('Child', this.renderCount)}
-          </Text>
-        );
-      }
-    }
+      return (
+        <Text>
+          {getRenderCountText('Child', renderCountRef.current)}
+        </Text>
+      );
+    });
+
+    ChildStyledComponent.displayName = 'ChildStyledComponent';
 
     const ParentComponent = (): React.ReactElement => {
       const [renderCount, setRenderCount] = React.useState(1);
@@ -216,57 +224,61 @@ describe('@style: ui component checks', () => {
     expect(renderedComponent.queryByText(getRenderCountText('Child', 1))).toBeTruthy();
   });
 
-  it('static methods are copied over', async () => {
-    expect(Test.someStaticValueToCopy).not.toBeFalsy();
-  });
+  it('returns style, theme, and dispatch from useStyled', async () => {
+    let capturedResult: { style: object; theme: object; dispatch: (i: Interaction[]) => void } | null = null;
 
-  it('receives custom props', async () => {
     const component: RenderAPI = render(
       <StyleProvider
         styles={computedMapping}
         theme={theme}
       >
-        <Test />
+        <Test onStyleChange={(result) => { capturedResult = result; }} />
       </StyleProvider>,
     );
 
-    const styledComponent = component.getByTestId(styleConsumerTestId);
+    await waitFor(() => {
+      expect(capturedResult).not.toBeNull();
+    });
 
-    expect(styledComponent.props.appearance).not.toBeFalsy();
-    expect(styledComponent.props.eva.theme).not.toBeFalsy();
-    expect(styledComponent.props.eva.style).not.toBeFalsy();
-    expect(styledComponent.props.eva.dispatch).not.toBeFalsy();
+    expect(capturedResult!.style).toBeTruthy();
+    expect(capturedResult!.theme).toBeTruthy();
+    expect(capturedResult!.dispatch).toBeTruthy();
   });
 
   it('default appearance styled properly', async () => {
-    const component: RenderAPI = render(
+    let defaultResult: { style: object } | null = null;
+    let disabledResult: { style: object } | null = null;
+
+    render(
       <StyleProvider
         styles={computedMapping}
         theme={theme}
       >
-        <Test />
+        <Test onStyleChange={(result) => { defaultResult = result; }} />
       </StyleProvider>,
     );
 
-    const withStateProp: RenderAPI = render(
+    render(
       <StyleProvider
         styles={computedMapping}
         theme={theme}
       >
-        <Test disabled={true} />
+        <Test disabled={true} onStyleChange={(result) => { disabledResult = result; }} />
       </StyleProvider>,
     );
 
-    const styledComponent: ReactTestInstance = component.getByTestId(styleConsumerTestId);
-    const withStateComponent: ReactTestInstance = withStateProp.getByTestId(styleConsumerTestId);
+    await waitFor(() => {
+      expect(defaultResult).not.toBeNull();
+      expect(disabledResult).not.toBeNull();
+    });
 
-    expect(styledComponent.props.eva.style).toEqual({
+    expect(defaultResult!.style).toEqual({
       width: 4,
       height: 4,
       backgroundColor: theme.defaultColor,
     });
 
-    expect(withStateComponent.props.eva.style).toEqual({
+    expect(disabledResult!.style).toEqual({
       width: 4,
       height: 4,
       backgroundColor: theme.disabledColor,
@@ -274,26 +286,54 @@ describe('@style: ui component checks', () => {
   });
 
   it('dispatch action works properly', async () => {
+    let capturedResult: { style: object; dispatch: (i: Interaction[]) => void } | null = null;
+
+    const TestWithDispatch: React.FC = () => {
+      const result = useStyled('Test', {});
+
+      React.useEffect(() => {
+        capturedResult = result;
+      }, [result]);
+
+      return (
+        <TouchableOpacity
+          testID={styleTouchableTestId}
+          onPress={() => result.dispatch([Interaction.ACTIVE])}
+        >
+          <View testID={styleConsumerTestId} style={result.style} />
+        </TouchableOpacity>
+      );
+    };
+
     const component: RenderAPI = render(
       <StyleProvider
         styles={computedMapping}
         theme={theme}
       >
-        <Test />
+        <TestWithDispatch />
       </StyleProvider>,
     );
 
-    const styledComponent = component.getByTestId(styleConsumerTestId);
-    styledComponent.props.eva.dispatch([Interaction.ACTIVE]);
-
-    const styledComponentChanged = await waitForElement(() => {
-      return component.getByTestId(styleConsumerTestId);
+    await waitFor(() => {
+      expect(capturedResult).not.toBeNull();
     });
 
-    expect(styledComponentChanged.props.eva.style).toEqual({
+    // Initial style
+    expect(capturedResult!.style).toEqual({
       width: 4,
       height: 4,
-      backgroundColor: theme.activeColor,
+      backgroundColor: theme.defaultColor,
+    });
+
+    // Dispatch active interaction
+    fireEvent.press(component.getByTestId(styleTouchableTestId));
+
+    await waitFor(() => {
+      expect(capturedResult!.style).toEqual({
+        width: 4,
+        height: 4,
+        backgroundColor: theme.activeColor,
+      });
     });
   });
 
@@ -323,6 +363,16 @@ describe('@style: ui component checks', () => {
       );
     };
 
+    let capturedResult: { style: object } | null = null;
+
+    const TestWithCapture: React.FC = () => {
+      const result = useStyled('Test', {});
+      React.useEffect(() => {
+        capturedResult = result;
+      }, [result]);
+      return <View testID={styleConsumerTestId} style={result.style} />;
+    };
+
     const component: RenderAPI = render(
       <ThemeChangingProvider
         styles={computedMapping}
@@ -332,21 +382,22 @@ describe('@style: ui component checks', () => {
           defaultColor: '#ffffff',
         }}
       >
-        <Test />
+        <TestWithCapture />
       </ThemeChangingProvider>,
     );
 
-    const touchableComponent: ReactTestInstance = component.getByTestId(styleTouchableTestId);
-
-    fireEvent.press(touchableComponent);
-
-    const styledComponentChanged: ReactTestInstance = await waitForElement(() => {
-      return component.getByTestId(styleConsumerTestId);
+    await waitFor(() => {
+      expect(capturedResult).not.toBeNull();
     });
 
-    expect(styledComponentChanged.props.eva.style).toEqual({
-      ...computedMapping.Test.styles.default,
-      backgroundColor: '#ffffff',
+    const touchableComponent: ReactTestInstance = component.getByTestId(styleTouchableTestId);
+    fireEvent.press(touchableComponent);
+
+    await waitFor(() => {
+      expect(capturedResult!.style).toEqual({
+        ...computedMapping.Test.styles.default,
+        backgroundColor: '#ffffff',
+      });
     });
   });
 });

@@ -12,7 +12,7 @@ import {
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -130,7 +130,7 @@ describe('@card: component checks', () => {
       <TestCard onPress={onPress} />,
     );
 
-    fireEvent.press(component.queryByType(TouchableOpacity));
+    fireEvent.press(component.UNSAFE_queryByType(TouchableOpacity));
     expect(onPress).toBeCalled();
   });
 
@@ -140,7 +140,7 @@ describe('@card: component checks', () => {
       <TestCard onPressIn={onPressIn} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressIn');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressIn');
     expect(onPressIn).toBeCalled();
   });
 
@@ -150,7 +150,7 @@ describe('@card: component checks', () => {
       <TestCard onPressOut={onPressOut} />,
     );
 
-    fireEvent(component.queryByType(TouchableOpacity), 'pressOut');
+    fireEvent(component.UNSAFE_queryByType(TouchableOpacity), 'pressOut');
     expect(onPressOut).toBeCalled();
   });
 });

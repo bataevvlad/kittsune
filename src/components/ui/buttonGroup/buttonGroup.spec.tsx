@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { render } from 'react-native-testing-library';
+import { render } from '@testing-library/react-native';
 import { ReactTestInstance } from 'react-test-renderer';
 import {
   light,
@@ -37,7 +37,7 @@ describe('@button-group: component checks', () => {
       <TestButtonGroup />,
     );
 
-    expect(component.queryAllByType(Button).length).toEqual(2);
+    expect(component.UNSAFE_queryAllByType(Button).length).toEqual(2);
   });
 
   it('should render outline buttons', () => {
@@ -45,7 +45,7 @@ describe('@button-group: component checks', () => {
       <TestButtonGroup appearance='outline' />,
     );
 
-    const buttons = component.getAllByType(Button);
+    const buttons = component.UNSAFE_getAllByType(Button);
     const buttonAppearance: string = buttons.reduce((current: string, child: ReactTestInstance): string => {
       return child.props.appearance;
     }, 'outline');
@@ -58,7 +58,7 @@ describe('@button-group: component checks', () => {
       <TestButtonGroup appearance='ghost' />,
     );
 
-    const buttons = component.getAllByType(Button);
+    const buttons = component.UNSAFE_getAllByType(Button);
     const buttonAppearance: string = buttons.reduce((current: string, child: ReactTestInstance): string => {
       return child.props.appearance;
     }, 'ghost');
@@ -71,7 +71,7 @@ describe('@button-group: component checks', () => {
       <TestButtonGroup size='giant' />,
     );
 
-    const buttons = component.getAllByType(Button);
+    const buttons = component.UNSAFE_getAllByType(Button);
     const buttonSize: string = buttons.reduce((current: string, child: ReactTestInstance): string => {
       return child.props.size;
     }, 'giant');
@@ -84,7 +84,7 @@ describe('@button-group: component checks', () => {
       <TestButtonGroup status='success' />,
     );
 
-    const buttons = component.getAllByType(Button);
+    const buttons = component.UNSAFE_getAllByType(Button);
     const buttonStatus: string = buttons.reduce((current: string, child: ReactTestInstance): string => {
       return child.props.status;
     }, 'success');

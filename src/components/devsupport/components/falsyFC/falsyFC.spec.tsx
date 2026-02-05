@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text } from 'react-native';
-import { render } from 'react-native-testing-library';
+import { render } from '@testing-library/react-native';
 import { FalsyFC } from './falsyFC.component';
 
 const styles = { color: 'red' };

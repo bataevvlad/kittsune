@@ -9,7 +9,7 @@ import { TouchableOpacity } from 'react-native';
 import {
   fireEvent,
   render,
-} from 'react-native-testing-library';
+} from '@testing-library/react-native';
 import {
   light,
   mapping,
@@ -56,7 +56,7 @@ describe('@radio-group: component checks', () => {
       <TestRadioGroup />,
     );
 
-    expect(component.queryAllByType(Radio).length).toEqual(2);
+    expect(component.UNSAFE_queryAllByType(Radio).length).toEqual(2);
   });
 
   it('should set radio selected by passing selectedIndex prop', () => {
@@ -64,7 +64,7 @@ describe('@radio-group: component checks', () => {
       <TestRadioGroup selectedIndex={1} />,
     );
 
-    expect(component.queryAllByType(Radio)[1].props.checked).toEqual(true);
+    expect(component.UNSAFE_queryAllByType(Radio)[1].props.checked).toEqual(true);
   });
 
   it('should set radio selected by pressing it', () => {
@@ -72,8 +72,8 @@ describe('@radio-group: component checks', () => {
       <TestRadioGroup selectedIndex={1} />,
     );
 
-    fireEvent.press(component.queryAllByType(TouchableOpacity)[0]);
-    expect(component.queryAllByType(Radio)[0].props.checked).toEqual(true);
+    fireEvent.press(component.UNSAFE_queryAllByType(TouchableOpacity)[0]);
+    expect(component.UNSAFE_queryAllByType(Radio)[0].props.checked).toEqual(true);
   });
 
   it('should request selecting', () => {
@@ -82,7 +82,7 @@ describe('@radio-group: component checks', () => {
       <TestRadioGroup onChange={onChange} />,
     );
 
-    fireEvent.press(component.queryAllByType(TouchableOpacity)[1]);
+    fireEvent.press(component.UNSAFE_queryAllByType(TouchableOpacity)[1]);
     expect(onChange).toHaveBeenCalledWith(1);
   });
 
