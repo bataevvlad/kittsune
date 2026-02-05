@@ -75,12 +75,18 @@ export const MeasureElement: React.FC<MeasureElementProps> = (props): MeasuringE
 
   const measureSelf = (): void => {
     const node: number = findNodeHandle(ref.current);
-    UIManager.measureInWindow(node, onUIManagerMeasure);
+    if (node) {
+      UIManager.measureInWindow(node, onUIManagerMeasure);
+    }
   };
 
-  if (props.force) {
-    measureSelf();
-  }
+  // Use useLayoutEffect to measure synchronously after render when force is true
+  // This avoids "Cannot update during an existing state transition" warning
+  React.useLayoutEffect(() => {
+    if (props.force) {
+      measureSelf();
+    }
+  });
 
   return React.cloneElement(props.children, { ref, onLayout: measureSelf });
 };

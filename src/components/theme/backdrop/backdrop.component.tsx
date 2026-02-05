@@ -6,9 +6,11 @@
 
 import React from 'react';
 import {
+  GestureResponderEvent,
+  PanResponder,
+  PanResponderInstance,
   StyleProp,
   StyleSheet,
-  TouchableOpacity,
   View,
   ViewProps,
   ViewStyle,
@@ -35,6 +37,37 @@ export class Backdrop extends React.Component<BackdropProps> {
     visible: false,
   };
 
+  private panResponder: PanResponderInstance;
+  private touchStartY: number = 0;
+  private isMoved: boolean = false;
+
+  constructor(props: BackdropProps) {
+    super(props);
+
+    this.panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: (evt: GestureResponderEvent) => {
+        this.touchStartY = evt.nativeEvent.pageY;
+        this.isMoved = false;
+      },
+      onPanResponderMove: (evt: GestureResponderEvent) => {
+        const moveDistance = Math.abs(evt.nativeEvent.pageY - this.touchStartY);
+        // If user moved more than 10 pixels, consider it a scroll attempt
+        if (moveDistance > 10 && !this.isMoved) {
+          this.isMoved = true;
+          this.props.onBackdropPress?.();
+        }
+      },
+      onPanResponderRelease: () => {
+        // If it wasn't a move (scroll), treat it as a tap
+        if (!this.isMoved) {
+          this.props.onBackdropPress?.();
+        }
+      },
+    });
+  }
+
   private renderChildElement = (source: ChildElement): ChildElement => {
     return React.cloneElement(source, {
       style: [source.props.style, this.props.style],
@@ -50,11 +83,10 @@ export class Backdrop extends React.Component<BackdropProps> {
 
     return (
       <View style={StyleSheet.absoluteFill}>
-        <TouchableOpacity
+        <View
           style={[StyleSheet.absoluteFill, this.props.backdropStyle]}
-          activeOpacity={1.0}
           testID='@backdrop'
-          onPress={this.props.onBackdropPress}
+          {...this.panResponder.panHandlers}
         />
         {componentChildren}
       </View>

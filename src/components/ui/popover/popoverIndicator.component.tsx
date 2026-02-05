@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -17,10 +17,16 @@ import { StyleType } from '@kitsuine/components';
 export type PopoverIndicatorProps = ViewProps;
 export type PopoverIndicatorElement = React.ReactElement<PopoverIndicatorProps>;
 
-export class PopoverIndicator extends React.Component<PopoverIndicatorProps> {
-
-  private getComponentStyle = (source: StyleProp<ViewStyle>): StyleType => {
-    const flatStyle: ViewStyle = StyleSheet.flatten(source);
+/**
+ * Triangle indicator component for Popover.
+ * Creates a triangle shape using CSS borders.
+ */
+export const PopoverIndicator: React.FC<PopoverIndicatorProps> = ({
+  style,
+  ...props
+}) => {
+  const componentStyle = useMemo((): StyleType => {
+    const flatStyle: ViewStyle = StyleSheet.flatten(style);
 
     return {
       container: {
@@ -36,20 +42,15 @@ export class PopoverIndicator extends React.Component<PopoverIndicatorProps> {
         backgroundColor: 'transparent',
       },
     };
-  };
+  }, [style]);
 
-  public render(): React.ReactElement<ViewProps> {
-    const { style, ...props } = this.props;
-    const evaStyle = this.getComponentStyle(style);
-
-    return (
-      <View
-        {...props}
-        style={[style, styles.container, evaStyle.container]}
-      />
-    );
-  }
-}
+  return (
+    <View
+      {...props}
+      style={[style, styles.container, componentStyle.container]}
+    />
+  );
+};
 
 const styles = StyleSheet.create({
   container: {},

@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import {
   StyleSheet,
   View,
@@ -32,7 +32,7 @@ import {
   PopoverPlacements,
 } from './type';
 
-type PopoverModalProps = Omit<ModalProps, ' children'>;
+type PopoverModalProps = Omit<ModalProps, 'children'>;
 
 export interface PopoverProps extends PopoverViewProps, PopoverModalProps, RNModalProps {
   children?: React.ReactElement;
@@ -43,13 +43,6 @@ export interface PopoverProps extends PopoverViewProps, PopoverModalProps, RNMod
 }
 
 export type PopoverElement = React.ReactElement<PopoverProps>;
-
-interface State {
-  childFrame: Frame;
-  forceMeasure: boolean;
-  actualPlacement: PopoverPlacement;
-  contentPosition: Point;
-}
 
 /**
  * Displays a content positioned relative to another view.
@@ -105,132 +98,174 @@ interface State {
  * @overview-example PopoverStyledBackdrop
  * To style the underlying view, `backdropStyle` property may be used.
  */
-export class Popover extends React.Component<PopoverProps, State> {
+export const Popover = forwardRef<View, PopoverProps>(({
+  children,
+  placement = PopoverPlacements.BOTTOM,
+  anchor,
+  fullWidth = false,
+  visible = false,
+  backdropStyle,
+  animationType,
+  hardwareAccelerated,
+  supportedOrientations,
+  onShow,
+  onBackdropPress,
+  contentContainerStyle,
+  ...viewProps
+}, ref) => {
+  // State - mirrors the original class state exactly
+  const [childFrame, setChildFrame] = useState<Frame>(Frame.zero());
+  const [forceMeasure, setForceMeasure] = useState<boolean>(false);
+  const [actualPlacement, setActualPlacement] = useState<PopoverPlacement>(() =>
+    PopoverPlacements.parse(placement)
+  );
+  const [contentPosition, setContentPosition] = useState<Point>(Point.zero());
 
-  static defaultProps: Partial<PopoverProps> = {
-    placement: PopoverPlacements.BOTTOM,
-  };
+  // Refs for values needed in callbacks without causing re-renders
+  // React 2026: Using refs to avoid stale closures in callbacks
+  const childFrameRef = useRef<Frame>(childFrame);
+  const contentPositionRef = useRef<Point>(contentPosition);
+  const actualPlacementRef = useRef<PopoverPlacement>(actualPlacement);
+  const containerRef = useRef<View>(null);
 
-  public state: State = {
-    childFrame: Frame.zero(),
-    forceMeasure: false,
-    actualPlacement: this.preferredPlacement,
-    contentPosition: Point.zero(),
-  };
+  // Keep refs in sync with state
+  childFrameRef.current = childFrame;
+  contentPositionRef.current = contentPosition;
+  actualPlacementRef.current = actualPlacement;
 
-  private placementService: PopoverPlacementService = new PopoverPlacementService();
+  // Forward ref to the container View
+  useImperativeHandle(ref, () => containerRef.current as View, []);
 
-  private get preferredPlacement(): PopoverPlacement {
-    return PopoverPlacements.parse(this.props.placement);
-  }
+  // Service instance - stable across renders (React 2026: lazy initialization)
+  const placementService = useRef(new PopoverPlacementService()).current;
 
-  private get contentFlexPosition(): StyleProp<ViewStyle> {
-    const { x: left, y: top } = this.state.contentPosition;
+  // Computed value - equivalent to the class getter
+  const preferredPlacement = useMemo(
+    () => PopoverPlacements.parse(placement),
+    [placement]
+  );
+
+  // Equivalent to componentDidUpdate
+  // When visible becomes true and forceMeasure is false, trigger measurement
+  useEffect(() => {
+    if (visible && !forceMeasure) {
+      setForceMeasure(true);
+    }
+  }, [visible, forceMeasure]);
+
+  // Equivalent to getDerivedStateFromProps
+  // When becoming invisible, reset position to offscreen
+  useEffect(() => {
+    if (!visible && !Point.outscreen().equals(contentPositionRef.current)) {
+      setContentPosition(Point.outscreen());
+    }
+  }, [visible]);
+
+  // Computed style for positioning
+  const contentFlexPosition = useMemo((): StyleProp<ViewStyle> => {
+    const { x: left, y: top } = contentPosition;
     return { left, top };
-  }
+  }, [contentPosition]);
 
-  public componentDidUpdate(): void {
-    if (this.props.visible && !this.state.forceMeasure) {
-      this.setState({ forceMeasure: true });
+  // Callback when anchor element is measured
+  const onChildMeasure = useCallback((frame: Frame): void => {
+    if (!frame.equals(childFrameRef.current)) {
+      setChildFrame(frame);
     }
-  }
+  }, []);
 
-  public static getDerivedStateFromProps(props, state): State {
-    if (!props.visible && !Point.outscreen().equals(state.contentPosition)) {
-      return {
-        ...state,
-        contentPosition: Point.outscreen(),
-      };
-    }
-    return null;
-  }
+  // Helper to calculate placement options
+  const findPlacementOptions = useCallback(
+    (contentFrame: Frame, anchorFrame: Frame): PlacementOptions => {
+      const width = fullWidth ? anchorFrame.size.width : contentFrame.size.width;
+      const frame = new Frame(
+        contentFrame.origin.x,
+        contentFrame.origin.y,
+        width,
+        contentFrame.size.height
+      );
+      return new PlacementOptions(frame, anchorFrame, Frame.window(), Frame.zero());
+    },
+    [fullWidth]
+  );
 
-  private onChildMeasure = (childFrame: Frame): void => {
-    if (!childFrame.equals(this.state.childFrame)) {
-      this.setState({ childFrame });
-    }
-  };
+  // Callback when popover content is measured
+  const onContentMeasure = useCallback(
+    (anchorFrame: Frame): void => {
+      const placementOptions = findPlacementOptions(anchorFrame, childFrameRef.current);
+      const computedPlacement = placementService.find(preferredPlacement, placementOptions);
 
-  private onContentMeasure = (anchorFrame: Frame): void => {
-    const placementOptions: PlacementOptions = this.findPlacementOptions(anchorFrame, this.state.childFrame);
-    const actualPlacement = this.placementService.find(this.preferredPlacement, placementOptions);
+      const displayFrame = computedPlacement.frame(placementOptions);
+      const newContentPosition = displayFrame.origin;
 
-    const displayFrame: Frame = actualPlacement.frame(placementOptions);
-    const contentPosition = displayFrame.origin;
+      if (
+        !newContentPosition.equals(contentPositionRef.current) ||
+        computedPlacement.rawValue !== actualPlacementRef.current.rawValue
+      ) {
+        setActualPlacement(computedPlacement);
+        setContentPosition(newContentPosition);
+      }
+    },
+    [findPlacementOptions, placementService, preferredPlacement]
+  );
 
-    if (!contentPosition.equals(this.state.contentPosition) ||
-      actualPlacement.rawValue !== this.state.actualPlacement.rawValue) {
-      this.setState({
-        actualPlacement,
-        contentPosition,
-      });
-    }
-  };
-
-  private findPlacementOptions = (contentFrame: Frame, childFrame: Frame): PlacementOptions => {
-    const width: number = this.props.fullWidth ? childFrame.size.width : contentFrame.size.width;
-    const frame: Frame = new Frame(contentFrame.origin.x, contentFrame.origin.y, width, contentFrame.size.height);
-
-    return new PlacementOptions(frame, childFrame, Frame.window(), Frame.zero());
-  };
-
-  private renderContentElement = (): React.ReactElement => {
-    const contentElement: React.ReactElement = this.props.children;
-    const fullWidthStyle = { width: this.state.childFrame.size.width };
+  // Render helpers - React 2026: plain functions are fine, React Compiler optimizes these
+  const renderContentElement = (): React.ReactElement => {
+    const contentElement = children as React.ReactElement;
+    const fullWidthStyle = { width: childFrame.size.width };
 
     return React.cloneElement(contentElement, {
-      style: [this.props.fullWidth && fullWidthStyle, contentElement.props.style],
+      style: [fullWidth && fullWidthStyle, contentElement.props.style],
     });
   };
 
-  private renderPopoverElement = (): PopoverViewElement => {
+  const renderPopoverElement = (): PopoverViewElement => {
     return (
       <PopoverView
-        {...this.props}
-        contentContainerStyle={[this.props.contentContainerStyle, styles.popoverView, this.contentFlexPosition]}
-        layoutDirection={PopoverPlacements.parse(this.state.actualPlacement).flex()}
+        {...viewProps}
+        contentContainerStyle={[contentContainerStyle, styles.popoverView, contentFlexPosition]}
+        layoutDirection={PopoverPlacements.parse(actualPlacement).flex()}
       >
-        {this.renderContentElement()}
+        {renderContentElement()}
       </PopoverView>
     );
   };
 
-  private renderMeasuringPopoverElement = (): MeasuringElement => {
+  const renderMeasuringPopoverElement = (): MeasuringElement => {
     return (
-      <MeasureElement
-        onMeasure={this.onContentMeasure}
-      >
-        {this.renderPopoverElement()}
+      <MeasureElement onMeasure={onContentMeasure}>
+        {renderPopoverElement()}
       </MeasureElement>
     );
   };
 
-  public render(): React.ReactElement {
-    return (
-      <View>
-        <MeasureElement
-          force={this.state.forceMeasure}
-          shouldUseTopInsets={ModalService.getShouldUseTopInsets}
-          onMeasure={this.onChildMeasure}
-        >
-          {this.props.anchor()}
-        </MeasureElement>
-        <Modal
-          visible={this.props.visible}
-          shouldUseContainer={false}
-          backdropStyle={this.props.backdropStyle}
-          animationType={this.props.animationType}
-          hardwareAccelerated={this.props.hardwareAccelerated}
-          supportedOrientations={this.props.supportedOrientations}
-          onShow={this.props.onShow}
-          onBackdropPress={this.props.onBackdropPress}
-        >
-          {this.renderMeasuringPopoverElement()}
-        </Modal>
-      </View>
-    );
-  }
-}
+  return (
+    <View ref={containerRef}>
+      <MeasureElement
+        force={forceMeasure}
+        shouldUseTopInsets={ModalService.getShouldUseTopInsets}
+        onMeasure={onChildMeasure}
+      >
+        {anchor()}
+      </MeasureElement>
+      <Modal
+        visible={visible}
+        shouldUseContainer={false}
+        backdropStyle={backdropStyle}
+        animationType={animationType}
+        hardwareAccelerated={hardwareAccelerated}
+        supportedOrientations={supportedOrientations}
+        onShow={onShow}
+        onBackdropPress={onBackdropPress}
+      >
+        {renderMeasuringPopoverElement()}
+      </Modal>
+    </View>
+  );
+});
+
+// Display name for debugging
+Popover.displayName = 'Popover';
 
 const styles = StyleSheet.create({
   popoverView: {

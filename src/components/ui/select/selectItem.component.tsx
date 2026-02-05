@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   GestureResponderEvent,
   ImageProps,
@@ -18,15 +18,13 @@ import {
   PropsService,
   RenderProp,
   TouchableWeb,
-  TouchableWebElement,
   TouchableWebProps,
   Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import {
@@ -36,20 +34,40 @@ import {
 import { TextProps } from '../text/text.component';
 import { SelectItemDescriptor } from './select.service';
 
-type SelectItemStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default' | 'grouped'>;
-}>;
-
 type TouchableSelectProps = Overwrite<TouchableWebProps, {
   onPress?: (descriptor: SelectItemDescriptor, event?: GestureResponderEvent) => void;
 }>;
 
-export interface SelectItemProps extends TouchableSelectProps, SelectItemStyledProps {
+export interface SelectItemProps extends TouchableSelectProps {
+  /**
+   * String, number or a function component to render within the item.
+   * If it is a function, expected to return a Text.
+   */
   title?: RenderProp<TextProps> | React.ReactText;
+  /**
+   * Function component to render to start of the title.
+   * Expected to return an Image.
+   */
   accessoryLeft?: RenderProp<Partial<ImageProps>>;
+  /**
+   * Function component to render to end of the title.
+   * Expected to return an Image.
+   */
   accessoryRight?: RenderProp<Partial<ImageProps>>;
+  /**
+   * Whether the item is selected.
+   */
   selected?: boolean;
+  /**
+   * Internal descriptor for select navigation.
+   */
   descriptor?: SelectItemDescriptor;
+  /**
+   * Appearance of the component.
+   * Can be `default` or `grouped`.
+   * Defaults to *default*.
+   */
+  appearance?: LiteralUnion<'default' | 'grouped'>;
 }
 
 export type SelectItemElement = React.ReactElement<SelectItemProps>;
@@ -58,7 +76,7 @@ export type SelectItemElement = React.ReactElement<SelectItemProps>;
  * A single item in Select.
  * Items should be rendered within Select or SelectGroup children to provide a usable component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactText | ReactElement | (TextProps) => ReactElement} title - String, number or a function component
  * to render within the item.
@@ -76,133 +94,154 @@ export type SelectItemElement = React.ReactElement<SelectItemProps>;
  *
  * @overview-example SelectItemSimpleUsage
  */
-@styled('SelectOption')
-export class SelectItem extends React.Component<SelectItemProps> {
+export const SelectItem = React.forwardRef<TouchableWeb, SelectItemProps>(
+  (props, ref) => {
+    const {
+      appearance,
+      style,
+      title,
+      accessoryLeft,
+      accessoryRight,
+      selected,
+      descriptor,
+      disabled,
+      onMouseEnter: onMouseEnterProp,
+      onMouseLeave: onMouseLeaveProp,
+      onFocus: onFocusProp,
+      onBlur: onBlurProp,
+      onPress: onPressProp,
+      onPressIn: onPressInProp,
+      onPressOut: onPressOutProp,
+      ...touchableProps
+    } = props;
 
-  private get isMultiSelect(): boolean {
-    if (this.props.descriptor) {
-      return this.props.descriptor.multiSelect;
-    }
-    return false;
-  }
+    const isMultiSelect = descriptor?.multiSelect ?? false;
 
-  private onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.HOVER]);
-    this.props.onMouseEnter?.(event);
-  };
+    const { style: evaStyle, dispatch } = useStyled('SelectOption', {
+      appearance,
+      selected,
+      disabled,
+    });
 
-  private onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onMouseLeave?.(event);
-  };
+    // Split eva style into component parts
+    const componentStyle = useMemo(() => {
+      const { paddingHorizontal, paddingLeft, paddingVertical, backgroundColor } = evaStyle as StyleType;
 
-  private onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.FOCUSED]);
-    this.props.onFocus?.(event);
-  };
+      const textStyles = PropsService.allWithPrefix(evaStyle as StyleType, 'text');
+      const iconStyles = PropsService.allWithPrefix(evaStyle as StyleType, 'icon');
 
-  private onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onBlur?.(event);
-  };
+      return {
+        container: {
+          paddingHorizontal,
+          paddingLeft,
+          paddingVertical,
+          backgroundColor,
+        },
+        text: {
+          marginHorizontal: textStyles.textMarginHorizontal,
+          fontFamily: textStyles.textFontFamily,
+          fontSize: textStyles.textFontSize,
+          fontWeight: textStyles.textFontWeight,
+          color: textStyles.textColor,
+        },
+        icon: {
+          width: iconStyles.iconWidth,
+          height: iconStyles.iconHeight,
+          marginHorizontal: iconStyles.iconMarginHorizontal,
+          tintColor: iconStyles.iconTintColor,
+        },
+      };
+    }, [evaStyle]);
 
-  private onPress = (event: GestureResponderEvent): void => {
-    this.props.onPress?.(this.props.descriptor, event);
-  };
+    // Event handlers with dispatch
+    const onMouseEnter = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([Interaction.HOVER]);
+      onMouseEnterProp?.(event);
+    }, [dispatch, onMouseEnterProp]);
 
-  private onPressIn = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([Interaction.ACTIVE]);
-    this.props.onPressIn?.(event);
-  };
+    const onMouseLeave = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([]);
+      onMouseLeaveProp?.(event);
+    }, [dispatch, onMouseLeaveProp]);
 
-  private onPressOut = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([]);
-    this.props.onPressOut?.(event);
-  };
+    const onFocus = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([Interaction.FOCUSED]);
+      onFocusProp?.(event);
+    }, [dispatch, onFocusProp]);
 
-  private onAccessoryCheckedChange = (): void => {
-    this.props.onPress?.(this.props.descriptor);
-  };
+    const onBlur = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([]);
+      onBlurProp?.(event);
+    }, [dispatch, onBlurProp]);
 
-  private getComponentStyle = (style: StyleType): StyleType => {
-    const { paddingHorizontal, paddingLeft, paddingVertical, backgroundColor } = style;
+    const onPress = useCallback((event: GestureResponderEvent) => {
+      onPressProp?.(descriptor, event);
+    }, [onPressProp, descriptor]);
 
-    const textStyles = PropsService.allWithPrefix(style, 'text');
-    const iconStyles = PropsService.allWithPrefix(style, 'icon');
+    const onPressIn = useCallback((event: GestureResponderEvent) => {
+      dispatch([Interaction.ACTIVE]);
+      onPressInProp?.(event);
+    }, [dispatch, onPressInProp]);
 
-    return {
-      container: {
-        paddingHorizontal: paddingHorizontal,
-        paddingLeft: paddingLeft,
-        paddingVertical: paddingVertical,
-        backgroundColor: backgroundColor,
-      },
-      text: {
-        marginHorizontal: textStyles.textMarginHorizontal,
-        fontFamily: textStyles.textFontFamily,
-        fontSize: textStyles.textFontSize,
-        fontWeight: textStyles.textFontWeight,
-        color: textStyles.textColor,
-      },
-      icon: {
-        width: iconStyles.iconWidth,
-        height: iconStyles.iconHeight,
-        marginHorizontal: iconStyles.iconMarginHorizontal,
-        tintColor: iconStyles.iconTintColor,
-      },
+    const onPressOut = useCallback((event: GestureResponderEvent) => {
+      dispatch([]);
+      onPressOutProp?.(event);
+    }, [dispatch, onPressOutProp]);
+
+    const onAccessoryCheckedChange = useCallback(() => {
+      onPressProp?.(descriptor);
+    }, [onPressProp, descriptor]);
+
+    const renderAccessory = (iconStyle: StyleType): CheckBoxElement | null => {
+      if (!isMultiSelect) {
+        return null;
+      }
+
+      return (
+        <CheckBox
+          style={iconStyle}
+          checked={selected}
+          disabled={disabled}
+          onChange={onAccessoryCheckedChange}
+        />
+      );
     };
-  };
-
-  private renderAccessory = (evaStyle): CheckBoxElement => {
-    if (!this.isMultiSelect) {
-      return null;
-    }
-
-    return (
-      <CheckBox
-        style={evaStyle}
-        checked={this.props.selected}
-        disabled={this.props.disabled}
-        onChange={this.onAccessoryCheckedChange}
-      />
-    );
-  };
-
-  public render(): TouchableWebElement {
-    const { eva, style, title, accessoryLeft, accessoryRight, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
 
     return (
       <TouchableWeb
+        ref={ref}
         {...touchableProps}
-        style={[styles.container, evaStyle.container, style]}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        onPress={this.onPress}
-        onPressIn={this.onPressIn}
-        onPressOut={this.onPressOut}
+        disabled={disabled}
+        style={[staticStyles.container, componentStyle.container, style]}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        onPress={onPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
       >
         <FalsyFC
-          style={evaStyle.icon}
+          style={componentStyle.icon}
           component={accessoryLeft}
-          fallback={this.renderAccessory(evaStyle.icon)}
+          fallback={renderAccessory(componentStyle.icon)}
         />
         <FalsyText
-          style={[styles.text, evaStyle.text]}
+          style={[staticStyles.text, componentStyle.text]}
           component={title}
         />
         <FalsyFC
-          style={evaStyle.icon}
+          style={componentStyle.icon}
           component={accessoryRight}
         />
       </TouchableWeb>
     );
-  }
-}
+  },
+);
 
-const styles = StyleSheet.create({
+SelectItem.displayName = 'SelectItem';
+
+const staticStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',

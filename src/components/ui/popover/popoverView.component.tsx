@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useMemo, forwardRef } from 'react';
 import {
   StyleProp,
   TransformsStyle,
@@ -17,9 +17,8 @@ import {
   RTLService,
 } from '../../devsupport';
 import {
-  styled,
-  StyledComponentProps,
   StyleType,
+  useStyled,
 } from '../../theme';
 import {
   FlexPlacement,
@@ -27,7 +26,7 @@ import {
 
 type AnimatedViewStyle = ViewStyle;
 
-export interface PopoverViewProps extends ViewProps, StyledComponentProps {
+export interface PopoverViewProps extends ViewProps {
   contentContainerStyle?: StyleProp<AnimatedViewStyle>;
   layoutDirection?: FlexPlacement;
   indicator?: (props: ViewProps) => React.ReactElement;
@@ -38,10 +37,27 @@ export type PopoverViewElement = React.ReactElement<PopoverViewProps>;
 const INDICATOR_OFFSET = 8;
 const INDICATOR_WIDTH = 6;
 
-@styled('Popover')
-export class PopoverView extends React.Component<PopoverViewProps> {
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const { indicatorWidth, indicatorHeight, indicatorBackgroundColor, ...containerParameters } = source;
+/**
+ * Internal view component for Popover that renders the content and indicator.
+ * Uses Eva Design System styling.
+ */
+export const PopoverView = forwardRef<View, PopoverViewProps>(({
+  style,
+  contentContainerStyle,
+  onLayout,
+  indicator,
+  layoutDirection,
+  ...viewProps
+}, ref) => {
+  const { style: evaStyle } = useStyled('Popover', {});
+
+  const componentStyle = useMemo(() => {
+    const {
+      indicatorWidth,
+      indicatorHeight,
+      indicatorBackgroundColor,
+      ...containerParameters
+    } = evaStyle as StyleType;
 
     return {
       content: containerParameters,
@@ -51,10 +67,18 @@ export class PopoverView extends React.Component<PopoverViewProps> {
         backgroundColor: indicatorBackgroundColor,
       },
     };
-  };
+  }, [evaStyle]);
 
-  private getDirectionStyle = (): StyleType => {
-    const { direction, alignment } = this.props.layoutDirection;
+  const directionStyle = useMemo((): StyleType => {
+    if (!layoutDirection) {
+      return {
+        container: {},
+        content: {},
+        indicator: {},
+      };
+    }
+
+    const { direction, alignment } = layoutDirection;
 
     const isVertical: boolean = direction.startsWith('column');
     const isStart: boolean = alignment.endsWith('start');
@@ -68,14 +92,11 @@ export class PopoverView extends React.Component<PopoverViewProps> {
 
     // Translate container by half of `indicatorWidth`. Exactly half (because it has a square shape)
     // Reverse if needed
-
-    // @ts-ignore: indicatorWidth type is always number
-    let containerTranslate: number = (this.props.indicator && !isVertical) ? INDICATOR_WIDTH / 2 : 0;
+    let containerTranslate: number = (indicator && !isVertical) ? INDICATOR_WIDTH / 2 : 0;
     containerTranslate = isReverse ? containerTranslate : -containerTranslate;
 
     // Translate indicator by passed `indicatorOffset`
     // Reverse if needed
-
     let indicatorTranslate: number = isVertical ? -INDICATOR_OFFSET : INDICATOR_OFFSET;
     indicatorTranslate = isReverse ? -indicatorTranslate : indicatorTranslate;
     const i18nVerticalIndicatorTranslate = RTLService.select(indicatorTranslate, -indicatorTranslate);
@@ -106,27 +127,25 @@ export class PopoverView extends React.Component<PopoverViewProps> {
       content: contentTransforms,
       indicator: indicatorTransforms,
     };
-  };
+  }, [layoutDirection, indicator]);
 
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, contentContainerStyle, onLayout, indicator, ...viewProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-    const directionStyle = this.getDirectionStyle();
-
-    return (
+  return (
+    <View
+      ref={ref}
+      style={[directionStyle.container, contentContainerStyle]}
+      onLayout={onLayout}
+    >
+      <FalsyFC
+        style={[componentStyle.indicator, directionStyle.indicator]}
+        component={indicator}
+      />
       <View
-        style={[directionStyle.container, contentContainerStyle]}
-        onLayout={onLayout}
-      >
-        <FalsyFC
-          style={[evaStyle.indicator, directionStyle.indicator]}
-          component={indicator}
-        />
-        <View
-          {...viewProps}
-          style={[evaStyle.content, directionStyle.content, style]}
-        />
-      </View>
-    );
-  }
-}
+        {...viewProps}
+        style={[componentStyle.content, directionStyle.content, style]}
+      />
+    </View>
+  );
+});
+
+// Display name for debugging
+PopoverView.displayName = 'PopoverView';

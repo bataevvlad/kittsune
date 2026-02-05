@@ -153,7 +153,6 @@ export class Modal extends React.PureComponent<ModalProps, State> {
         hardwareAccelerated={this.props.hardwareAccelerated}
         onRequestClose={this.props.onBackdropPress}
         onShow={this.props.onShow}
-        onDismiss={this.props.onBackdropPress}
       >
         <Backdrop
           visible={this.props.visible}

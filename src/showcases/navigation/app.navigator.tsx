@@ -13,6 +13,13 @@ import {
   Divider,
   Spinner,
   Avatar,
+  List,
+  ListItem,
+  MenuItem,
+  SelectItem,
+  Select,
+  IndexPath,
+  Popover,
 } from '@kitsuine/components';
 
 const HeartIcon = (props?: Partial<ImageProps>): React.ReactElement => (
@@ -55,7 +62,25 @@ export const AppNavigator = (): React.ReactElement => {
   const [toggleInfo, setToggleInfo] = React.useState(true);
   const [toggleWarning, setToggleWarning] = React.useState(true);
   const [toggleDanger, setToggleDanger] = React.useState(true);
+
+  // Select state
+  const [selectedIndex, setSelectedIndex] = React.useState<IndexPath>(new IndexPath(0));
+  const [selectedIndexLabel, setSelectedIndexLabel] = React.useState<IndexPath | undefined>(undefined);
   const [toggleBasic, setToggleBasic] = React.useState(true);
+
+  // Popover state
+  const [popoverVisible, setPopoverVisible] = React.useState(false);
+  const [popoverPlacementVisible, setPopoverPlacementVisible] = React.useState(false);
+  const [popoverFullWidthVisible, setPopoverFullWidthVisible] = React.useState(false);
+  const [popoverBackdropVisible, setPopoverBackdropVisible] = React.useState(false);
+  const [selectedPlacementIndex, setSelectedPlacementIndex] = React.useState<IndexPath>(new IndexPath(3));
+  const placements = [
+    'top', 'top start', 'top end',
+    'bottom', 'bottom start', 'bottom end',
+    'left', 'left start', 'left end',
+    'right', 'right start', 'right end',
+    'inner', 'inner bottom', 'inner top',
+  ];
 
   return (
     <Layout style={styles.container}>
@@ -412,6 +437,218 @@ export const AppNavigator = (): React.ReactElement => {
           </SubSection>
         </Section>
 
+        {/* ==================== LIST ITEM ==================== */}
+        <Section title="ListItem (Migrated)">
+          <SubSection title="Basic">
+            <ListItem
+              title="Basic List Item"
+              description="This is a simple list item"
+            />
+            <ListItem
+              title="Another List Item"
+              description="With another description"
+            />
+          </SubSection>
+
+          <SubSection title="With Accessories">
+            <ListItem
+              title="With Icons"
+              description="Left and right accessories"
+              accessoryLeft={PersonIcon}
+              accessoryRight={StarIcon}
+            />
+          </SubSection>
+
+          <SubSection title="States">
+            <ListItem
+              title="Pressable Item"
+              description="Press me to test interaction"
+              onPress={() => console.log('ListItem pressed')}
+            />
+            <ListItem
+              title="Disabled Item"
+              description="Cannot be pressed"
+              disabled
+            />
+          </SubSection>
+        </Section>
+
+        {/* ==================== MENU ITEM ==================== */}
+        <Section title="MenuItem (Migrated)">
+          <SubSection title="Basic">
+            <MenuItem title="Basic Menu Item" />
+            <MenuItem title="Another Menu Item" />
+          </SubSection>
+
+          <SubSection title="With Accessories">
+            <MenuItem
+              title="With Icons"
+              accessoryLeft={PersonIcon}
+              accessoryRight={StarIcon}
+            />
+          </SubSection>
+
+          <SubSection title="States">
+            <MenuItem
+              title="Pressable"
+              onPress={() => console.log('MenuItem pressed')}
+            />
+            <MenuItem title="Disabled" disabled />
+            <MenuItem title="Selected" selected />
+          </SubSection>
+        </Section>
+
+        {/* ==================== SELECT ITEM ==================== */}
+        <Section title="SelectItem (Migrated)">
+          <SubSection title="Basic">
+            <SelectItem title="Basic Select Item" />
+            <SelectItem title="Another Select Item" />
+          </SubSection>
+
+          <SubSection title="With Accessories">
+            <SelectItem
+              title="With Icons"
+              accessoryLeft={PersonIcon}
+              accessoryRight={StarIcon}
+            />
+          </SubSection>
+
+          <SubSection title="States">
+            <SelectItem title="Disabled" disabled />
+            <SelectItem title="Selected" selected />
+          </SubSection>
+        </Section>
+
+        {/* ==================== SELECT ==================== */}
+        <Section title="Select (Migrated)">
+          <SubSection title="Basic">
+            <Select
+              selectedIndex={selectedIndex}
+              onSelect={(index) => setSelectedIndex(index as IndexPath)}
+              value={`Option ${selectedIndex.row + 1}`}
+            >
+              <SelectItem title="Option 1" />
+              <SelectItem title="Option 2" />
+              <SelectItem title="Option 3" />
+            </Select>
+          </SubSection>
+
+          <SubSection title="With Label & Caption">
+            <Select
+              label="Label"
+              caption="Caption text"
+              placeholder="Select an option"
+              selectedIndex={selectedIndexLabel}
+              onSelect={(index) => setSelectedIndexLabel(index as IndexPath)}
+              value={selectedIndexLabel ? `Option ${selectedIndexLabel.row + 1}` : undefined}
+            >
+              <SelectItem title="Option 1" />
+              <SelectItem title="Option 2" />
+            </Select>
+          </SubSection>
+
+          <SubSection title="Disabled">
+            <Select placeholder="Disabled Select" disabled>
+              <SelectItem title="Option 1" />
+            </Select>
+          </SubSection>
+        </Section>
+
+        {/* ==================== POPOVER ==================== */}
+        <Section title="Popover (Migrated)">
+          <SubSection title="Basic">
+            <View style={styles.popoverContainer}>
+              <Popover
+                visible={popoverVisible}
+                anchor={() => (
+                  <Button onPress={() => setPopoverVisible(true)}>
+                    TOGGLE POPOVER
+                  </Button>
+                )}
+                onBackdropPress={() => setPopoverVisible(false)}
+              >
+                <Layout style={styles.popoverContent}>
+                  <Text>Welcome to Kitsune!</Text>
+                </Layout>
+              </Popover>
+            </View>
+          </SubSection>
+
+          <SubSection title="Placements">
+            <Select
+              style={styles.placementSelect}
+              placeholder="Select Placement"
+              value={placements[selectedPlacementIndex.row]}
+              selectedIndex={selectedPlacementIndex}
+              onSelect={(index) => setSelectedPlacementIndex(index as IndexPath)}
+            >
+              {placements.map((p) => (
+                <SelectItem key={p} title={p} />
+              ))}
+            </Select>
+            <View style={styles.popoverPlacementContainer}>
+              <Popover
+                visible={popoverPlacementVisible}
+                placement={placements[selectedPlacementIndex.row]}
+                anchor={() => (
+                  <Button onPress={() => setPopoverPlacementVisible(true)}>
+                    SHOW POPOVER
+                  </Button>
+                )}
+                onBackdropPress={() => setPopoverPlacementVisible(false)}
+              >
+                <Layout style={styles.popoverContent}>
+                  <Text category="s1">{placements[selectedPlacementIndex.row]}</Text>
+                </Layout>
+              </Popover>
+            </View>
+          </SubSection>
+
+          <SubSection title="Full Width">
+            <View style={styles.popoverContainer}>
+              <Popover
+                visible={popoverFullWidthVisible}
+                fullWidth={true}
+                anchor={() => (
+                  <Button
+                    style={styles.wideButton}
+                    onPress={() => setPopoverFullWidthVisible(true)}
+                  >
+                    WIDE BUTTON - FULL WIDTH POPOVER
+                  </Button>
+                )}
+                onBackdropPress={() => setPopoverFullWidthVisible(false)}
+              >
+                <Layout style={styles.popoverContent}>
+                  <Text>This popover matches the button width</Text>
+                </Layout>
+              </Popover>
+            </View>
+          </SubSection>
+
+          <SubSection title="Styled Backdrop">
+            <View style={styles.popoverContainer}>
+              <Popover
+                visible={popoverBackdropVisible}
+                backdropStyle={styles.popoverBackdrop}
+                anchor={() => (
+                  <Button
+                    status="warning"
+                    onPress={() => setPopoverBackdropVisible(true)}
+                  >
+                    WITH BACKDROP
+                  </Button>
+                )}
+                onBackdropPress={() => setPopoverBackdropVisible(false)}
+              >
+                <Layout style={styles.popoverContent}>
+                  <Text>Notice the semi-transparent backdrop</Text>
+                </Layout>
+              </Popover>
+            </View>
+          </SubSection>
+        </Section>
+
         {/* ==================== AVATAR ==================== */}
         <Section title="Avatar">
           <SubSection title="Sizes">
@@ -595,9 +832,36 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
   },
+  comparisonNote: {
+    marginBottom: 16,
+    padding: 8,
+    backgroundColor: '#FFF3CD',
+    borderRadius: 4,
+  },
   footer: {
     alignItems: 'center',
     marginTop: 32,
     paddingVertical: 16,
+  },
+  popoverContainer: {
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  popoverPlacementContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 48,
+  },
+  popoverContent: {
+    padding: 16,
+  },
+  placementSelect: {
+    marginBottom: 8,
+  },
+  wideButton: {
+    width: '100%',
+  },
+  popoverBackdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });

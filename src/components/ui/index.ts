@@ -89,6 +89,7 @@ export {
   Select,
   SelectProps,
   SelectElement,
+  SelectRef,
 } from './select/select.component';
 export {
   SelectGroup,

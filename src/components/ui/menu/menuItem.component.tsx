@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   GestureResponderEvent,
   ImageProps,
@@ -25,27 +25,46 @@ import {
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { TextProps } from '../text/text.component';
 import { MenuItemDescriptor } from './menu.service';
 
-type MenuItemStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default' | 'grouped'>;
-}>;
-
 type TouchableMenuItemProps = Overwrite<TouchableWebProps, {
   onPress?: (descriptor: MenuItemDescriptor, event?: GestureResponderEvent) => void;
 }>;
 
-export interface MenuItemProps extends TouchableMenuItemProps, MenuItemStyledProps {
+export interface MenuItemProps extends TouchableMenuItemProps {
+  /**
+   * String, number or a function component to render within the item.
+   * If it is a function, expected to return a Text.
+   */
   title?: RenderProp<TextProps> | React.ReactText;
+  /**
+   * Function component to render to start of the title.
+   * Expected to return an Image.
+   */
   accessoryLeft?: RenderProp<Partial<ImageProps>>;
+  /**
+   * Function component to render to end of the title.
+   * Expected to return an Image.
+   */
   accessoryRight?: RenderProp<Partial<ImageProps>>;
+  /**
+   * Whether the item is selected.
+   */
   selected?: boolean;
+  /**
+   * Internal descriptor for menu navigation.
+   */
   descriptor?: MenuItemDescriptor;
+  /**
+   * Appearance of the component.
+   * Can be `default` or `grouped`.
+   * Defaults to *default*.
+   */
+  appearance?: LiteralUnion<'default' | 'grouped'>;
 }
 
 export type MenuItemElement = React.ReactElement<MenuItemProps>;
@@ -54,7 +73,7 @@ export type MenuItemElement = React.ReactElement<MenuItemProps>;
  * A single item in Menu.
  * Items should be rendered within Menu or MenuGroup to provide a usable navigation component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactElement | ReactText | (TextProps) => ReactElement} title - String, number or a function component
  * to render within the item.
@@ -72,112 +91,138 @@ export type MenuItemElement = React.ReactElement<MenuItemProps>;
  *
  * @overview-example MenuItemSimpleUsage
  */
-@styled('MenuItem')
-export class MenuItem extends React.Component<MenuItemProps> {
+export const MenuItem = React.forwardRef<TouchableWeb, MenuItemProps>(
+  (props, ref) => {
+    const {
+      appearance,
+      style,
+      title,
+      accessoryLeft,
+      accessoryRight,
+      selected,
+      descriptor,
+      disabled,
+      onMouseEnter: onMouseEnterProp,
+      onMouseLeave: onMouseLeaveProp,
+      onFocus: onFocusProp,
+      onBlur: onBlurProp,
+      onPress: onPressProp,
+      onPressIn: onPressInProp,
+      onPressOut: onPressOutProp,
+      ...touchableProps
+    } = props;
 
-  private onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.HOVER]);
-    this.props.onMouseEnter?.(event);
-  };
+    const { style: evaStyle, dispatch } = useStyled('MenuItem', {
+      appearance,
+      selected,
+      disabled,
+    });
 
-  private onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onMouseLeave?.(event);
-  };
+    // Split eva style into component parts
+    const componentStyle = useMemo(() => {
+      const { paddingHorizontal, paddingVertical, paddingLeft, backgroundColor } = evaStyle as StyleType;
 
-  private onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.FOCUSED]);
-    this.props.onFocus?.(event);
-  };
+      const titleStyles: StyleType = PropsService.allWithPrefix(evaStyle as StyleType, 'title');
+      const indicatorStyles: StyleType = PropsService.allWithPrefix(evaStyle as StyleType, 'indicator');
+      const iconStyles: StyleType = PropsService.allWithPrefix(evaStyle as StyleType, 'icon');
 
-  private onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onBlur?.(event);
-  };
+      return {
+        container: {
+          paddingHorizontal,
+          paddingLeft,
+          paddingVertical,
+          backgroundColor,
+        },
+        title: {
+          marginHorizontal: titleStyles.titleMarginHorizontal,
+          fontFamily: titleStyles.titleFontFamily,
+          fontSize: titleStyles.titleFontSize,
+          fontWeight: titleStyles.titleFontWeight,
+          color: titleStyles.titleColor,
+        },
+        indicator: {
+          width: indicatorStyles.indicatorWidth,
+          backgroundColor: indicatorStyles.indicatorBackgroundColor,
+        },
+        icon: {
+          width: iconStyles.iconWidth,
+          height: iconStyles.iconHeight,
+          marginHorizontal: iconStyles.iconMarginHorizontal,
+          tintColor: iconStyles.iconTintColor,
+        },
+      };
+    }, [evaStyle]);
 
-  private onPress = (event: GestureResponderEvent): void => {
-    this.props.onPress?.(this.props.descriptor, event);
-  };
+    // Event handlers with dispatch
+    const onMouseEnter = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([Interaction.HOVER]);
+      onMouseEnterProp?.(event);
+    }, [dispatch, onMouseEnterProp]);
 
-  private onPressIn = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([Interaction.ACTIVE]);
-    this.props.onPressIn?.(event);
-  };
+    const onMouseLeave = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([]);
+      onMouseLeaveProp?.(event);
+    }, [dispatch, onMouseLeaveProp]);
 
-  private onPressOut = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([]);
-    this.props.onPressOut?.(event);
-  };
+    const onFocus = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([Interaction.FOCUSED]);
+      onFocusProp?.(event);
+    }, [dispatch, onFocusProp]);
 
-  private getComponentStyle = (style: StyleType): StyleType => {
-    const { paddingHorizontal, paddingVertical, paddingLeft, backgroundColor } = style;
+    const onBlur = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([]);
+      onBlurProp?.(event);
+    }, [dispatch, onBlurProp]);
 
-    const titleStyles: StyleType = PropsService.allWithPrefix(style, 'title');
-    const indicatorStyles: StyleType = PropsService.allWithPrefix(style, 'indicator');
-    const iconStyles: StyleType = PropsService.allWithPrefix(style, 'icon');
+    const onPress = useCallback((event: GestureResponderEvent) => {
+      onPressProp?.(descriptor, event);
+    }, [onPressProp, descriptor]);
 
-    return {
-      container: {
-        paddingHorizontal: paddingHorizontal,
-        paddingLeft: paddingLeft,
-        paddingVertical: paddingVertical,
-        backgroundColor: backgroundColor,
-      },
-      title: {
-        marginHorizontal: titleStyles.titleMarginHorizontal,
-        fontFamily: titleStyles.titleFontFamily,
-        fontSize: titleStyles.titleFontSize,
-        fontWeight: titleStyles.titleFontWeight,
-        color: titleStyles.titleColor,
-      },
-      indicator: {
-        width: indicatorStyles.indicatorWidth,
-        backgroundColor: indicatorStyles.indicatorBackgroundColor,
-      },
-      icon: {
-        width: iconStyles.iconWidth,
-        height: iconStyles.iconHeight,
-        marginHorizontal: iconStyles.iconMarginHorizontal,
-        tintColor: iconStyles.iconTintColor,
-      },
-    };
-  };
+    const onPressIn = useCallback((event: GestureResponderEvent) => {
+      dispatch([Interaction.ACTIVE]);
+      onPressInProp?.(event);
+    }, [dispatch, onPressInProp]);
 
-  public render(): React.ReactNode {
-    const { eva, style, title, accessoryLeft, accessoryRight, children, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+    const onPressOut = useCallback((event: GestureResponderEvent) => {
+      dispatch([]);
+      onPressOutProp?.(event);
+    }, [dispatch, onPressOutProp]);
 
     return (
       <TouchableWeb
+        ref={ref}
         {...touchableProps}
-        style={[styles.container, evaStyle.container, style]}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        onPress={this.onPress}
-        onPressIn={this.onPressIn}
-        onPressOut={this.onPressOut}
+        disabled={disabled}
+        style={[staticStyles.container, componentStyle.container, style]}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        onPress={onPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
       >
-        <View style={[StyleSheet.absoluteFill, evaStyle.indicator]} />
+        <View style={[StyleSheet.absoluteFill, componentStyle.indicator]} />
         <FalsyFC
-          style={evaStyle.icon}
+          style={componentStyle.icon}
           component={accessoryLeft}
         />
         <FalsyText
-          style={[evaStyle.title, styles.title]}
+          style={[componentStyle.title, staticStyles.title]}
           component={title}
         />
         <FalsyFC
-          style={evaStyle.icon}
+          style={componentStyle.icon}
           component={accessoryRight}
         />
       </TouchableWeb>
     );
-  }
-}
+  },
+);
 
-const styles = StyleSheet.create({
+MenuItem.displayName = 'MenuItem';
+
+const staticStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
