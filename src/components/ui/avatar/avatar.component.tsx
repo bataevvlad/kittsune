@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Image,
   ImageProps,
@@ -13,25 +13,31 @@ import {
 } from 'react-native';
 import {
   EvaSize,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
-import {
-  styled,
-  StyledComponentProps,
-  StyleType,
-} from '../../theme';
+import { useStyled, StyleType } from '../../theme';
 
-type AvatarStyledProps = Overwrite<StyledComponentProps, {
+export type AvatarProps<P = ImageProps> = P & {
+  /**
+   * Appearance of the component.
+   * Defaults to *default*.
+   */
   appearance?: LiteralUnion<'default'>;
-}>;
-
-export type AvatarProps<P = ImageProps> = AvatarStyledProps & P & {
+  /**
+   * Shape of the component.
+   * Can be `round`, `rounded` or `square`.
+   * Defaults to *round*.
+   */
   shape?: 'round' | 'rounded' | 'square' | string;
+  /**
+   * Size of the component.
+   * Can be `tiny`, `small`, `medium`, `large`, or `giant`.
+   * Defaults to *medium*.
+   */
   size?: EvaSize;
   /**
-   * We use `any` here to prevent ts complains for most of the libraries that use
-   * React.ComponentType & SomeType to describe static / instance methods for the components.
+   * A component to render.
+   * Defaults to Image.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ImageComponent?: React.ComponentType<P> & any;
@@ -42,7 +48,7 @@ export type AvatarElement = React.ReactElement<AvatarProps>;
 /**
  * An Image with additional styles provided by Eva.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {string} shape - Shape of the component.
  * Can be `round`, `rounded` or `square`.
@@ -69,43 +75,51 @@ export type AvatarElement = React.ReactElement<AvatarProps>;
  * Avatar may have different root component to render images.
  * This might be helpful when needed to improve image loading with 3rd party image libraries.
  */
-@styled('Avatar')
-export class Avatar extends React.Component<AvatarProps> {
+export const Avatar = <P extends ImageProps = ImageProps>(
+  props: AvatarProps<P>,
+): React.ReactElement => {
+  const {
+    appearance,
+    shape,
+    size,
+    style,
+    ImageComponent = Image,
+    ...imageProps
+  } = props;
 
-  static defaultProps: Partial<AvatarProps> = {
-    ImageComponent: Image,
-  };
+  const { style: evaStyle } = useStyled('Avatar', {
+    appearance,
+    shape,
+    size,
+  });
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const { roundCoefficient, ...containerParameters } = source;
+  const componentStyle = useMemo(() => {
+    const { roundCoefficient, ...containerParameters } = evaStyle as StyleType & { roundCoefficient?: number };
 
     // @ts-ignore: avoid checking `containerParameters`
     const baseStyle: ImageStyle = StyleSheet.flatten([
       containerParameters,
-      this.props.style,
+      style,
     ]);
 
     // @ts-ignore: rhs operator is restricted to be number
-    const borderRadius: number = roundCoefficient * baseStyle.height;
+    const borderRadius: number = (roundCoefficient || 0) * (baseStyle.height || 0);
 
     return {
       borderRadius,
       ...baseStyle,
     };
-  };
+  }, [evaStyle, style]);
 
-  public render(): React.ReactElement {
-    const { eva, ImageComponent, ...imageProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+  return (
+    <ImageComponent
+      {...imageProps as P}
+      style={[styles.image, componentStyle]}
+    />
+  );
+};
 
-    return (
-      <ImageComponent
-        {...imageProps}
-        style={[styles.image, evaStyle]}
-      />
-    );
-  }
-}
+Avatar.displayName = 'Avatar';
 
 const styles = StyleSheet.create({
   image: {

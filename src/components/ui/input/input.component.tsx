@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo, useRef, useImperativeHandle } from 'react';
 import {
   ImageProps,
   NativeSyntheticEvent,
@@ -28,41 +28,82 @@ import {
   PropsService,
   RenderProp,
   WebEventResponder,
-  WebEventResponderCallbacks,
   WebEventResponderInstance,
-  Overwrite,
   LiteralUnion,
   TouchableWithoutFeedback,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { TextProps } from '../text/text.component';
 
-type InputStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
+type TextInputPropsWithoutChildren = Omit<TextInputProps, 'children'>;
 
-export interface InputProps extends TextInputProps, InputStyledProps {
+export interface InputProps extends TextInputPropsWithoutChildren {
+  /**
+   * Appearance of the component.
+   * Defaults to *default*.
+   */
+  appearance?: LiteralUnion<'default'>;
+  /**
+   * Status of the component.
+   * Can be `basic`, `primary`, `success`, `info`, `warning`, `danger` or `control`.
+   * Defaults to *basic*.
+   * Useful for giving user a hint on the input validity.
+   */
   status?: EvaStatus;
+  /**
+   * Size of the component.
+   * Can be `small`, `medium` or `large`.
+   * Defaults to *medium*.
+   */
   size?: EvaSize;
+  /**
+   * Whether input field is disabled.
+   * This property overrides `editable` property of TextInput.
+   */
   disabled?: boolean;
+  /**
+   * String, number or a function component to render above the input field.
+   * If it is a function, expected to return a Text.
+   */
   label?: RenderProp<TextProps> | React.ReactText;
+  /**
+   * Function component to render below Input view.
+   * Expected to return View.
+   */
   caption?: RenderProp<TextProps> | React.ReactText;
+  /**
+   * Function component to render to start of the text.
+   * Expected to return an Image.
+   */
   accessoryLeft?: RenderProp<Partial<ImageProps>>;
+  /**
+   * Function component to render to end of the text.
+   * Expected to return an Image.
+   */
   accessoryRight?: RenderProp<Partial<ImageProps>>;
+  /**
+   * Customizes the style of the text field.
+   */
   textStyle?: StyleProp<TextStyle>;
 }
 
 export type InputElement = React.ReactElement<InputProps>;
 
+export interface InputRef {
+  focus: () => void;
+  blur: () => void;
+  isFocused: () => boolean | undefined;
+  clear: () => void;
+}
+
 /**
  * Inputs let users enter and edit text.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {string} value - A value displayed in input field.
  *
@@ -138,169 +179,188 @@ export type InputElement = React.ReactElement<InputProps>;
  * @overview-example InputTheming
  * In most cases this is redundant, if [custom theme is configured](guides/branding).
  */
-@styled('Input')
-export class Input extends React.Component<InputProps> implements WebEventResponderCallbacks {
-
-  private textInputRef = React.createRef<TextInput>();
-  private webEventResponder: WebEventResponderInstance = WebEventResponder.create(this);
-
-  public focus = (): void => {
-    this.textInputRef.current?.focus();
-  };
-
-  public blur = (): void => {
-    this.textInputRef.current?.blur();
-  };
-
-  public isFocused = (): boolean => {
-    return this.textInputRef.current?.isFocused();
-  };
-
-  public clear = (): void => {
-    this.textInputRef.current?.clear();
-  };
-
-  // WebEventResponderCallbacks
-
-  public onMouseEnter = (): void => {
-    this.props.eva.dispatch([Interaction.HOVER]);
-  };
-
-  public onMouseLeave = (): void => {
-    this.props.eva.dispatch([]);
-  };
-
-  private onTextFieldFocus = (event: NativeSyntheticEvent<TextInputFocusEventData>): void => {
-    this.props.eva.dispatch([Interaction.FOCUSED]);
-    this.props.onFocus?.(event);
-  };
-
-  private onTextFieldBlur = (event: NativeSyntheticEvent<TextInputFocusEventData>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onBlur?.(event);
-  };
-
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const flatStyles: ViewStyle = StyleSheet.flatten(this.props.style);
-    const { rest: inputContainerStyle, ...containerStyle } =
-      PropsService.allWithRest(flatStyles, FlexViewCrossStyleProps);
-
+export const Input = React.forwardRef<InputRef, InputProps>(
+  (props, ref) => {
     const {
-      textMarginHorizontal,
-      textFontFamily,
-      textFontSize,
-      textFontWeight,
-      textColor,
-      placeholderColor,
-      iconWidth,
-      iconHeight,
-      iconMarginHorizontal,
-      iconTintColor,
-      labelColor,
-      labelFontSize,
-      labelMarginBottom,
-      labelFontWeight,
-      labelFontFamily,
-      captionMarginTop,
-      captionColor,
-      captionFontSize,
-      captionFontWeight,
-      captionFontFamily,
-      ...containerParameters
-    } = source;
-
-    return {
-      container: containerStyle,
-      inputContainer: {
-        ...containerParameters,
-        ...inputContainerStyle,
-      },
-      text: {
-        marginHorizontal: textMarginHorizontal,
-        fontFamily: textFontFamily,
-        fontSize: textFontSize,
-        fontWeight: textFontWeight,
-        color: textColor,
-      },
-      placeholder: {
-        color: placeholderColor,
-      },
-      icon: {
-        width: iconWidth,
-        height: iconHeight,
-        marginHorizontal: iconMarginHorizontal,
-        tintColor: iconTintColor,
-      },
-      label: {
-        color: labelColor,
-        fontSize: labelFontSize,
-        marginBottom: labelMarginBottom,
-        fontWeight: labelFontWeight,
-        fontFamily: labelFontFamily,
-      },
-      captionLabel: {
-        fontSize: captionFontSize,
-        fontWeight: captionFontWeight,
-        fontFamily: captionFontFamily,
-        color: captionColor,
-      },
-    };
-  };
-
-  public render(): React.ReactElement<ViewProps> {
-    const {
-      eva,
+      appearance,
+      status,
+      size,
+      disabled,
+      style,
       textStyle,
       label,
       caption,
       accessoryLeft,
       accessoryRight,
       testID,
+      onFocus: onFocusProp,
+      onBlur: onBlurProp,
       ...textInputProps
-    } = this.props;
+    } = props;
 
-    const evaStyle = this.getComponentStyle(eva.style);
+    const textInputRef = useRef<TextInput>(null);
+    const webEventResponderRef = useRef<WebEventResponderInstance | null>(null);
+
+    const { style: evaStyle, dispatch } = useStyled('Input', {
+      appearance,
+      status,
+      size,
+      disabled,
+    });
+
+    // Expose ref methods
+    useImperativeHandle(ref, () => ({
+      focus: () => textInputRef.current?.focus(),
+      blur: () => textInputRef.current?.blur(),
+      isFocused: () => textInputRef.current?.isFocused(),
+      clear: () => textInputRef.current?.clear(),
+    }), []);
+
+    // WebEventResponder callbacks for hover
+    const onMouseEnter = useCallback(() => {
+      dispatch([Interaction.HOVER]);
+    }, [dispatch]);
+
+    const onMouseLeave = useCallback(() => {
+      dispatch([]);
+    }, [dispatch]);
+
+    // Initialize web event responder lazily
+    const getWebEventResponder = useCallback(() => {
+      if (!webEventResponderRef.current) {
+        webEventResponderRef.current = WebEventResponder.create({
+          onMouseEnter,
+          onMouseLeave,
+        });
+      }
+      return webEventResponderRef.current;
+    }, [onMouseEnter, onMouseLeave]);
+
+    // Event handlers
+    const onTextFieldFocus = useCallback((event: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      dispatch([Interaction.FOCUSED]);
+      onFocusProp?.(event);
+    }, [dispatch, onFocusProp]);
+
+    const onTextFieldBlur = useCallback((event: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      dispatch([]);
+      onBlurProp?.(event);
+    }, [dispatch, onBlurProp]);
+
+    const focus = useCallback(() => {
+      textInputRef.current?.focus();
+    }, []);
+
+    // Split eva style into component parts
+    const componentStyle = useMemo(() => {
+      const flatStyles: ViewStyle = StyleSheet.flatten(style);
+      const { rest: inputContainerStyle, ...containerStyle } =
+        PropsService.allWithRest(flatStyles, FlexViewCrossStyleProps);
+
+      const {
+        textMarginHorizontal,
+        textFontFamily,
+        textFontSize,
+        textFontWeight,
+        textColor,
+        placeholderColor,
+        iconWidth,
+        iconHeight,
+        iconMarginHorizontal,
+        iconTintColor,
+        labelColor,
+        labelFontSize,
+        labelMarginBottom,
+        labelFontWeight,
+        labelFontFamily,
+        captionMarginTop,
+        captionColor,
+        captionFontSize,
+        captionFontWeight,
+        captionFontFamily,
+        ...containerParameters
+      } = evaStyle as StyleType;
+
+      return {
+        container: containerStyle,
+        inputContainer: {
+          ...containerParameters,
+          ...inputContainerStyle,
+        },
+        text: {
+          marginHorizontal: textMarginHorizontal,
+          fontFamily: textFontFamily,
+          fontSize: textFontSize,
+          fontWeight: textFontWeight,
+          color: textColor,
+        },
+        placeholder: {
+          color: placeholderColor,
+        },
+        icon: {
+          width: iconWidth,
+          height: iconHeight,
+          marginHorizontal: iconMarginHorizontal,
+          tintColor: iconTintColor,
+        },
+        label: {
+          color: labelColor,
+          fontSize: labelFontSize,
+          marginBottom: labelMarginBottom,
+          fontWeight: labelFontWeight,
+          fontFamily: labelFontFamily,
+        },
+        captionLabel: {
+          fontSize: captionFontSize,
+          fontWeight: captionFontWeight,
+          fontFamily: captionFontFamily,
+          color: captionColor,
+        },
+      };
+    }, [evaStyle, style]);
 
     return (
       <TouchableWithoutFeedback
         testID={`@${testID}/container`}
-        style={evaStyle.container}
+        style={componentStyle.container}
         focusable={false}
-        onPress={this.focus}
+        onPress={focus}
       >
         <FalsyText
-          style={[evaStyle.label, styles.label]}
+          style={[componentStyle.label, styles.label]}
           component={label}
         />
-        <View style={[evaStyle.inputContainer, styles.inputContainer]}>
+        <View style={[componentStyle.inputContainer, styles.inputContainer]}>
           <FalsyFC
-            style={evaStyle.icon}
+            style={componentStyle.icon}
             component={accessoryLeft}
           />
           <TextInput
-            ref={this.textInputRef}
-            placeholderTextColor={evaStyle.placeholder.color}
+            ref={textInputRef}
+            placeholderTextColor={componentStyle.placeholder.color}
             {...textInputProps}
-            {...this.webEventResponder.eventHandlers}
+            {...getWebEventResponder().eventHandlers}
             testID={`@${testID}/input`}
-            style={[evaStyle.text, styles.text, platformStyles.text, textStyle]}
-            editable={!textInputProps.disabled}
-            onFocus={this.onTextFieldFocus}
-            onBlur={this.onTextFieldBlur}
+            style={[componentStyle.text, styles.text, platformStyles.text, textStyle]}
+            editable={!disabled}
+            onFocus={onTextFieldFocus}
+            onBlur={onTextFieldBlur}
           />
           <FalsyFC
-            style={evaStyle.icon}
+            style={componentStyle.icon}
             component={accessoryRight}
           />
         </View>
         <FalsyText
-          style={[evaStyle.captionLabel, styles.captionLabel]}
+          style={[componentStyle.captionLabel, styles.captionLabel]}
           component={caption}
         />
       </TouchableWithoutFeedback>
     );
-  }
-}
+  },
+);
+
+Input.displayName = 'Input';
 
 const styles = StyleSheet.create({
   inputContainer: {

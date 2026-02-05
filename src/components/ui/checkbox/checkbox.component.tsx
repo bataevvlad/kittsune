@@ -4,9 +4,10 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { SvgProps } from 'react-native-svg';
 import {
+  Animated,
   GestureResponderEvent,
   NativeSyntheticEvent,
   StyleSheet,
@@ -20,13 +21,11 @@ import {
   TouchableWeb,
   TouchableWebElement,
   TouchableWebProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { TextProps } from '../text/text.component';
@@ -39,195 +38,206 @@ import {
   MinusProps,
 } from '../shared/minus.component';
 
-type CheckBoxStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default' | string>;
-}>;
-
 type TouchableWebPropsWithoutChildren = Omit<TouchableWebProps, 'children'>;
 
-export interface CheckBoxProps extends TouchableWebPropsWithoutChildren, CheckBoxStyledProps {
+export interface CheckBoxProps extends TouchableWebPropsWithoutChildren {
   children?: RenderProp<TextProps> | React.ReactText;
   checked?: boolean;
   onChange?: (checked: boolean, indeterminate: boolean) => void;
   indeterminate?: boolean;
   status?: EvaStatus;
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type CheckBoxElement = React.ReactElement<CheckBoxProps>;
 
 /**
  * Checkboxes allow the user to select one or more items from a set.
- *
- * @extends React.Component
- *
- * @property {boolean} checked - Whether component is checked.
- * Defaults to *false*.
- *
- * @property {(checked: boolean, indeterminate: boolean) => void} onChange - Called when checkbox
- * should switch it's value.
- * Called with *checked* and *indeterminate* values.
- * If *indeterminate* was provided, it should be changed to the value passed in this function.
- *
- * @property {boolean} indeterminate - Whether checked status is indeterminate.
- * Will set indeterminate to false when the checked property is changed.
- * Defaults to *false*.
- *
- * @property {ReactText | ReactElement | (TextProps) => ReactElement} children - String, number or a function component
- * to render near the checkbox.
- * If it is a function, expected to return a Text.
- *
- * @property {string} status - Status of the component.
- * Can be `basic`, `primary`, `success`, `info`, `warning`, `danger` or `control`.
- * Defaults to *basic*.
- * Use *control* status when needed to display within a contrast container.
- *
- * @property {TouchableOpacityProps} ...TouchableOpacityProps - Any props applied to TouchableOpacity component.
- *
- * @overview-example CheckboxSimpleUsage
- *
- * @overview-example CheckboxStates
- * CheckBoxes can be checked or disabled.
- *
- * @overview-example CheckboxIndeterminate
- * An extra state is `indeterminate`, which may be useful for grouping inner checkboxes.
- * Indeterminate will be set to `false` when the checked state is changed.
- *
- * @overview-example CheckboxStatus
- * Checkboxes may also be marked with `status` property, which is useful within forms validation.
- * An extra status is `control`, which is designed to be used on high-contrast backgrounds.
- *
- * @overview-example CheckboxStyling
- * CheckBox and it's inner views can be styled by passing them as function components.
- * ```
- * import { CheckBox, Text } from '@kitsuine/components';
- *
- * <CheckBox>
- *   {evaProps => <Text {...evaProps}>Place your Text</Text>}
- * </CheckBox>
- * ```
- *
- * @overview-example CheckboxTheming
- * In most cases this is redundant, if [custom theme is configured](guides/branding).
  */
-@styled('CheckBox')
-export class CheckBox extends React.Component<CheckBoxProps> {
+export const CheckBox: React.FC<CheckBoxProps> = (props): TouchableWebElement => {
+  const {
+    appearance,
+    status,
+    checked,
+    indeterminate,
+    disabled,
+    style,
+    children,
+    onChange,
+    onMouseEnter: onMouseEnterProp,
+    onMouseLeave: onMouseLeaveProp,
+    onFocus: onFocusProp,
+    onBlur: onBlurProp,
+    onPressIn: onPressInProp,
+    onPressOut: onPressOutProp,
+    ...touchableProps
+  } = props;
 
-  private onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.HOVER]);
-    this.props.onMouseEnter?.(event);
+  const { style: evaStyle, dispatch } = useStyled('CheckBox', {
+    appearance,
+    status,
+    checked,
+    indeterminate,
+    disabled,
+  });
+
+  // Animation values
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const iconScaleAnim = useRef(new Animated.Value(checked || indeterminate ? 1 : 0)).current;
+  const prevCheckedRef = useRef(checked);
+
+  // Animate icon when checked changes
+  useEffect(() => {
+    if (prevCheckedRef.current !== checked) {
+      prevCheckedRef.current = checked;
+      Animated.spring(iconScaleAnim, {
+        toValue: checked || indeterminate ? 1 : 0,
+        useNativeDriver: true,
+        friction: 6,
+        tension: 80,
+      }).start();
+    }
+  }, [checked, indeterminate, iconScaleAnim]);
+
+  // Compute component style
+  const {
+    textMarginHorizontal,
+    textFontFamily,
+    textFontSize,
+    textFontWeight,
+    textColor,
+    iconWidth,
+    iconHeight,
+    iconTintColor,
+    outlineWidth,
+    outlineHeight,
+    outlineBorderRadius,
+    outlineBackgroundColor,
+    ...containerParameters
+  } = evaStyle as StyleType;
+
+  const componentStyle = {
+    selectContainer: containerParameters,
+    text: {
+      marginHorizontal: textMarginHorizontal,
+      fontFamily: textFontFamily,
+      fontSize: textFontSize,
+      fontWeight: textFontWeight,
+      color: textColor,
+    },
+    icon: {
+      width: iconWidth,
+      height: iconHeight,
+      fill: iconTintColor,
+      stroke: iconTintColor,
+      strokeWidth: 3,
+    },
+    highlight: {
+      width: outlineWidth,
+      height: outlineHeight,
+      borderRadius: outlineBorderRadius,
+      backgroundColor: outlineBackgroundColor,
+    },
   };
 
-  private onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onMouseLeave?.(event);
+  // Event handlers
+  const onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    dispatch([Interaction.HOVER]);
+    onMouseEnterProp?.(event);
   };
 
-  private onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.FOCUSED]);
-    this.props.onFocus?.(event);
+  const onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    dispatch([]);
+    onMouseLeaveProp?.(event);
   };
 
-  private onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onBlur?.(event);
+  const onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    dispatch([Interaction.FOCUSED]);
+    onFocusProp?.(event);
   };
 
-  private onPress = (): void => {
-    this.props.eva.dispatch([]);
-    this.props.onChange?.(!this.props.checked, false);
+  const onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    dispatch([]);
+    onBlurProp?.(event);
   };
 
-  private onPressIn = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([Interaction.ACTIVE]);
-    this.props.onPressIn?.(event);
+  const onPress = (): void => {
+    dispatch([]);
+    onChange?.(!checked, false);
   };
 
-  private onPressOut = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([]);
-    this.props.onPressOut?.(event);
+  const onPressIn = (event: GestureResponderEvent): void => {
+    dispatch([Interaction.ACTIVE]);
+    onPressInProp?.(event);
+    // Bouncy scale down
+    Animated.spring(scaleAnim, {
+      toValue: 0.9,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 100,
+    }).start();
   };
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      textMarginHorizontal,
-      textFontFamily,
-      textFontSize,
-      textFontWeight,
-      textColor,
-      iconWidth,
-      iconHeight,
-      iconBorderRadius,
-      iconTintColor,
-      outlineWidth,
-      outlineHeight,
-      outlineBorderRadius,
-      outlineBackgroundColor,
-      ...containerParameters
-    } = source;
-
-    return {
-      selectContainer: containerParameters,
-      text: {
-        marginHorizontal: textMarginHorizontal,
-        fontFamily: textFontFamily,
-        fontSize: textFontSize,
-        fontWeight: textFontWeight,
-        color: textColor,
-      },
-      icon: {
-        width: iconWidth,
-        height: iconHeight,
-        fill: iconTintColor,
-        stroke: iconTintColor,
-        strokeWidth: 3,
-      },
-      highlight: {
-        width: outlineWidth,
-        height: outlineHeight,
-        borderRadius: outlineBorderRadius,
-        backgroundColor: outlineBackgroundColor,
-      },
-    };
+  const onPressOut = (event: GestureResponderEvent): void => {
+    dispatch([]);
+    onPressOutProp?.(event);
+    // Bouncy scale back
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 4,
+      tension: 80,
+    }).start();
   };
 
-  private renderIconElement = (style: SvgProps): React.ReactElement<SvgProps> => {
-    const Icon: React.ComponentType<MinusProps | CheckMarkProps> = this.props.indeterminate ? Minus : CheckMark;
-    return (
-      <Icon {...style} />
-    );
+  const renderIconElement = (iconStyle: SvgProps): React.ReactElement<SvgProps> => {
+    const Icon: React.ComponentType<MinusProps | CheckMarkProps> = indeterminate ? Minus : CheckMark;
+    return <Icon {...iconStyle} />;
   };
 
-  public render(): TouchableWebElement {
-    const { eva, style, disabled, children, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-
-    return (
-      <TouchableWeb
-        {...touchableProps}
-        style={[styles.container, style]}
-        disabled={disabled}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        onPress={this.onPress}
-        onPressIn={this.onPressIn}
-        onPressOut={this.onPressOut}
+  return (
+    <TouchableWeb
+      {...touchableProps}
+      style={[styles.container, style]}
+      disabled={disabled}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onPress={onPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+    >
+      <Animated.View
+        style={[
+          styles.highlightContainer,
+          { transform: [{ scale: scaleAnim }] }
+        ]}
       >
-        <View style={styles.highlightContainer}>
-          <View style={[evaStyle.highlight, styles.highlight]} />
-          <View style={[evaStyle.selectContainer, styles.selectContainer]}>
-            {this.renderIconElement(evaStyle.icon)}
-          </View>
+        <View style={[componentStyle.highlight, styles.highlight]} />
+        <View style={[componentStyle.selectContainer, styles.selectContainer]}>
+          <Animated.View
+            style={[
+              styles.iconContainer,
+              {
+                transform: [{ scale: iconScaleAnim }],
+                opacity: iconScaleAnim,
+              },
+            ]}
+          >
+            {renderIconElement(componentStyle.icon)}
+          </Animated.View>
         </View>
-        <FalsyText
-          style={evaStyle.text}
-          component={children}
-        />
-      </TouchableWeb>
-    );
-  }
-}
+      </Animated.View>
+      <FalsyText
+        style={componentStyle.text}
+        component={children}
+      />
+    </TouchableWeb>
+  );
+};
+
+CheckBox.displayName = 'CheckBox';
 
 const styles = StyleSheet.create({
   container: {
@@ -244,5 +254,9 @@ const styles = StyleSheet.create({
   },
   highlight: {
     position: 'absolute',
+  },
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

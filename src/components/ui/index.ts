@@ -104,6 +104,7 @@ export {
   Icon,
   IconProps,
   IconElement,
+  IconRef,
 } from './icon/icon.component';
 export {
   IconRegistry,

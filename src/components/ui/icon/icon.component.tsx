@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useRef, useEffect, useImperativeHandle } from 'react';
 import {
   Animated,
   ViewProps,
@@ -26,18 +26,37 @@ import { AnimationConfig } from '../animation';
 type WrappedElementProps = any;
 
 export type IconProps<T = WrappedElementProps> = T & {
+  /**
+   * A name of icon registered in a specific pack.
+   */
   name: string;
+  /**
+   * A name of icon pack registered in IconRegistry that is able to provide
+   * an icon for a given name.
+   */
   pack?: string;
+  /**
+   * Animation name. Can be `zoom`, `pulse`, `shake` or null.
+   * Defaults to *zoom*.
+   */
   animation?: keyof IconAnimationRegistry | null;
+  /**
+   * Animation config.
+   */
   animationConfig?: AnimationConfig;
 };
 
 export type IconElement<T = WrappedElementProps> = React.ReactElement<IconProps<T>>;
 
+export interface IconRef {
+  startAnimation: (callback?: Animated.EndCallback) => void;
+  stopAnimation: () => void;
+}
+
 /**
  * Animated Icon component.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @method {(callback?: Animated.EndCallback) => void} startAnimation - Toggle animation to start.
  *
@@ -77,44 +96,57 @@ export type IconElement<T = WrappedElementProps> = React.ReactElement<IconProps<
  *
  * In most cases this is redundant, if [custom theme is configured](guides/branding).
  */
-export class Icon<T> extends React.Component<IconProps<T>> {
+function IconComponent<T = WrappedElementProps>(
+  props: IconProps<T>,
+  ref: React.ForwardedRef<IconRef>,
+): React.ReactElement<ViewProps> {
+  const {
+    name,
+    pack,
+    animation = 'zoom',
+    animationConfig,
+    ...iconProps
+  } = props;
 
-  static defaultProps: Partial<IconProps> = {
-    animation: 'zoom',
-  };
+  // Create animation instance - initialize immediately (like constructor in class)
+  const animationRef = useRef<IconAnimation | null>(
+    getIconAnimation(animation, animationConfig)
+  );
 
-  private readonly animation: IconAnimation | null;
+  // Clean up animation on unmount
+  useEffect(() => {
+    return () => {
+      animationRef.current?.release();
+    };
+  }, []);
 
-  constructor(props: IconProps<T>) {
-    super(props);
-    this.animation = getIconAnimation(props.animation, props.animationConfig);
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    startAnimation: (callback?: Animated.EndCallback) => {
+      animationRef.current?.start(callback);
+    },
+    stopAnimation: () => {
+      animationRef.current?.stop();
+    },
+  }), []);
+
+  // Get icon from registry
+  const registeredIcon: RegisteredIcon<T> = IconRegistryService.getIcon(name, pack);
+  const iconElement = registeredIcon.icon.toReactElement(iconProps as IconProps);
+
+  if (!animationRef.current) {
+    return iconElement;
   }
 
-  public componentWillUnmount(): void {
-    this.animation?.release();
-  }
-
-  public startAnimation = (callback?: Animated.EndCallback): void => {
-    this.animation?.start(callback);
-  };
-
-  public stopAnimation = (): void => {
-    this.animation?.stop();
-  };
-
-  public render(): React.ReactElement<ViewProps> {
-    const { name, pack, animation, animationConfig, ...iconProps } = this.props;
-    const registeredIcon: RegisteredIcon<T> = IconRegistryService.getIcon(name, pack);
-    const iconElement = registeredIcon.icon.toReactElement(iconProps as IconProps);
-
-    if (!this.animation) {
-      return iconElement;
-    }
-
-    return (
-      <Animated.View {...this.animation.toProps()}>
-        {iconElement}
-      </Animated.View>
-    );
-  }
+  return (
+    <Animated.View {...animationRef.current.toProps()}>
+      {iconElement}
+    </Animated.View>
+  );
 }
+
+export const Icon = React.forwardRef(IconComponent) as <T = WrappedElementProps>(
+  props: IconProps<T> & { ref?: React.ForwardedRef<IconRef> }
+) => React.ReactElement;
+
+(Icon as React.FC).displayName = 'Icon';

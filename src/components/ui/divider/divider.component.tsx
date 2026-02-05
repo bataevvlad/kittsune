@@ -9,37 +9,48 @@ import {
   View,
   ViewProps,
 } from 'react-native';
-import { Overwrite, LiteralUnion } from '../../devsupport';
-import {
-  styled,
-  StyledComponentProps,
-} from '../../theme';
+import { LiteralUnion } from '../../devsupport';
+import { useStyled } from '../../theme';
 
-type DividerStyledProps = Overwrite<StyledComponentProps, {
+export interface DividerProps extends ViewProps {
+  /**
+   * Appearance of the component.
+   * Defaults to *default*.
+   */
   appearance?: LiteralUnion<'default'>;
-}>;
+}
 
-export type DividerProps = ViewProps & DividerStyledProps;
 export type DividerElement = React.ReactElement<DividerProps>;
 
 /**
  * A divider is a thin line that groups content in lists and layouts.
  *
+ * @extends React.FC
+ *
  * @property {ViewProps} ...ViewProps - Any props applied to View component.
  *
  * @overview-example DividerSimpleUsage
  */
-@styled('Divider')
-export class Divider extends React.Component<DividerProps> {
+export const Divider = React.forwardRef<View, DividerProps>(
+  (props, ref) => {
+    const {
+      appearance,
+      style,
+      ...viewProps
+    } = props;
 
-  public render(): React.ReactElement {
-    const { eva, style, ...viewProps } = this.props;
+    const { style: evaStyle } = useStyled('Divider', {
+      appearance,
+    });
 
     return (
       <View
+        ref={ref}
         {...viewProps}
-        style={[eva.style, style]}
+        style={[evaStyle, style]}
       />
     );
-  }
-}
+  },
+);
+
+Divider.displayName = 'Divider';

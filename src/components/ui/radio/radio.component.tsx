@@ -4,8 +4,9 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
+  Animated,
   GestureResponderEvent,
   NativeSyntheticEvent,
   StyleSheet,
@@ -19,188 +20,204 @@ import {
   TouchableWeb,
   TouchableWebElement,
   TouchableWebProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { TextProps } from '../text/text.component';
 
-type RadioStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
-
 type TouchableWebPropsWithoutChildren = Omit<TouchableWebProps, 'children'>;
 
-export interface RadioProps extends TouchableWebPropsWithoutChildren, RadioStyledProps {
+export interface RadioProps extends TouchableWebPropsWithoutChildren {
   children?: RenderProp<TextProps> | React.ReactText;
   checked?: boolean;
   onChange?: (checked: boolean) => void;
   status?: EvaStatus;
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type RadioElement = React.ReactElement<RadioProps>;
 
 /**
  * Radio buttons allow the user to select one option from a set.
- *
- * @extends React.Component
- *
- * @property {boolean} checked - Whether component is checked.
- * Defaults to *false*.
- *
- * @property {(boolean) => void} onChange - Called when radio
- * should switch it's value.
- *
- * @property {ReactElement | ReactText | (TextProps) => ReactElement} children - String, number or a function component
- * to render near the checkbox.
- * If it is a function, expected to return a Text.
- *
- * @property {string} status - Status of the component.
- * Can be `basic`, `primary`, `success`, `info`, `warning`, `danger` or `control`.
- * Defaults to *basic*.
- * Use *control* status when needed to display within a contrast container.
- *
- * @property {TouchableOpacityProps} ...TouchableOpacityProps - Any props applied to TouchableOpacity component.
- *
- * @overview-example RadioSimpleUsage
- *
- * @overview-example RadioGroupSimpleUsage
- * Radios should be passed to RadioGroup child elements to provide a usable component.
- *
- * @overview-example RadioStates
- * A single Radio can be checked or disabled.
- *
- * @overview-example RadioStatus
- * Or marked with `status` property, which is useful within forms validation.
- * An extra status is `control`, which is designed to be used on high-contrast backgrounds.
- *
- * @overview-example RadioStyling
- * Radio and it's inner views can be styled by passing them as function components.
- * ```
- * import { Radio, Text } from '@kitsuine/components';
- *
- * <Radio>
- *   {evaProps => <Text {...evaProps}>Place your Text</Text>}
- * </Radio>
- * ```
- *
- * @overview-example RadioTheming
- * In most cases this is redundant, if [custom theme is configured](guides/branding).
  */
-@styled('Radio')
-export class Radio extends React.Component<RadioProps> {
+export const Radio: React.FC<RadioProps> = (props): TouchableWebElement => {
+  const {
+    appearance,
+    status,
+    checked,
+    disabled,
+    style,
+    children,
+    onChange,
+    onMouseEnter: onMouseEnterProp,
+    onMouseLeave: onMouseLeaveProp,
+    onFocus: onFocusProp,
+    onBlur: onBlurProp,
+    onPressIn: onPressInProp,
+    onPressOut: onPressOutProp,
+    ...touchableProps
+  } = props;
 
-  private onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.HOVER]);
-    this.props.onMouseEnter?.(event);
+  const { style: evaStyle, dispatch } = useStyled('Radio', {
+    appearance,
+    status,
+    checked,
+    disabled,
+  });
+
+  // Animation values
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const innerScaleAnim = useRef(new Animated.Value(checked ? 1 : 0)).current;
+  const prevCheckedRef = useRef(checked);
+
+  // Animate inner circle when checked changes
+  useEffect(() => {
+    if (prevCheckedRef.current !== checked) {
+      prevCheckedRef.current = checked;
+      Animated.spring(innerScaleAnim, {
+        toValue: checked ? 1 : 0,
+        useNativeDriver: true,
+        friction: 6,
+        tension: 80,
+      }).start();
+    }
+  }, [checked, innerScaleAnim]);
+
+  // Compute component style
+  const {
+    textMarginHorizontal,
+    textFontFamily,
+    textFontSize,
+    textFontWeight,
+    textColor,
+    iconWidth,
+    iconHeight,
+    iconBorderRadius,
+    iconTintColor,
+    outlineWidth,
+    outlineHeight,
+    outlineBorderRadius,
+    outlineBackgroundColor,
+    ...containerParameters
+  } = evaStyle as StyleType;
+
+  const componentStyle = {
+    selectContainer: containerParameters,
+    text: {
+      marginHorizontal: textMarginHorizontal,
+      fontFamily: textFontFamily,
+      fontSize: textFontSize,
+      fontWeight: textFontWeight,
+      color: textColor,
+    },
+    icon: {
+      width: iconWidth,
+      height: iconHeight,
+      borderRadius: iconBorderRadius,
+      backgroundColor: iconTintColor,
+    },
+    highlight: {
+      width: outlineWidth,
+      height: outlineHeight,
+      borderRadius: outlineBorderRadius,
+      backgroundColor: outlineBackgroundColor,
+    },
   };
 
-  private onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onMouseLeave?.(event);
+  // Event handlers
+  const onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    dispatch([Interaction.HOVER]);
+    onMouseEnterProp?.(event);
   };
 
-  private onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([Interaction.FOCUSED]);
-    this.props.onFocus?.(event);
+  const onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    dispatch([]);
+    onMouseLeaveProp?.(event);
   };
 
-  private onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    this.props.eva.dispatch([]);
-    this.props.onBlur?.(event);
+  const onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    dispatch([Interaction.FOCUSED]);
+    onFocusProp?.(event);
   };
 
-  private onPress = (): void => {
-    this.props.onChange?.(!this.props.checked);
+  const onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    dispatch([]);
+    onBlurProp?.(event);
   };
 
-  private onPressIn = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([Interaction.ACTIVE]);
-    this.props.onPressIn?.(event);
+  const onPress = (): void => {
+    onChange?.(!checked);
   };
 
-  private onPressOut = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([]);
-    this.props.onPressOut?.(event);
+  const onPressIn = (event: GestureResponderEvent): void => {
+    dispatch([Interaction.ACTIVE]);
+    onPressInProp?.(event);
+    // Bouncy scale down
+    Animated.spring(scaleAnim, {
+      toValue: 0.9,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 100,
+    }).start();
   };
 
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const {
-      textMarginHorizontal,
-      textFontFamily,
-      textFontSize,
-      textFontWeight,
-      textColor,
-      iconWidth,
-      iconHeight,
-      iconBorderRadius,
-      iconTintColor,
-      outlineWidth,
-      outlineHeight,
-      outlineBorderRadius,
-      outlineBackgroundColor,
-      ...containerParameters
-    } = source;
-
-    return {
-      selectContainer: containerParameters,
-      text: {
-        marginHorizontal: textMarginHorizontal,
-        fontFamily: textFontFamily,
-        fontSize: textFontSize,
-        fontWeight: textFontWeight,
-        color: textColor,
-      },
-      icon: {
-        width: iconWidth,
-        height: iconHeight,
-        borderRadius: iconBorderRadius,
-        backgroundColor: iconTintColor,
-      },
-      highlight: {
-        width: outlineWidth,
-        height: outlineHeight,
-        borderRadius: outlineBorderRadius,
-        backgroundColor: outlineBackgroundColor,
-      },
-    };
+  const onPressOut = (event: GestureResponderEvent): void => {
+    dispatch([]);
+    onPressOutProp?.(event);
+    // Bouncy scale back
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 4,
+      tension: 80,
+    }).start();
   };
 
-  public render(): TouchableWebElement {
-    const { eva, style, children, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-
-    return (
-      <TouchableWeb
-        {...touchableProps}
-        style={[styles.container, style]}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        onPress={this.onPress}
-        onPressIn={this.onPressIn}
-        onPressOut={this.onPressOut}
+  return (
+    <TouchableWeb
+      {...touchableProps}
+      style={[styles.container, style]}
+      disabled={disabled}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onPress={onPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+    >
+      <Animated.View
+        style={[
+          styles.highlightContainer,
+          { transform: [{ scale: scaleAnim }] }
+        ]}
       >
-        <View style={styles.highlightContainer}>
-          <View style={[evaStyle.highlight, styles.highlight]} />
-          <View style={[evaStyle.selectContainer, styles.selectContainer]}>
-            <View style={evaStyle.icon} />
-          </View>
+        <View style={[componentStyle.highlight, styles.highlight]} />
+        <View style={[componentStyle.selectContainer, styles.selectContainer]}>
+          <Animated.View
+            style={[
+              componentStyle.icon,
+              {
+                transform: [{ scale: innerScaleAnim }],
+                opacity: innerScaleAnim,
+              },
+            ]}
+          />
         </View>
-        <FalsyText
-          style={evaStyle.text}
-          component={children}
-        />
-      </TouchableWeb>
-    );
-  }
-}
+      </Animated.View>
+      <FalsyText
+        style={componentStyle.text}
+        component={children}
+      />
+    </TouchableWeb>
+  );
+};
+
+Radio.displayName = 'Radio';
 
 const styles = StyleSheet.create({
   container: {

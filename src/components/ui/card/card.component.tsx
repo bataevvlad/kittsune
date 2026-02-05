@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   GestureResponderEvent,
   StyleSheet,
@@ -18,26 +18,43 @@ import {
   TouchableWeb,
   TouchableWebElement,
   TouchableWebProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { Divider } from '../divider/divider.component';
 
-type CardStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'filled' | 'outline'>;
-}>;
+type TouchableWebPropsWithoutChildren = Omit<TouchableWebProps, 'children'>;
 
-export interface CardProps extends TouchableWebProps, CardStyledProps {
+export interface CardProps extends TouchableWebPropsWithoutChildren {
   children?: React.ReactNode;
+  /**
+   * Function component to render above the content.
+   */
   header?: RenderProp<ViewProps>;
+  /**
+   * Function component to render below the content.
+   */
   footer?: RenderProp<ViewProps>;
+  /**
+   * Function component to render above the card.
+   * Accents may change its color depending on *status* property.
+   */
   accent?: RenderProp<ViewProps>;
+  /**
+   * Appearance of the component.
+   * Can be `filled` or `outline`.
+   * Defaults to *outline*.
+   */
+  appearance?: LiteralUnion<'filled' | 'outline'>;
+  /**
+   * Status of the component.
+   * Can be `basic`, `primary`, `success`, `info`, `warning`, `danger` or `control`.
+   * Defaults to *basic*.
+   */
   status?: EvaStatus;
 }
 
@@ -46,7 +63,7 @@ export type CardElement = React.ReactElement<CardProps>;
 /**
  * Cards contain content and actions about a single subject.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactNode} children - Component to render within the card.
  *
@@ -78,20 +95,27 @@ export type CardElement = React.ReactElement<CardProps>;
  *
  * @overview-example CardStatuses
  */
-@styled('Card')
-export class Card extends React.Component<CardProps> {
+export const Card: React.FC<CardProps> = (props): TouchableWebElement => {
+  const {
+    appearance,
+    status,
+    style,
+    children,
+    accent,
+    header,
+    footer,
+    onPressIn: onPressInProp,
+    onPressOut: onPressOutProp,
+    ...touchableProps
+  } = props;
 
-  private onPressIn = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([Interaction.ACTIVE]);
-    this.props.onPressIn?.(event);
-  };
+  const { style: evaStyle, dispatch } = useStyled('Card', {
+    appearance,
+    status,
+  });
 
-  private onPressOut = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([]);
-    this.props.onPressOut?.(event);
-  };
-
-  private getComponentStyle = (source: StyleType): StyleType => {
+  // Split eva style into component parts
+  const componentStyle = useMemo(() => {
     const {
       bodyPaddingVertical,
       bodyPaddingHorizontal,
@@ -102,7 +126,7 @@ export class Card extends React.Component<CardProps> {
       footerPaddingVertical,
       footerPaddingHorizontal,
       ...containerParameters
-    } = source;
+    } = evaStyle as StyleType;
 
     return {
       container: containerParameters,
@@ -123,47 +147,56 @@ export class Card extends React.Component<CardProps> {
         paddingVertical: footerPaddingVertical,
       },
     };
-  };
+  }, [evaStyle]);
 
-  private renderStatusAccent = (evaStyle): React.ReactElement => {
+  // Event handlers with dispatch
+  const onPressIn = useCallback((event: GestureResponderEvent) => {
+    dispatch([Interaction.ACTIVE]);
+    onPressInProp?.(event);
+  }, [dispatch, onPressInProp]);
+
+  const onPressOut = useCallback((event: GestureResponderEvent) => {
+    dispatch([]);
+    onPressOutProp?.(event);
+  }, [dispatch, onPressOutProp]);
+
+  // Fallback accent view renderer
+  const renderStatusAccent = (accentStyle: StyleType): React.ReactElement => {
     return (
-      <View style={evaStyle} />
+      <View style={accentStyle} />
     );
   };
 
-  public render(): TouchableWebElement {
-    const { eva, style, children, accent, header, footer, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
+  return (
+    <TouchableWeb
+      {...touchableProps}
+      style={[styles.container, componentStyle.container, style]}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+    >
+      <FalsyFC
+        style={componentStyle.accent}
+        fallback={renderStatusAccent(componentStyle.accent)}
+        component={accent}
+      />
+      <FalsyFC
+        style={[styles.transparent, componentStyle.header]}
+        component={header}
+      />
+      {header && <Divider />}
+      <View style={[styles.content, componentStyle.body]}>
+        {children}
+      </View>
+      {footer && <Divider />}
+      <FalsyFC
+        style={[styles.transparent, componentStyle.footer]}
+        component={footer}
+      />
+    </TouchableWeb>
+  );
+};
 
-    return (
-      <TouchableWeb
-        {...touchableProps}
-        style={[styles.container, evaStyle.container, style]}
-        onPressIn={this.onPressIn}
-        onPressOut={this.onPressOut}
-      >
-        <FalsyFC
-          style={evaStyle.accent}
-          fallback={this.renderStatusAccent(evaStyle.accent)}
-          component={accent}
-        />
-        <FalsyFC
-          style={[styles.transparent, evaStyle.header]}
-          component={header}
-        />
-        {header && <Divider />}
-        <View style={[styles.content, evaStyle.body]}>
-          {children}
-        </View>
-        {footer && <Divider />}
-        <FalsyFC
-          style={[styles.transparent, evaStyle.footer]}
-          component={footer}
-        />
-      </TouchableWeb>
-    );
-  }
-}
+Card.displayName = 'Card';
 
 const styles = StyleSheet.create({
   container: {

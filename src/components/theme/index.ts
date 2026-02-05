@@ -22,6 +22,12 @@ export {
   State,
 } from './style/style.service';
 export {
+  useStyled,
+  useStyledDefaultProps,
+  UseStyledResult,
+  UseStyledOptions,
+} from './style/useStyled';
+export {
   ThemeProvider,
   ThemeProviderProps,
 } from './theme/themeProvider.component';

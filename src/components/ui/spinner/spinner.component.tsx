@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import {
   Animated,
   StyleSheet,
@@ -16,26 +16,37 @@ import {
   EvaSize,
   EvaStatus,
   Size,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
-import {
-  styled,
-  StyledComponentProps,
-} from '../../theme';
+import { useStyled } from '../../theme';
 import {
   SpinnerAnimation,
   SpinnerAnimationStyle,
 } from './animation';
 
-type SpinnerStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
-
-export interface SpinnerProps extends ViewProps, SpinnerStyledProps {
+export interface SpinnerProps extends ViewProps {
+  /**
+   * Whether component is animating.
+   * Default is *true*.
+   */
   animating?: boolean;
+  /**
+   * Status of the component.
+   * Can be `basic`, `primary`, `success`, `info`, `warning`, `danger` or `control`.
+   * Defaults to *primary*.
+   */
   status?: EvaStatus;
+  /**
+   * Size of the component.
+   * Can be `tiny`, `small`, `medium`, `large`, or `giant`.
+   * Defaults to *medium*.
+   */
   size?: EvaSize;
+  /**
+   * Appearance of the component.
+   * Defaults to *default*.
+   */
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type SpinnerElement = React.ReactElement<SpinnerProps>;
@@ -49,7 +60,7 @@ interface ArcElementStyle {
 /**
  * Displays a loading state of a page or a section.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {boolean} animating - Whether component is animating.
  * Default is *true*.
@@ -78,52 +89,54 @@ interface ArcElementStyle {
  *
  * @example SpinnerDataLoading
  */
-@styled('Spinner')
-export class Spinner extends React.PureComponent<SpinnerProps> {
+export const Spinner: React.FC<SpinnerProps> = (props) => {
+  const {
+    animating = true,
+    status,
+    size,
+    appearance,
+    style,
+    testID,
+    ...viewProps
+  } = props;
 
-  static defaultProps: Partial<SpinnerProps> = {
-    animating: true,
-  };
+  const { style: evaStyle } = useStyled('Spinner', {
+    appearance,
+    status,
+    size,
+  });
 
-  private animation: SpinnerAnimation = new SpinnerAnimation(this.containerSize.height);
-
-  private get containerSize(): Size {
-    const { width, height } = StyleSheet.flatten([this.props.eva.style, this.props.style]);
-    // @ts-ignore: width and height are restricted to be a number
+  // Get container size from eva style
+  const containerSize = useMemo(() => {
+    const flatStyle = StyleSheet.flatten([evaStyle, style]);
+    const width = (flatStyle?.width as number) || 0;
+    const height = (flatStyle?.height as number) || 0;
     return new Size(width, height);
-  }
+  }, [evaStyle, style]);
 
-  public componentDidMount(): void {
-    if (this.props.animating) {
-      this.startAnimation();
+  // Create animation instance
+  const animationRef = useRef<SpinnerAnimation | null>(null);
+
+  // Initialize or update animation when size changes
+  useEffect(() => {
+    if (containerSize.height > 0) {
+      animationRef.current = new SpinnerAnimation(containerSize.height);
     }
-  }
+    return () => {
+      animationRef.current?.release();
+    };
+  }, [containerSize.height]);
 
-  public componentDidUpdate(prevProps: SpinnerProps): void {
-    const animatingChanged: boolean = this.props.animating !== prevProps.animating;
-
-    if (animatingChanged && this.props.animating) {
-      this.startAnimation();
+  // Handle animation start/stop
+  useEffect(() => {
+    if (animating && animationRef.current) {
+      animationRef.current.start();
+    } else if (!animating && animationRef.current) {
+      animationRef.current.stop();
     }
+  }, [animating]);
 
-    if (animatingChanged && !this.props.animating) {
-      this.stopAnimation();
-    }
-  }
-
-  public componentWillUnmount(): void {
-    this.animation.release();
-  }
-
-  private startAnimation = (): void => {
-    this.animation.start();
-  };
-
-  private stopAnimation = (): void => {
-    this.animation.stop();
-  };
-
-  private getComponentStyle = (source: SpinnerAnimationStyle): { start: ArcElementStyle; end: ArcElementStyle } => {
+  const getComponentStyle = (source: SpinnerAnimationStyle): { start: ArcElementStyle; end: ArcElementStyle } => {
     const start: ArcElementStyle = {
       container: source.container,
       arc: source.start,
@@ -132,21 +145,21 @@ export class Spinner extends React.PureComponent<SpinnerProps> {
     const end: ArcElementStyle = {
       container: source.container,
       arc: source.end,
-      overflow: { top: this.containerSize.height / 2 },
+      overflow: { top: containerSize.height / 2 },
     };
 
     return { start, end };
   };
 
-  private renderArcElement = (style: ArcElementStyle, size: Size): React.ReactElement<ViewProps> => {
-    const arcSize: Size = new Size(size.width, size.height / 2);
+  const renderArcElement = (arcStyle: ArcElementStyle, arcSize: Size): React.ReactElement<ViewProps> => {
+    const halfSize: Size = new Size(arcSize.width, arcSize.height / 2);
 
     return (
-      <Animated.View style={[StyleSheet.absoluteFill, style.container, size]}>
-        <View style={[styles.noOverflow, style.overflow, arcSize]}>
-          <Animated.View style={[style.arc, size]}>
-            <View style={[styles.noOverflow, arcSize]}>
-              <View style={[this.props.eva.style, this.props.style]} />
+      <Animated.View style={[StyleSheet.absoluteFill, arcStyle.container, arcSize]}>
+        <View style={[styles.noOverflow, arcStyle.overflow, halfSize]}>
+          <Animated.View style={[arcStyle.arc, arcSize]}>
+            <View style={[styles.noOverflow, halfSize]}>
+              <View style={[evaStyle, style]} />
             </View>
           </Animated.View>
         </View>
@@ -154,21 +167,22 @@ export class Spinner extends React.PureComponent<SpinnerProps> {
     );
   };
 
-  public render(): React.ReactElement<ViewProps> {
-    const containerSize: Size = this.containerSize;
-    const evaStyle = this.getComponentStyle(this.animation.toProps());
-
-    return (
-      <View
-        testID={this.props.testID}
-        style={containerSize}
-      >
-        {this.renderArcElement(evaStyle.start, containerSize)}
-        {this.renderArcElement(evaStyle.end, containerSize)}
-      </View>
-    );
+  // Don't render if animation not initialized yet
+  if (!animationRef.current || containerSize.height === 0) {
+    return <View testID={testID} style={containerSize} />;
   }
-}
+
+  const componentStyle = getComponentStyle(animationRef.current.toProps());
+
+  return (
+    <View testID={testID} style={containerSize} {...viewProps}>
+      {renderArcElement(componentStyle.start, containerSize)}
+      {renderArcElement(componentStyle.end, containerSize)}
+    </View>
+  );
+};
+
+Spinner.displayName = 'Spinner';
 
 const styles = StyleSheet.create({
   noOverflow: {

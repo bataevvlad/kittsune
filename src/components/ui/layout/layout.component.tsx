@@ -9,18 +9,21 @@ import {
   View,
   ViewProps,
 } from 'react-native';
-import { Overwrite, LiteralUnion } from '../../devsupport';
-import {
-  styled,
-  StyledComponentProps,
-} from '../../theme';
+import { LiteralUnion } from '../../devsupport';
+import { useStyled } from '../../theme';
 
-type LayoutStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
-
-export interface LayoutProps extends ViewProps, LayoutStyledProps {
+export interface LayoutProps extends ViewProps {
   children?: React.ReactNode;
+  /**
+   * Appearance of the component.
+   * Defaults to *default*.
+   */
+  appearance?: LiteralUnion<'default'>;
+  /**
+   * Background color level of component.
+   * Can be `1`, `2`, `3` or `4`.
+   * Defaults to *1*.
+   */
   level?: LiteralUnion<'1' | '2' | '3' | '4'>;
 }
 
@@ -29,7 +32,7 @@ export type LayoutElement = React.ReactElement<LayoutProps>;
 /**
  * Overall page container.
  *
- * @extends React.Component
+ * @extends React.FC
  *
  * @property {ReactNode} children - Component to render within the layout.
  *
@@ -47,17 +50,32 @@ export type LayoutElement = React.ReactElement<LayoutProps>;
  * Layouts can be used in different levels.
  * It is useful, when needed to highlight the container relative to another.
  */
-@styled('Layout')
-export class Layout extends React.Component<LayoutProps> {
+export const Layout = React.forwardRef<View, LayoutProps>(
+  (props, ref) => {
+    const {
+      appearance,
+      level,
+      style,
+      children,
+      ...viewProps
+    } = props;
 
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, ...viewProps } = this.props;
+    // Use the new hook instead of @styled decorator
+    const { style: evaStyle } = useStyled('Layout', {
+      appearance,
+      level,
+    });
 
     return (
       <View
+        ref={ref}
         {...viewProps}
-        style={[eva.style, style]}
-      />
+        style={[evaStyle, style]}
+      >
+        {children}
+      </View>
     );
-  }
-}
+  },
+);
+
+Layout.displayName = 'Layout';

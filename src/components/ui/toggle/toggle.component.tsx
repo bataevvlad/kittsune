@@ -4,18 +4,14 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import {
   Animated,
   Easing,
-  GestureResponderEvent,
   NativeSyntheticEvent,
-  PanResponder,
-  PanResponderCallbacks,
-  PanResponderGestureState,
-  PanResponderInstance,
   StyleSheet,
   TargetedEvent,
+  TouchableWithoutFeedback,
   View,
   ViewProps,
 } from 'react-native';
@@ -24,241 +20,159 @@ import {
   FalsyText,
   RenderProp,
   RTLService,
-  TouchableWeb,
   TouchableWebProps,
-  Overwrite,
   LiteralUnion,
 } from '../../devsupport';
 import {
   Interaction,
-  styled,
-  StyledComponentProps,
+  useStyled,
   StyleType,
 } from '../../theme';
 import { TextProps } from '../text/text.component';
 import { CheckMark } from '../shared/checkmark.component';
 
-type ToggleStyledProps = Overwrite<StyledComponentProps, {
-  appearance?: LiteralUnion<'default'>;
-}>;
-
 type TouchableWebPropsWithoutChildren = Omit<TouchableWebProps, 'children'>;
 
-export interface ToggleProps extends TouchableWebPropsWithoutChildren, ToggleStyledProps {
+export interface ToggleProps extends TouchableWebPropsWithoutChildren {
   children?: RenderProp<TextProps> | React.ReactText;
   checked?: boolean;
   onChange?: (checked: boolean) => void;
   status?: EvaStatus;
+  appearance?: LiteralUnion<'default'>;
 }
 
 export type ToggleElement = React.ReactElement<ToggleProps>;
 
+const ANIMATION_DURATION = 200;
+
 /**
  * Switches toggle the state of a single setting on or off.
- *
- * @extends React.Component
- *
- * @property {boolean} checked - Whether component is checked.
- * Defaults to *false*.
- *
- * @property {(boolean) => void} onChange - Called when toggle
- * should switch it's value.
- *
- * @property {ReactText | ReactElement | (TextProps) => ReactElement} children - String, number or a function component
- * to render near the toggle.
- * If it is a function, expected to return a Text.
- *
- * @property {string} status - Status of the component.
- * Can be `basic`, `primary`, `success`, `info`, `warning`, `danger` or `control`.
- * Defaults to *basic*.
- * Use *control* status when needed to display within a contrast container.
- *
- * @property {TouchableOpacityProps} ...TouchableOpacityProps - Any props applied to TouchableOpacity component.
- *
- * @overview-example ToggleSimpleUsage
- *
- * @overview-example ToggleStates
- * Toggle can be checked or disabled.
- *
- * @overview-example ToggleStatus
- * Toggle may marked with `status` property, which is useful within forms validation.
- * An extra status is `control`, which is designed to be used on high-contrast backgrounds.
- *
- * @overview-example ToggleStyling
- * Toggle and it's inner views can be styled by passing them as function components.
- * ```
- * import { Toggle, Text } from '@kitsuine/components';
- *
- * <Toggle>
- *   {evaProps => <Text {...evaProps}>Place your Text</Text>}
- * </Toggle>
- * ```
- *
- * @overview-example ToggleTheming
- * In most cases this is redundant, if [custom theme is configured](docs/guides/branding).
  */
-@styled('Toggle')
-export class Toggle extends React.Component<ToggleProps> implements PanResponderCallbacks {
+export const Toggle: React.FC<ToggleProps> = (props): React.ReactElement<ViewProps> => {
+  const {
+    appearance,
+    status,
+    checked = false,
+    disabled,
+    style,
+    children,
+    onChange,
+    testID,
+    onMouseEnter: onMouseEnterProp,
+    onMouseLeave: onMouseLeaveProp,
+    onFocus: onFocusProp,
+    onBlur: onBlurProp,
+    ...touchableProps
+  } = props;
 
-  private panResponder: PanResponderInstance;
-  private thumbWidthAnimation: Animated.Value;
-  private thumbTranslateAnimation: Animated.Value;
-  private ellipseScaleAnimation: Animated.Value;
-  private thumbTranslateAnimationActive: boolean;
+  const { style: evaStyle, dispatch } = useStyled('Toggle', {
+    appearance,
+    status,
+    checked,
+    disabled,
+  });
 
-  constructor(props: ToggleProps) {
-    super(props);
+  // Calculate dimensions from Eva style
+  const containerWidth = (evaStyle.width as number) || 52;
+  const containerHeight = (evaStyle.height as number) || 32;
+  const borderWidth = (evaStyle.borderWidth as number) || 1;
+  const thumbWidth = (evaStyle.thumbWidth as number) || 24;
+  const thumbHeight = (evaStyle.thumbHeight as number) || 24;
 
-    const { checked, eva } = props;
+  // Calculate max translation distance (how far the thumb needs to move)
+  const maxTranslate = containerWidth - thumbWidth - (borderWidth * 2);
 
-    this.thumbWidthAnimation = new Animated.Value(eva.style.thumbWidth);
-    this.thumbTranslateAnimation = new Animated.Value(0);
-    this.ellipseScaleAnimation = new Animated.Value(checked ? 0.01 : 1.0);
-    this.thumbTranslateAnimationActive = false;
+  // Animation values - single translateX controls everything
+  const translateX = useRef(new Animated.Value(checked ? maxTranslate : 0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const ellipseScaleAnim = useRef(new Animated.Value(checked ? 0.01 : 1)).current;
 
-    this.panResponder = PanResponder.create(this);
-  }
+  // Track previous checked value to detect external changes
+  const prevCheckedRef = useRef(checked);
 
-  // PanResponderCallbacks
+  // Animate when checked prop changes
+  useEffect(() => {
+    if (prevCheckedRef.current !== checked) {
+      prevCheckedRef.current = checked;
+      const toValue = checked ? maxTranslate : 0;
 
-  public onStartShouldSetPanResponder = (): boolean => {
-    return true;
-  };
-
-  public onStartShouldSetPanResponderCapture = (): boolean => {
-    return true;
-  };
-
-  public onMoveShouldSetPanResponder = (): boolean => {
-    return true;
-  };
-
-  public onMoveShouldSetPanResponderCapture = (): boolean => {
-    return true;
-  };
-
-  public onPanResponderTerminationRequest = (): boolean => {
-    return false;
-  };
-
-  public onPanResponderGrant = (event: GestureResponderEvent): void => {
-    const { checked, disabled, eva } = this.props;
-
-    if (disabled) {
-      return;
+      Animated.parallel([
+        Animated.timing(translateX, {
+          toValue: RTLService.select(toValue, -toValue + maxTranslate),
+          duration: ANIMATION_DURATION,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(ellipseScaleAnim, {
+          toValue: checked ? 0.01 : 1,
+          duration: ANIMATION_DURATION,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
+  }, [checked, maxTranslate, translateX, ellipseScaleAnim]);
 
-    this.onPressIn(event);
-
-    if (this.thumbTranslateAnimationActive) {
-      this.thumbTranslateAnimationActive = false;
-      this.stopAnimations();
-      return;
-    }
-
-    this.animateThumbWidth(eva.style.thumbWidth * 1.2);
-    this.animateEllipseScale(checked ? 1 : 0.01);
+  // Handle press
+  const handlePress = (): void => {
+    if (disabled) return;
+    onChange?.(!checked);
   };
 
-  public onPanResponderMove: () => boolean = (): boolean => {
-    return true;
+  // Handle press in (scale up thumb)
+  const handlePressIn = (): void => {
+    if (disabled) return;
+    dispatch([Interaction.ACTIVE]);
+    Animated.timing(scaleAnim, {
+      toValue: 1.1,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   };
 
-  public onPanResponderRelease = (event: GestureResponderEvent, gestureState: PanResponderGestureState): void => {
-    const { checked, disabled, eva } = this.props;
-
-    if (!disabled) {
-      if ((!checked && gestureState.dx > -5) || (checked && gestureState.dx < 5)) {
-        this.toggle(this.onPress);
-      } else {
-        this.animateEllipseScale(checked ? 0.01 : 1);
-      }
-    }
-
-    this.animateThumbWidth(eva.style.thumbWidth);
-    this.onPressOut(event);
+  // Handle press out (scale back)
+  const handlePressOut = (): void => {
+    if (disabled) return;
+    dispatch([]);
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   };
 
-  public onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    if (this.props.disabled) {
-      return;
-    }
-
-    this.props.eva.dispatch([]);
-
-    if (this.props.onMouseLeave) {
-      this.props.onMouseLeave(event);
-    }
+  // Event handlers for web hover/focus
+  const onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    if (disabled) return;
+    dispatch([Interaction.HOVER]);
+    onMouseEnterProp?.(event);
   };
 
-  private onMouseEnter = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    if (this.props.disabled) {
-      return;
-    }
-
-    this.props.eva.dispatch([Interaction.HOVER]);
-
-    if (this.props.onMouseEnter) {
-      this.props.onMouseEnter(event);
-    }
+  const onMouseLeave = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    if (disabled) return;
+    dispatch([]);
+    onMouseLeaveProp?.(event);
   };
 
-  private onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    if (this.props.disabled) {
-      return;
-    }
-
-    this.props.eva.dispatch([Interaction.FOCUSED]);
-
-    if (this.props.onFocus) {
-      this.props.onFocus(event);
-    }
+  const onFocus = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    if (disabled) return;
+    dispatch([Interaction.FOCUSED]);
+    onFocusProp?.(event);
   };
 
-  private onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
-    if (this.props.disabled) {
-      return;
-    }
-
-    this.props.eva.dispatch([]);
-
-    if (this.props.onBlur) {
-      this.props.onBlur(event);
-    }
+  const onBlur = (event: NativeSyntheticEvent<TargetedEvent>): void => {
+    if (disabled) return;
+    dispatch([]);
+    onBlurProp?.(event);
   };
 
-  private onPressIn = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([Interaction.ACTIVE]);
-
-    if (this.props.onPressIn) {
-      this.props.onPressIn(event);
-    }
-  };
-
-  private onPressOut = (event: GestureResponderEvent): void => {
-    this.props.eva.dispatch([]);
-
-    if (this.props.onPressOut) {
-      this.props.onPressOut(event);
-    }
-  };
-
-  private onPress = (): void => {
-    if (this.props.onChange) {
-      this.props.onChange(!this.props.checked);
-    }
-  };
-
-  private getComponentStyle = (source: StyleType): StyleType => {
-    const { checked, disabled } = this.props;
-
+  // Compute component style from Eva
+  const componentStyle = useMemo(() => {
     const {
       outlineWidth,
       outlineHeight,
       outlineBorderRadius,
       outlineBackgroundColor,
-      thumbWidth,
-      thumbHeight,
       thumbBorderRadius,
       thumbBackgroundColor,
       textMarginHorizontal,
@@ -271,14 +185,16 @@ export class Toggle extends React.Component<ToggleProps> implements PanResponder
       iconTintColor,
       backgroundColor,
       borderColor,
-      ...containerParameters
-    } = source;
+    } = evaStyle as StyleType;
 
     return {
-      ellipseContainer: {
+      container: {
+        width: containerWidth,
+        height: containerHeight,
+        borderRadius: containerHeight / 2,
+        borderWidth: borderWidth,
         borderColor: borderColor,
         backgroundColor: backgroundColor,
-        ...containerParameters,
       },
       highlight: {
         width: outlineWidth,
@@ -287,19 +203,21 @@ export class Toggle extends React.Component<ToggleProps> implements PanResponder
         backgroundColor: outlineBackgroundColor,
       },
       ellipse: {
-        width: containerParameters.width - (containerParameters.borderWidth * 2),
-        height: containerParameters.height - (containerParameters.borderWidth * 2),
-        borderRadius: (source.height - (source.borderWidth * 2)) / 2,
+        width: containerWidth - (borderWidth * 2),
+        height: containerHeight - (borderWidth * 2),
+        borderRadius: (containerHeight - (borderWidth * 2)) / 2,
         backgroundColor: backgroundColor,
       },
       thumb: {
-        alignSelf: checked ? 'flex-end' : 'flex-start',
-        width: this.thumbWidthAnimation,
+        width: thumbWidth,
         height: thumbHeight,
         borderRadius: thumbBorderRadius,
         backgroundColor: thumbBackgroundColor,
         elevation: disabled ? 0 : 5,
-        transform: [{ translateX: this.thumbTranslateAnimation }],
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
       },
       text: {
         marginHorizontal: textMarginHorizontal,
@@ -309,127 +227,87 @@ export class Toggle extends React.Component<ToggleProps> implements PanResponder
         color: textColor,
       },
       icon: {
-        width: source.iconWidth,
-        height: source.iconHeight,
+        width: iconWidth as number,
+        height: iconHeight as number,
         fill: iconTintColor,
         stroke: iconTintColor,
         strokeWidth: 3,
       },
     };
-  };
+  }, [evaStyle, containerWidth, containerHeight, borderWidth, thumbWidth, thumbHeight, disabled]);
 
-  private animateThumbTranslate = (value: number, callback: () => void = () => null): void => {
-    this.thumbTranslateAnimationActive = true;
-
-    Animated.timing(this.thumbTranslateAnimation, {
-      toValue: RTLService.select(value, -value),
-      duration: 150,
-      easing: Easing.linear,
-      useNativeDriver: false,
-    }).start(() => {
-      this.thumbTranslateAnimationActive = false;
-      callback();
-    });
-  };
-
-  private animateThumbWidth = (value: number, callback: () => void = () => null): void => {
-    Animated.timing(this.thumbWidthAnimation, {
-      toValue: value,
-      duration: 150,
-      easing: Easing.linear,
-      useNativeDriver: false,
-    }).start(callback);
-  };
-
-  private animateEllipseScale = (value: number, callback: () => void = () => null): void => {
-    Animated.timing(this.ellipseScaleAnimation, {
-      toValue: value,
-      duration: 200,
-      easing: Easing.linear,
-      useNativeDriver: false,
-    }).start(callback);
-  };
-
-  private stopAnimations = (): void => {
-    const value: number = this.props.checked ? 0.01 : 1;
-
-    this.thumbTranslateAnimation.stopAnimation();
-    this.ellipseScaleAnimation.stopAnimation();
-    this.thumbWidthAnimation.stopAnimation();
-
-    this.ellipseScaleAnimation.setValue(value);
-  };
-
-  private toggle = (callback: (nextValue: boolean) => void): void => {
-    const value: number = this.props.checked ? -20 : 20;
-
-    this.animateThumbTranslate(value, () => {
-      this.thumbTranslateAnimation.setValue(0);
-      callback(!this.props.checked);
-    });
-
-    this.animateThumbWidth(this.props.eva.style.thumbWidth);
-  };
-
-  public render(): React.ReactElement<ViewProps> {
-    const { eva, style, checked, children, testID, ...touchableProps } = this.props;
-    const evaStyle = this.getComponentStyle(eva.style);
-
-    return (
-      <View
-        testID={testID}
-        {...this.panResponder.panHandlers}
-        style={[styles.container, style]}
+  return (
+    <View testID={testID} style={[styles.container, style]}>
+      <TouchableWithoutFeedback
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
       >
-        <TouchableWeb
-          {...touchableProps}
-          style={styles.toggleContainer}
-          onMouseEnter={this.onMouseEnter}
-          onMouseLeave={this.onMouseLeave}
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-        >
-          <View style={[evaStyle.highlight, styles.highlight]} />
-          <Animated.View style={[evaStyle.ellipseContainer, styles.ellipseContainer]}>
-            <Animated.View style={[evaStyle.ellipse, styles.ellipse]} />
-            <Animated.View style={[evaStyle.thumb, styles.thumb]}>
-              <CheckMark {...evaStyle.icon} />
+        <View style={styles.toggleContainer}>
+          {/* Highlight / Outline */}
+          <View style={[componentStyle.highlight, styles.highlight]} />
+
+          {/* Track / Container */}
+          <View style={[componentStyle.container, styles.track]}>
+            {/* Ellipse background (scales for visual effect) */}
+            <Animated.View
+              style={[
+                componentStyle.ellipse,
+                styles.ellipse,
+                { transform: [{ scale: ellipseScaleAnim }] },
+              ]}
+            />
+
+            {/* Thumb */}
+            <Animated.View
+              style={[
+                componentStyle.thumb,
+                styles.thumb,
+                {
+                  transform: [
+                    { translateX: translateX },
+                    { scale: scaleAnim },
+                  ],
+                },
+              ]}
+            >
+              <CheckMark {...componentStyle.icon} />
             </Animated.View>
-          </Animated.View>
-        </TouchableWeb>
-        <FalsyText
-          style={evaStyle.text}
-          component={children}
-        />
-      </View>
-    );
-  }
-}
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+
+      <FalsyText style={componentStyle.text} component={children} />
+    </View>
+  );
+};
+
+Toggle.displayName = 'Toggle';
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   toggleContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ellipseContainer: {
+  track: {
     justifyContent: 'center',
-    alignSelf: 'center',
     overflow: 'hidden',
   },
   ellipse: {
-    alignSelf: 'center',
     position: 'absolute',
+    alignSelf: 'center',
   },
   highlight: {
-    alignSelf: 'center',
     position: 'absolute',
   },
   thumb: {
+    position: 'absolute',
+    left: 0,
     justifyContent: 'center',
     alignItems: 'center',
   },
