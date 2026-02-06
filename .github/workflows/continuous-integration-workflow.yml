@@ -11,14 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - run: corepack enable
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: yarn
 
-      - run: corepack enable
-
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
 
       - run: yarn lint
 
