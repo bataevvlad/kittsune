@@ -8,6 +8,7 @@ const srcRoot = path.resolve(__dirname, '..');
 
 const frameworkModules = [
   path.resolve(srcRoot, 'components'),
+  path.resolve(srcRoot, 'core'),
   path.resolve(srcRoot, 'date-fns'),
   path.resolve(srcRoot, 'eva-icons'),
   path.resolve(srcRoot, 'moment'),
@@ -43,6 +44,7 @@ const extraNodeModules = {
 
   // Map @kitsuine packages to local source
   '@kitsuine/components': path.resolve(srcRoot, 'components'),
+  '@kitsuine/core': path.resolve(srcRoot, 'core'),
   '@kitsuine/eva-icons': path.resolve(srcRoot, 'eva-icons'),
   '@kitsuine/date-fns': path.resolve(srcRoot, 'date-fns'),
   '@kitsuine/moment': path.resolve(srcRoot, 'moment'),

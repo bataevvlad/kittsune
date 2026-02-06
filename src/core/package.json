@@ -1,0 +1,28 @@
+{
+  "name": "@kitsuine/core",
+  "version": "1.0.0",
+  "description": "Headless UI component core - behavior and state management without styling",
+  "main": "index.ts",
+  "types": "index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akveo/react-native-ui-kitten.git"
+  },
+  "author": "akveo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/akveo/react-native-ui-kitten/issues"
+  },
+  "homepage": "https://github.com/akveo/react-native-ui-kitten#readme",
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-native": ">=0.70.0"
+  },
+  "keywords": [
+    "react-native",
+    "headless",
+    "ui-components",
+    "accessibility",
+    "state-management"
+  ]
+}

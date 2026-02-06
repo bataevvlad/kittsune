@@ -28,6 +28,8 @@ module.exports = {
     '^@kitsuine/date-fns$': '<rootDir>/src/date-fns',
     '^@kitsuine/moment/(.*)$': '<rootDir>/src/moment/$1',
     '^@kitsuine/moment$': '<rootDir>/src/moment',
+    '^@kitsuine/core/(.*)$': '<rootDir>/src/core/$1',
+    '^@kitsuine/core$': '<rootDir>/src/core',
   },
   modulePathIgnorePatterns: [
     '<rootDir>/src/showcases/',

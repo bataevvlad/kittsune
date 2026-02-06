@@ -54,3 +54,9 @@ export {
   styleCache,
   StyleCacheClass,
 } from './style/styleCache';
+export {
+  useEvaStyle,
+  EvaStyleOptions,
+  SplitStyles,
+  UseEvaStyleResult,
+} from './style/useEvaStyle';
