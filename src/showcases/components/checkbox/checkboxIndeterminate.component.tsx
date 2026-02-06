@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { CheckBox } from '@kitsuine/components';
+import { CheckBox } from '@kittsune/components';
 
 export const CheckboxIndeterminateShowcase = (): React.ReactElement => {
 

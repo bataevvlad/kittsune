@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Avatar, Button, IndexPath, Layout, Popover, Select, SelectItem, Text } from '@kitsuine/components';
+import { Avatar, Button, IndexPath, Layout, Popover, Select, SelectItem, Text } from '@kittsune/components';
 
 const placements = [
   'top',

@@ -19,14 +19,14 @@ import {
 import {
   light,
   mapping,
-} from '@kitsuine/eva';
+} from '@kittsune/eva';
 import { ApplicationProvider } from '../../theme';
 import {
   Calendar,
   CalendarProps,
 } from './calendar.component';
 import { CalendarViewModes } from './type';
-import { MomentDateService } from '@kitsuine/moment';
+import { MomentDateService } from '@kittsune/moment';
 import { Text } from '../text/text.component';
 
 describe('@calendar: component checks', () => {

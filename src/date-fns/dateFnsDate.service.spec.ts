@@ -6,7 +6,7 @@
  */
 
 
-import { DateService } from '@kitsuine/components';
+import { DateService } from '@kittsune/components';
 import { DateFnsService } from './dateFnsDate.service';
 
 describe('@date-fns: service checks', () => {

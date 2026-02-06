@@ -1,6 +1,6 @@
 import React from 'react';
 import { ListRenderItemInfo, StyleSheet, View } from 'react-native';
-import { Card, List, Text } from '@kitsuine/components';
+import { Card, List, Text } from '@kittsune/components';
 
 const data = new Array(8).fill({
   title: 'Item',

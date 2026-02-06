@@ -26,8 +26,8 @@ import {
   ThemeType,
 } from './theme.service';
 import { StyleProvider } from '../style/styleProvider.component';
-import { mapping } from '@kitsuine/eva';
-import { ThemeStyleType } from '@kitsuine/processor';
+import { mapping } from '@kittsune/eva';
+import { ThemeStyleType } from '@kittsune/processor';
 
 const theme = {
   defaultColor: '#000000',

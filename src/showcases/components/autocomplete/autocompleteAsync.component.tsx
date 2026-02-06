@@ -1,6 +1,6 @@
 import React from 'react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { Autocomplete, AutocompleteItem } from '@kitsuine/components';
+import { Autocomplete, AutocompleteItem } from '@kittsune/components';
 
 const requestData = (): Promise<Response> => fetch('https://reactnative.dev/movies.json');
 const requestDataWithDebounce = AwesomeDebouncePromise(requestData, 400);

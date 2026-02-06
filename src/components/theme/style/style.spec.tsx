@@ -28,8 +28,8 @@ import {
   useStyleSheet,
 } from './style.service';
 import { useStyled } from './useStyled';
-import { ThemeStyleType } from '@kitsuine/processor';
-import { ThemeType } from '@kitsuine/components';
+import { ThemeStyleType } from '@kittsune/processor';
+import { ThemeType } from '@kittsune/components';
 
 const theme = {
   defaultColor: '#000000',

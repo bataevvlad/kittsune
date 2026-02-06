@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { CheckBox, CheckBoxProps, Layout } from '@kitsuine/components';
+import { CheckBox, CheckBoxProps, Layout } from '@kittsune/components';
 
 const useCheckboxState = (initialCheck = false): CheckBoxProps => {
   const [checked, setChecked] = React.useState(initialCheck);

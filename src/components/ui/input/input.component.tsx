@@ -168,7 +168,7 @@ export interface InputRef {
  * @overview-example InputStyling
  * Input and it's inner views can be styled by passing them as function components.
  * ```
- * import { Input, Text } from '@kitsuine/components';
+ * import { Input, Text } from '@kittsune/components';
  *
  * <Input
  *   textStyle={{ ... }}

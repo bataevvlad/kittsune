@@ -1,7 +1,9 @@
 {
-  "name": "@kitsuine/processor",
-  "description": "Eva Design System Schema Processor for Kitsune",
+  "name": "@kittsune/processor",
+  "description": "Eva Design System Schema Processor for Kittsune",
   "version": "1.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
   "license": "MIT",
   "author": "Kitsune Contributors",
   "homepage": "https://github.com/bataevvlad/kitsune#readme",
@@ -13,12 +15,35 @@
     "url": "https://github.com/bataevvlad/kitsune/issues"
   },
   "keywords": [
-    "kitsune",
+    "kittsune",
     "eva",
     "processor",
     "schema",
     "react-native"
   ],
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./dss": {
+      "types": "./dss/index.d.ts",
+      "default": "./dss/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "*.json",
+    "*.map",
+    "dss/",
+    "js/",
+    "!*.spec.*"
+  ],
+  "scripts": {
+    "build": "echo 'Pre-compiled, no build needed'"
+  },
   "publishConfig": {
     "access": "public"
   }

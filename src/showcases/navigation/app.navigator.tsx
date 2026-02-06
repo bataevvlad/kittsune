@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Layout, Text, Divider } from '@kitsuine/components';
+import { Button, Layout, Text, Divider } from '@kittsune/components';
 import { AppMapping, AppTheme, ThemeContext } from '../services/theme.service';
 
 // Basic components

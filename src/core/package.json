@@ -1,19 +1,36 @@
 {
-  "name": "@kitsuine/core",
+  "name": "@kittsune/core",
   "version": "1.0.0",
   "description": "Headless UI component core - behavior and state management without styling",
-  "main": "index.ts",
-  "types": "index.ts",
+  "main": "./lib/module/index.js",
+  "types": "./index.ts",
+  "react-native": "./index.ts",
+  "source": "./index.ts",
+  "exports": {
+    ".": {
+      "react-native": "./index.ts",
+      "source": "./index.ts",
+      "types": "./index.ts",
+      "default": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.ts",
+    "lib",
+    "!**/__tests__",
+    "!**/*.spec.*"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akveo/react-native-ui-kitten.git"
+    "url": "git+https://github.com/bataevvlad/kitsune.git"
   },
-  "author": "akveo",
+  "author": "Kitsune Contributors",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/akveo/react-native-ui-kitten/issues"
+    "url": "https://github.com/bataevvlad/kitsune/issues"
   },
-  "homepage": "https://github.com/akveo/react-native-ui-kitten#readme",
+  "homepage": "https://github.com/bataevvlad/kitsune#readme",
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-native": ">=0.70.0"
@@ -24,5 +41,24 @@
     "ui-components",
     "accessibility",
     "state-management"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bob build",
+    "clean": "rm -rf lib"
+  },
+  "react-native-builder-bob": {
+    "source": ".",
+    "output": "lib",
+    "targets": [
+      [
+        "module",
+        {
+          "esm": true
+        }
+      ]
+    ]
+  }
 }

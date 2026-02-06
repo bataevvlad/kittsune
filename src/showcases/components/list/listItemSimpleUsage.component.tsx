@@ -1,6 +1,6 @@
 import React from 'react';
 import { ImageProps, StyleSheet } from 'react-native';
-import { Avatar, Button, ListItem } from '@kitsuine/components';
+import { Avatar, Button, ListItem } from '@kittsune/components';
 
 const InstallButton = (): React.ReactElement => (
   <Button size='tiny'>

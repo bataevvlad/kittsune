@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./lib/typescript",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "paths": {}
+  },
+  "include": ["*.ts", "*.tsx"],
+  "exclude": ["**/__tests__", "**/*.spec.*", "lib"]
+}

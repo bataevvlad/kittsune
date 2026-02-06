@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Avatar, Layout } from '@kitsuine/components';
+import { Avatar, Layout } from '@kittsune/components';
 
 export const AvatarShapeShowcase = (): React.ReactElement => (
   <Layout

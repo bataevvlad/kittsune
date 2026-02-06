@@ -1,11 +1,27 @@
 {
-  "name": "@kitsuine/mapping-base",
-  "description": "Shared mapping base for Kitsuine design systems",
+  "name": "@kittsune/mapping-base",
+  "description": "Shared mapping base for Kittsune design systems",
   "version": "1.0.0",
-  "author": "Kitsuine Contributors",
+  "author": "Kittsune Contributors",
   "license": "MIT",
   "main": "index.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "*.json",
+    "!*.spec.*"
+  ],
+  "scripts": {
+    "build": "echo 'Pre-compiled, no build needed'"
+  },
   "sideEffects": false,
   "publishConfig": {
     "access": "public"

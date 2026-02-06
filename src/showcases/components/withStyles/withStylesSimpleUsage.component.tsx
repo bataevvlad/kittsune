@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { EvaProp, Text, withStyles } from '@kitsuine/components';
+import { EvaProp, Text, withStyles } from '@kittsune/components';
 
 const ThemedComponent = ({ eva }: { eva: EvaProp }): React.ReactElement => (
   <View style={eva.style.container}>

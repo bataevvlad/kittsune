@@ -1,7 +1,27 @@
 {
-  "name": "@kitsuine/eva-icons",
-  "description": "Eva Icons for Kitsune / React Native",
+  "name": "@kittsune/eva-icons",
+  "description": "Eva Icons for Kittsune / React Native",
   "version": "1.0.0",
+  "main": "./lib/module/index.js",
+  "types": "./index.ts",
+  "react-native": "./index.ts",
+  "source": "./index.ts",
+  "exports": {
+    ".": {
+      "react-native": "./index.ts",
+      "source": "./index.ts",
+      "types": "./index.ts",
+      "default": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.ts",
+    "*.tsx",
+    "lib",
+    "!**/__tests__",
+    "!**/*.spec.*"
+  ],
   "author": "Kitsune Contributors",
   "license": "MIT",
   "homepage": "https://github.com/bataevvlad/kitsune#readme",
@@ -14,19 +34,35 @@
   },
   "keywords": [
     "react-native",
-    "kitsune",
+    "kittsune",
     "eva-icons",
     "icons"
   ],
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "build": "bob build",
+    "clean": "rm -rf lib"
+  },
   "dependencies": {
     "react-native-eva-icons": "^1.3.1"
   },
   "peerDependencies": {
-    "@kitsuine/components": "^1.0.0",
+    "@kittsune/components": "^1.0.0",
     "react-native-svg": "*"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "react-native-builder-bob": {
+    "source": ".",
+    "output": "lib",
+    "targets": [
+      [
+        "module",
+        {
+          "esm": true
+        }
+      ]
+    ]
+  }
 }

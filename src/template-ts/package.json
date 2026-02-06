@@ -1,5 +1,5 @@
 {
-  "name": "@kitsuine/template-ts",
+  "name": "@kittsune/template-ts",
   "description": "React Native template project with Kitsune and TypeScript",
   "version": "1.0.0",
   "author": "Kitsune Contributors",
@@ -23,6 +23,9 @@
     "template",
     "template.config.js"
   ],
+  "scripts": {
+    "build": "echo 'Template, no build needed'"
+  },
   "publishConfig": {
     "access": "public"
   }

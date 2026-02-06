@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { IndexPath, Layout, Select, SelectGroup, SelectItem } from '@kitsuine/components';
+import { IndexPath, Layout, Select, SelectGroup, SelectItem } from '@kittsune/components';
 
 const data = [
   'Developer',

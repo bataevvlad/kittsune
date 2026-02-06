@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Layout, Tab, TabView, Text } from '@kitsuine/components';
+import { Layout, Tab, TabView, Text } from '@kittsune/components';
 
 export const TabViewLazyLoadingShowcase = (): React.ReactElement => {
 

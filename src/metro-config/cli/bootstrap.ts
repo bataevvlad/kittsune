@@ -9,10 +9,10 @@ https://github.com/bataevvlad/kitsune#readme
 const BOOTSTRAP_COMMAND_USAGE = `
 
 - To compile the only Eva package:
-kitsune bootstrap @kitsuine/eva
+kittsune bootstrap @kittsune/eva
 
 - To compile Eva package by merging it with another mapping:
-kitsune bootstrap @kitsuine/eva ./path-to/mapping.json
+kittsune bootstrap @kittsune/eva ./path-to/mapping.json
 `;
 
 // eslint-disable-next-line no-restricted-syntax

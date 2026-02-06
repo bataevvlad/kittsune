@@ -1,11 +1,11 @@
 /**
  * IMPORTANT: To use Moment make sure to install Moment Date Service
- * npm i @kitsuine/moment
+ * npm i @kittsune/moment
  */
 
 import React from 'react';
-import { Calendar } from '@kitsuine/components';
-import { MomentDateService } from '@kitsuine/moment';
+import { Calendar } from '@kittsune/components';
+import { MomentDateService } from '@kittsune/moment';
 import moment from 'moment';
 
 const dateService = new MomentDateService();

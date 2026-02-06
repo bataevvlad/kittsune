@@ -1,5 +1,5 @@
 import Fs from 'fs';
-import { deepMerge } from '@kitsuine/mapping-base';
+import { deepMerge } from '@kittsune/mapping-base';
 import BootstrapService from './services/bootstrap.service';
 import { EvaConfig } from './services/eva-config.service';
 import ProjectService from './services/project.service';
@@ -33,10 +33,10 @@ const customMappingWatchOptions = {
  * @example Usage
  *
  * ```metro.config.js
- * const MetroConfig = require('@kitsuine/metro-config');
+ * const MetroConfig = require('@kittsune/metro-config');
  *
  * const evaConfig = {
- *   evaPackage: '@kitsuine/eva',              // Required.
+ *   evaPackage: '@kittsune/eva',              // Required.
  *   customMappingPath: './custom-mapping.json', // Optional.
  * };
  *

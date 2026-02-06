@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Layout, Toggle } from '@kitsuine/components';
+import { Layout, Toggle } from '@kittsune/components';
 
 export const ToggleThemingShowcase = (): React.ReactElement => {
 

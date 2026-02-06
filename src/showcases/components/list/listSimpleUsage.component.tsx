@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { List, ListItem } from '@kitsuine/components';
+import { List, ListItem } from '@kittsune/components';
 
 const data = new Array(8).fill({
   title: 'Item',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, IconElement, Tab } from '@kitsuine/components';
+import { Icon, IconElement, Tab } from '@kittsune/components';
 
 const PersonIcon = (props): IconElement => (
   <Icon

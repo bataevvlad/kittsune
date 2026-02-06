@@ -9,7 +9,7 @@ import {
   Text,
   TopNavigation,
   TopNavigationAction,
-} from '@kitsuine/components';
+} from '@kittsune/components';
 
 
 const MenuIcon = (props): IconElement => (

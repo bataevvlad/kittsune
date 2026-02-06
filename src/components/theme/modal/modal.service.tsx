@@ -23,8 +23,8 @@
  *
  * ```
  * import React from 'react';
- * import * as eva from '@kitsuine/eva';
- * import { ApplicationProvider, Layout, Text, ModalService } from '@kitsuine/components';
+ * import * as eva from '@kittsune/eva';
+ * import { ApplicationProvider, Layout, Text, ModalService } from '@kittsune/components';
  *
  * ModalService.setShouldUseTopInsets = true //applies StatusBar additional offset
  *

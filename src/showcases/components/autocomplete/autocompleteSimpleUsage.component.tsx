@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Autocomplete, AutocompleteItem } from '@kitsuine/components';
+import { Autocomplete, AutocompleteItem } from '@kittsune/components';
 
 const movies = [
   { title: 'Star Wars' },

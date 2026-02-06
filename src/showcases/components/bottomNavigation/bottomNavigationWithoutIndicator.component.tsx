@@ -1,5 +1,5 @@
 import React from 'react';
-import { BottomNavigation, BottomNavigationTab } from '@kitsuine/components';
+import { BottomNavigation, BottomNavigationTab } from '@kittsune/components';
 
 export const BottomNavigationWithoutIndicatorShowcase = (): React.ReactElement => {
 

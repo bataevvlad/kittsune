@@ -8,7 +8,7 @@
 import {
   DateService,
   TranslationWidth,
-} from '@kitsuine/components';
+} from '@kittsune/components';
 import moment, { Moment } from 'moment';
 
 export class MomentDateService extends DateService<Moment> {

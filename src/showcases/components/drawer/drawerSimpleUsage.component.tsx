@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, DrawerItem, IndexPath } from '@kitsuine/components';
+import { Drawer, DrawerItem, IndexPath } from '@kittsune/components';
 
 export const DrawerSimpleUsageShowcase = (): React.ReactElement => {
 

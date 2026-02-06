@@ -102,7 +102,7 @@ type WebStyles = {
  *
  * In most cases this is redundant, if [custom theme is configured](guides/branding).
  * ```
- * import { ListItem, Text } from '@kitsuine/components';
+ * import { ListItem, Text } from '@kittsune/components';
  *
  * <ListItem
  *   title={evaProps => <Text {...evaProps}>TITLE</Text>}

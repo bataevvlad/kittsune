@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Text } from '@kitsuine/components';
+import { Calendar, Text } from '@kittsune/components';
 
 export const CalendarSimpleUsageShowcase = (): React.ReactElement => {
 

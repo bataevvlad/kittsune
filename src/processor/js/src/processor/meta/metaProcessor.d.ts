@@ -1,4 +1,4 @@
-import { ThemeStyleType, ThemeMappingType, StrictTheme } from '@kitsuine/processor/dss';
+import { ThemeStyleType, ThemeMappingType, StrictTheme } from '@kittsune/processor/dss';
 import { MappingMetaType } from '../mapping/mappingProcessor';
 import { Processor } from '../processor';
 export interface MappingProcessorParamsType {

@@ -9,7 +9,7 @@ import {
   ControlMetaType,
   ControlThemedStyleType,
   ThemedStyleType,
-} from '@kitsuine/processor';
+} from '@kittsune/processor';
 import { StyledComponentProps } from './styled';
 import {
   Interaction,

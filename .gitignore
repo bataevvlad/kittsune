@@ -12,18 +12,14 @@ local.properties
 node_modules/
 npm-debug.log
 
-# docs
-docs/docs.json
-docs/src/input.json
-docs/src/playground.json
-docs/src/examples.json
-docs/src/assets/playground-build/
-docs/src/assets/examples-build/
+# build output
+lib/
+dist/
+.turbo/
 
 # showcases
 src/showcases/env/index.js
 src/showcases/web-build/
 
 .expo
-dist
 /.yarn/

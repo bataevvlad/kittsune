@@ -2,7 +2,7 @@ import * as MetroConfig from '../';
 import { EvaConfig } from '../services/eva-config.service';
 
 const evaConfig: EvaConfig = {
-  evaPackage: '@kitsuine/eva',
+  evaPackage: '@kittsune/eva',
   customMappingPath: './path-to/custom-mapping.json',
 };
 

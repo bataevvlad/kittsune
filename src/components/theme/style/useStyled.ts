@@ -6,7 +6,7 @@
  */
 
 import { useContext, useMemo, useState, useCallback, useRef } from 'react';
-import { ThemeStyleType } from '@kitsuine/processor';
+import { ThemeStyleType } from '@kittsune/processor';
 import { StyleConsumerService } from './styleConsumer.service';
 import { Interaction, StyleType } from './style.service';
 import { styleCache } from './styleCache';

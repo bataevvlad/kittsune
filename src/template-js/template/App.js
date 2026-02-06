@@ -19,9 +19,9 @@ import {
   IconRegistry,
   Layout,
   Text,
-} from '@kitsuine/components';
-import { EvaIconsPack } from '@kitsuine/eva-icons';
-import * as eva from '@kitsuine/eva';
+} from '@kittsune/components';
+import { EvaIconsPack } from '@kittsune/eva-icons';
+import * as eva from '@kittsune/eva';
 
 /**
  * Use any valid `name` property from eva icons (e.g `github`, or `heart-outline`)

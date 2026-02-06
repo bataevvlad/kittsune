@@ -9,5 +9,5 @@ export declare namespace bugs {
     export const url: string;
 }
 export declare const devDependencies: {
-    "@kitsuine/processor/dss": string;
+    "@kittsune/processor/dss": string;
 };

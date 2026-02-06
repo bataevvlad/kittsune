@@ -70,7 +70,7 @@ export type BottomNavigationElement = React.ReactElement<BottomNavigationProps>;
  * import React from 'react';
  * import { NavigationContainer } from '@react-navigation/native';
  * import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
- * import { BottomNavigation, BottomNavigationTab, Layout, Text } from '@kitsuine/components';
+ * import { BottomNavigation, BottomNavigationTab, Layout, Text } from '@kittsune/components';
  *
  * const { Navigator, Screen } = createBottomTabNavigator();
  *
@@ -115,7 +115,7 @@ export type BottomNavigationElement = React.ReactElement<BottomNavigationProps>;
  * @overview-example BottomNavigationTabStyling
  * Tabs and it's inner views can be styled by passing them as function components.
  * ```
- * import { BottomNavigationTab, Text } from '@kitsuine/components';
+ * import { BottomNavigationTab, Text } from '@kittsune/components';
  *
  * <BottomNavigationTab
  *   title={evaProps => <Text {...evaProps}>USERS</Text>}

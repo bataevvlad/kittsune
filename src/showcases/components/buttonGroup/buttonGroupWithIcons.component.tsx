@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Button, ButtonGroup, Icon, IconElement, Layout } from '@kitsuine/components';
+import { Button, ButtonGroup, Icon, IconElement, Layout } from '@kittsune/components';
 
 const StarIcon = (props): IconElement => (
   <Icon

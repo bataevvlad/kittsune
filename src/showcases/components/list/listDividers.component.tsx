@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Divider, List, ListItem } from '@kitsuine/components';
+import { Divider, List, ListItem } from '@kittsune/components';
 
 interface IListItem {
   title: string;

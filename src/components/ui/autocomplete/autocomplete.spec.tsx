@@ -21,7 +21,7 @@ import {
 import {
   light,
   mapping,
-} from '@kitsuine/eva';
+} from '@kittsune/eva';
 import { ApplicationProvider } from '../../theme';
 import {
   Autocomplete,

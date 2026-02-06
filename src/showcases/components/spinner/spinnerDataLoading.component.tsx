@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { List, ListItem, Spinner } from '@kitsuine/components';
+import { List, ListItem, Spinner } from '@kittsune/components';
 
 interface IListItem {
   title: string;

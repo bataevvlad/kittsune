@@ -127,15 +127,15 @@ function splitEvaStyle(evaStyle: StyleType): SplitStyles {
 }
 
 /**
- * Bridge hook between @kitsuine/core headless components and Eva Design System styling.
+ * Bridge hook between @kittsune/core headless components and Eva Design System styling.
  *
  * Maps Core's InteractionState (pressed, hovered, focused) to Eva's Interaction enum
  * and computes split styles ready to apply to container, text, and icon elements.
  *
  * @example
  * ```tsx
- * import { ButtonCore } from '@kitsuine/core';
- * import { useEvaStyle } from '@kitsuine/components';
+ * import { ButtonCore } from '@kittsune/core';
+ * import { useEvaStyle } from '@kittsune/components';
  *
  * function MyButton({ appearance, status, size, disabled, children }) {
  *   return (

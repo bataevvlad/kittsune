@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemeStyleType } from '@kitsuine/processor';
+import { ThemeStyleType } from '@kittsune/processor';
 import { MappingContext } from './mappingContext';
 
 export interface MappingProviderProps {

@@ -5,7 +5,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { DateService } from '@kitsuine/components';
+import { DateService } from '@kittsune/components';
 import { MomentDateService } from './momentDate.service';
 import moment from 'moment';
 

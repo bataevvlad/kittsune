@@ -84,7 +84,7 @@ export type TopNavigationElement = React.ReactElement<TopNavigationProps>;
  *
  * In most cases, this is redundant, if [custom theme is configured](guides/branding).
  * ```
- * import { TopNavigation, Text } from '@kitsuine/components';
+ * import { TopNavigation, Text } from '@kittsune/components';
  *
  * <TopNavigation
  *   title={evaProps => <Text {...evaProps}>Title</Text>}

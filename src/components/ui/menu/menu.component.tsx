@@ -93,7 +93,7 @@ export type MenuElement = React.ReactElement<MenuProps>;
  * @overview-example MenuStyling
  * Menu and it's inner views can be styled by passing them as function components.
  * ```
- * import { MenuItem, Text } from '@kitsuine/components';
+ * import { MenuItem, Text } from '@kittsune/components';
  *
  * <MenuItem
  *   title={evaProps => <Text {...evaProps}>USERS</Text>}>

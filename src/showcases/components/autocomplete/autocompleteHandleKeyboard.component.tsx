@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Keyboard, KeyboardEventName, Platform } from 'react-native';
-import { Autocomplete, AutocompleteItem } from '@kitsuine/components';
+import { Autocomplete, AutocompleteItem } from '@kittsune/components';
 
 const movies = [
   { title: 'Star Wars' },

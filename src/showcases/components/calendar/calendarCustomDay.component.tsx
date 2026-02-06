@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Calendar, Text } from '@kitsuine/components';
+import { Calendar, Text } from '@kittsune/components';
 
 const DayCell = ({ date }: { date: Date }, style: any): React.ReactElement => (
   <View

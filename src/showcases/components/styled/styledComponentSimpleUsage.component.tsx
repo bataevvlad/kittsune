@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
-import { useStyled } from '@kitsuine/components';
+import { useStyled } from '@kittsune/components';
 
 const StyledComponent: React.FC = () => {
   const { style } = useStyled('StyledComponent', {});

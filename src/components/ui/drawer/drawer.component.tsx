@@ -81,7 +81,7 @@ export type DrawerElement = React.ReactElement<DrawerProps>;
  * import React from 'react';
  * import { NavigationContainer } from '@react-navigation/native';
  * import { createDrawerNavigator } from '@react-navigation/drawer';
- * import { Drawer, DrawerItem, Layout, Text, IndexPath } from '@kitsuine/components';
+ * import { Drawer, DrawerItem, Layout, Text, IndexPath } from '@kittsune/components';
  *
  * const { Navigator, Screen } = createDrawerNavigator();
  *
@@ -134,7 +134,7 @@ export type DrawerElement = React.ReactElement<DrawerProps>;
  * @overview-example DrawerStyling
  * Drawer and it's inner views can be styled by passing them as function components.
  * ```
- * import { DrawerItem, Text } from '@kitsuine/components';
+ * import { DrawerItem, Text } from '@kittsune/components';
  *
  * <DrawerItem
  *   title={evaProps => <Text {...evaProps}>USERS</Text>}>

@@ -4,13 +4,13 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@kitsuine/components": ["../components"],
-      "@kitsuine/eva": ["../eva"],
-      "@kitsuine/material": ["../material"],
-      "@kitsuine/processor": ["../processor"],
-      "@kitsuine/eva-icons": ["../eva-icons"],
-      "@kitsuine/date-fns": ["../date-fns"],
-      "@kitsuine/moment": ["../moment"]
+      "@kittsune/components": ["../components"],
+      "@kittsune/eva": ["../eva"],
+      "@kittsune/material": ["../material"],
+      "@kittsune/processor": ["../processor"],
+      "@kittsune/eva-icons": ["../eva-icons"],
+      "@kittsune/date-fns": ["../date-fns"],
+      "@kittsune/moment": ["../moment"]
     }
   },
   "include": [

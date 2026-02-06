@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProgressBar } from '@kitsuine/components';
+import { ProgressBar } from '@kittsune/components';
 import { useProgress } from '../../helpers/progress.hook';
 
 export const ProgressBarThemingShowcase = (): React.ReactElement => {

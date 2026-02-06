@@ -1,5 +1,5 @@
 import React from 'react';
-import { Spinner } from '@kitsuine/components';
+import { Spinner } from '@kittsune/components';
 
 export const SpinnerThemingShowcase = (): React.ReactElement => (
   <Spinner />

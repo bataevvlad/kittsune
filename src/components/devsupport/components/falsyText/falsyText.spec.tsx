@@ -4,7 +4,7 @@ import { render } from '@testing-library/react-native';
 import {
   light,
   mapping,
-} from '@kitsuine/eva';
+} from '@kittsune/eva';
 import { FalsyText } from './falsyText.component';
 import { ApplicationProvider } from '../../../theme';
 

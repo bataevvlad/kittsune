@@ -22,13 +22,13 @@ import {
   EvaStatus,
   RenderProp,
   FalsyFC,
-} from '@kitsuine/components/devsupport';
+} from '@kittsune/components/devsupport';
 import {
   IconProps,
   useStyled,
   StyleType,
   Text,
-} from '@kitsuine/components';
+} from '@kittsune/components';
 import { CircularProgressBarAnimation, CircularProgressBarAnimationConfig } from './animation';
 
 interface IndicatorStyle {

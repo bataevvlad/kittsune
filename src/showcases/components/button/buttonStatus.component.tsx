@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Layout } from '@kitsuine/components';
+import { Button, Layout } from '@kittsune/components';
 
 export const ButtonStatusShowcase = (): React.ReactElement => (
   <Layout

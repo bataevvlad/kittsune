@@ -1,6 +1,6 @@
 "use strict";
 
-describe('@kitsuine/eva: exports', () => {
+describe('@kittsune/eva: exports', () => {
     const eva = require('./index');
 
     describe('synchronous exports (backward compatible)', () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Layout, Spinner } from '@kitsuine/components';
+import { Layout, Spinner } from '@kittsune/components';
 
 export const SpinnerStatusesShowcase = (): React.ReactElement => (
   <Layout

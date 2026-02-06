@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text } from '@kitsuine/components';
+import { Text } from '@kittsune/components';
 
 export const TextCategoriesShowcase = (): React.ReactElement => (
   <>

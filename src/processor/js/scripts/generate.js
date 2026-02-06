@@ -14,11 +14,11 @@ function generateMappingPackage(source) {
     const { mapping: schema } = require(source);
     const style = schemaProcessor.process(schema);
     const indexOutput = [
-        `import { ThemeStyleType } from '@kitsuine/processor/dss';`,
+        `import { ThemeStyleType } from '@kittsune/processor/dss';`,
         `export const mapping: ThemeStyleType = ${json(style)};`,
     ].join('\n\n');
     const packageOutput = json({
-        name: `@kitsuine/${name}-js`,
+        name: `@kittsune/${name}-js`,
         version: '0.0.1',
         license: 'MIT',
         author: 'akveo <contact@akveo.com>',

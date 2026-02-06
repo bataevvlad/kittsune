@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Avatar, Button, Layout, Popover, Text } from '@kitsuine/components';
+import { Avatar, Button, Layout, Popover, Text } from '@kittsune/components';
 
 export const PopoverSimpleUsageShowcase = (): React.ReactElement => {
 

@@ -6,13 +6,13 @@
   */
 
 import React from 'react';
-import { deepMerge } from '@kitsuine/mapping-base';
-import { SchemaProcessor } from '@kitsuine/processor';
+import { deepMerge } from '@kittsune/mapping-base';
+import { SchemaProcessor } from '@kittsune/processor';
 import {
   CustomSchemaType,
   SchemaType,
   ThemeStyleType,
-} from '@kitsuine/processor';
+} from '@kittsune/processor';
 import { StyleProvider } from '../style/styleProvider.component';
 import { ThemeProviderProps } from '../theme/themeProvider.component';
 import { styleCache } from '../style/styleCache';
@@ -45,26 +45,26 @@ function createStyles(mapping: SchemaType, custom?: CustomSchemaType): ThemeStyl
  * Usually, a router or nested providers.
  *
  * @property {SchemaType} mapping - Mapping for UI Kitten components.
- * This is designed to be provided from any `@kitsuine/*` package.
+ * This is designed to be provided from any `@kittsune/*` package.
  * If provided, will be merged with *customMapping* and compiled into styles during the runtime.
- * Can be improved with build-time processing with `@kitsuine/metro-config` package.
+ * Can be improved with build-time processing with `@kittsune/metro-config` package.
  *
  * @property {CustomSchemaType} customMapping - Customized mapping.
  *
  * @property {ThemeType} theme - Current theme.
- * Designed to be provided from any `@kitsuine/*` package.
+ * Designed to be provided from any `@kittsune/*` package.
  *
  * @property {ThemeStyleType} styles - Styles compiled by bootstrapping Eva packages.
  * If provided, will replace runtime styles processing.
- * Usually, can be provided by `@kitsuine/metro-config` package.
+ * Usually, can be provided by `@kittsune/metro-config` package.
  *
  * @overview-example Simple Usage
  * ApplicationProvider is designed to be the root component of the application.
  * It should be rendered **once**, to provide Eva styles for nested components.
  * ```
  * import React from 'react';
- * import { ApplicationProvider, Layout, Text } from '@kitsuine/components';
- * import * as eva from '@kitsuine/eva';
+ * import { ApplicationProvider, Layout, Text } from '@kittsune/components';
+ * import * as eva from '@kittsune/eva';
  *
  * export default () => (
  *   <ApplicationProvider {...eva} theme={eva.light}> // <-- {eva.dark} for dark mode
@@ -80,9 +80,9 @@ function createStyles(mapping: SchemaType, custom?: CustomSchemaType): ThemeStyl
  * to provide a highly customizable, design system based application.
  * ```
  * import React from 'react';
- * import { ApplicationProvider, IconRegistry, Layout, Text } from '@kitsuine/components';
- * import { EvaIconsPack } from '@kitsuine/eva-icons';
- * import * as eva from '@kitsuine/eva';
+ * import { ApplicationProvider, IconRegistry, Layout, Text } from '@kittsune/components';
+ * import { EvaIconsPack } from '@kittsune/eva-icons';
+ * import * as eva from '@kittsune/eva';
  *
  * export default () => (
  *   <React.Fragment>

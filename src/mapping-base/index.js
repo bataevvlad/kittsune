@@ -4,16 +4,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const merge = require('./merge');
 
 /**
- * @kitsuine/mapping-base
+ * @kittsune/mapping-base
  *
  * Provides utilities for creating and merging design system mappings.
- * This package is used internally by @kitsuine/eva and @kitsuine/material,
+ * This package is used internally by @kittsune/eva and @kittsune/material,
  * and can be used to create custom design systems.
  *
  * Usage:
  * ```javascript
- * const { createMapping, mergeMapping } = require('@kitsuine/mapping-base');
- * const baseMapping = require('@kitsuine/mapping-base/mapping.json');
+ * const { createMapping, mergeMapping } = require('@kittsune/mapping-base');
+ * const baseMapping = require('@kittsune/mapping-base/mapping.json');
  *
  * const customMapping = createMapping({
  *   base: baseMapping,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Icon, IconElement } from '@kitsuine/components';
+import { Icon, IconElement } from '@kittsune/components';
 
 export const IconSimpleUsageShowcase = (): IconElement => (
   <Icon

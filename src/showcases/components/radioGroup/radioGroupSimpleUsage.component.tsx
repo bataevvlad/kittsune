@@ -1,5 +1,5 @@
 import React from 'react';
-import { Radio, RadioGroup, Text } from '@kitsuine/components';
+import { Radio, RadioGroup, Text } from '@kittsune/components';
 
 export const RadioGroupSimpleUsageShowcase = (): React.ReactElement => {
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleService, Text, useStyleSheet } from '@kitsuine/components';
+import { StyleService, Text, useStyleSheet } from '@kittsune/components';
 import { View } from 'react-native';
 
 export const UseStyleSheetSimpleUsageShowcase = (): React.ReactElement => {

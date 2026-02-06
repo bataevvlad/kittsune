@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarRange, RangeCalendar } from '@kitsuine/components';
+import { CalendarRange, RangeCalendar } from '@kittsune/components';
 
 export const RangeCalendarSimpleUsageShowcase = (): React.ReactElement => {
 

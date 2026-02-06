@@ -20,7 +20,7 @@ import {
 import {
   light,
   mapping,
-} from '@kitsuine/eva';
+} from '@kittsune/eva';
 import { Text } from '../text/text.component';
 import { IndexPath } from '../../devsupport';
 import { ApplicationProvider } from '../../theme';

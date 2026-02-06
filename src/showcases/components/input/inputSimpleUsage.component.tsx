@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Input, Layout, Text } from '@kitsuine/components';
+import { Input, Layout, Text } from '@kittsune/components';
 
 const STATUSES = ['primary', 'success', 'info', 'warning', 'danger', 'basic'] as const;
 

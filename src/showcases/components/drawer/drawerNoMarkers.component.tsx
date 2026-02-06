@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, DrawerItem, Text } from '@kitsuine/components';
+import { Drawer, DrawerItem, Text } from '@kittsune/components';
 
 export const DrawerNoMarkersShowcase = (): React.ReactElement => {
 

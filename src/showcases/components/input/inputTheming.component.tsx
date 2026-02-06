@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableWithoutFeedback, StyleSheet, View } from 'react-native';
-import { Icon, IconElement, Input, Text } from '@kitsuine/components';
+import { Icon, IconElement, Input, Text } from '@kittsune/components';
 
 const AlertIcon = (props): IconElement => (
   <Icon

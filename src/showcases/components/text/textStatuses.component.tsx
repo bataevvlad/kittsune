@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Layout, Text } from '@kitsuine/components';
+import { Layout, Text } from '@kittsune/components';
 
 export const TextStatusesShowcase = (): React.ReactElement => (
   <Layout

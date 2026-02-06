@@ -9,7 +9,7 @@ import {
   ListItem,
   TopNavigation,
   TopNavigationAction,
-} from '@kitsuine/components';
+} from '@kittsune/components';
 
 interface IListItem {
   title: string;

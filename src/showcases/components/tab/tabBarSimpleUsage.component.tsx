@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tab, TabBar } from '@kitsuine/components';
+import { Tab, TabBar } from '@kittsune/components';
 
 export const TabBarSimpleUsageShowcase = (): React.ReactElement => {
 

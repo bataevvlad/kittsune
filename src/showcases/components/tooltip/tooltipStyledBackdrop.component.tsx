@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Tooltip } from '@kitsuine/components';
+import { Button, Tooltip } from '@kittsune/components';
 import { StyleSheet } from 'react-native';
 
 export const TooltipStyledBackdropShowcase = (): React.ReactElement => {

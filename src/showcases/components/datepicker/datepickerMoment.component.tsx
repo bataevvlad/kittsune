@@ -1,13 +1,13 @@
 /**
  * IMPORTANT: To use Moment make sure to install Moment Date Service
- * npm i @kitsuine/moment
+ * npm i @kittsune/moment
  */
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import moment from 'moment';
-import { Datepicker, Layout } from '@kitsuine/components';
-import { MomentDateService } from '@kitsuine/moment';
+import { Datepicker, Layout } from '@kittsune/components';
+import { MomentDateService } from '@kittsune/moment';
 
 const dateService = new MomentDateService();
 

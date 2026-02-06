@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Button, Card, Layout, Modal, Text } from '@kitsuine/components';
+import { Button, Card, Layout, Modal, Text } from '@kittsune/components';
 
 export const ModalSimpleUsageShowcase = (): React.ReactElement => {
 

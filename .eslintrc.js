@@ -1,29 +1,31 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: [ '@typescript-eslint' ],
+  plugins: ['@typescript-eslint', 'react-hooks'],
   overrides: [
     {
-      files: [ '*.ts', '*.tsx' ],
+      files: ['*.ts', '*.tsx'],
       rules: {
-        '@typescript-eslint/no-shadow': [ 'error' ],
+        '@typescript-eslint/no-shadow': ['error'],
         'no-shadow': 'off',
         'no-undef': 'off',
         'react-native/no-raw-text': 'off',
+        'react-hooks/rules-of-hooks': 'error',
+        'react-hooks/exhaustive-deps': 'warn',
       },
       extends: [
-        'akveo/react-native:recommended',
+        '@react-native-community',
       ],
     },
   ],
   parserOptions: {
-    project: [ './tsconfig.json' ],
+    project: ['./tsconfig.json'],
     sourceType: 'module',
   },
   settings: {
     react: {
-      version: '18.0.0',
+      version: '19.0.0',
     },
   },
-  ignorePatterns: ["src/template-js", "src/template-ts"]
+  ignorePatterns: ['src/template-js', 'src/template-ts', 'lib', 'dist'],
 };

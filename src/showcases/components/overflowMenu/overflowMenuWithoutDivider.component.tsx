@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Button, Layout, MenuItem, OverflowMenu } from '@kitsuine/components';
+import { Button, Layout, MenuItem, OverflowMenu } from '@kittsune/components';
 
 export const OverflowMenuWithoutDividerShowcase = (): React.ReactElement => {
 

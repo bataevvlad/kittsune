@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { dark, light } from '@kitsuine/eva';
-import { Card, Text, ThemeProvider } from '@kitsuine/components';
+import { dark, light } from '@kittsune/eva';
+import { Card, Text, ThemeProvider } from '@kittsune/components';
 
 export const ThemeProviderSimpleUsageShowcase = (): React.ReactElement => (
   <>

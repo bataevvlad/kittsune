@@ -68,7 +68,7 @@ export interface TabBarRef {
  * import React from 'react';
  * import { NavigationContainer } from '@react-navigation/native';
  * import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
- * import { TabBar, Tab, Layout, Text } from '@kitsuine/components';
+ * import { TabBar, Tab, Layout, Text } from '@kittsune/components';
  *
  * const { Navigator, Screen } = createMaterialTopTabNavigator();
  *
@@ -113,7 +113,7 @@ export interface TabBarRef {
  * @overview-example TabStyling
  * Tab and it's inner views can be styled by passing them as function components.
  * ```
- * import { Tab, Text } from '@kitsuine/components';
+ * import { Tab, Text } from '@kittsune/components';
  *
  * <Tab
  *   title={evaProps => <Text {...evaProps}>USERS</Text>}

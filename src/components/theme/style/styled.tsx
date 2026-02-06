@@ -7,7 +7,7 @@
 
 import React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { ThemeStyleType } from '@kitsuine/processor';
+import { ThemeStyleType } from '@kittsune/processor';
 import { StyleConsumerService } from './styleConsumer.service';
 import {
   Interaction,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { CalendarRange, Layout, RangeDatepicker } from '@kitsuine/components';
+import { CalendarRange, Layout, RangeDatepicker } from '@kittsune/components';
 
 export const RangeDatepickerSimpleUsageShowcase = (): React.ReactElement => {
 

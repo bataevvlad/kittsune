@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Button, IndexPath, Layout, Select, SelectItem, Tooltip } from '@kitsuine/components';
+import { Button, IndexPath, Layout, Select, SelectItem, Tooltip } from '@kittsune/components';
 
 const placements = [
   'top',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DrawerItem, Icon, IconElement } from '@kitsuine/components';
+import { DrawerItem, Icon, IconElement } from '@kittsune/components';
 
 const StarIcon = (props): IconElement => (
   <Icon

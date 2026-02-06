@@ -1,7 +1,30 @@
 {
-  "name": "@kitsuine/metro-config",
-  "description": "Kitsune config for Metro Bundler",
+  "name": "@kittsune/metro-config",
+  "description": "Kittsune config for Metro Bundler",
   "version": "1.0.0",
+  "main": "./lib/module/index.js",
+  "types": "./index.ts",
+  "react-native": "./index.ts",
+  "source": "./index.ts",
+  "exports": {
+    ".": {
+      "react-native": "./index.ts",
+      "source": "./index.ts",
+      "types": "./index.ts",
+      "default": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "cli",
+    "services",
+    "*.ts",
+    "lib",
+    "bin",
+    "!**/__tests__",
+    "!**/*.spec.*",
+    "!**/tests"
+  ],
   "author": "Kitsune Contributors",
   "license": "MIT",
   "homepage": "https://github.com/bataevvlad/kitsune#readme",
@@ -14,7 +37,7 @@
   },
   "keywords": [
     "react-native",
-    "kitsune",
+    "kittsune",
     "metro",
     "bundler"
   ],
@@ -22,15 +45,32 @@
     "access": "public"
   },
   "bin": {
-    "kitsune": "./bin/kitsune"
+    "kittsune": "./bin/kittsune"
+  },
+  "scripts": {
+    "build": "bob build",
+    "clean": "rm -rf lib"
   },
   "dependencies": {
-    "@kitsuine/mapping-base": "^1.0.0",
-    "@kitsuine/processor": "^1.0.0",
+    "@kittsune/mapping-base": "^1.0.0",
+    "@kittsune/processor": "^1.0.0",
     "chalk": "^3.0.0",
     "commander": "^4.1.1"
   },
   "peerDependencies": {
     "metro-config": "*"
+  },
+  "react-native-builder-bob": {
+    "source": ".",
+    "output": "lib",
+    "exclude": "**/{__tests__,__fixtures__,__mocks__,node_modules,tests}/**",
+    "targets": [
+      [
+        "module",
+        {
+          "esm": true
+        }
+      ]
+    ]
   }
 }

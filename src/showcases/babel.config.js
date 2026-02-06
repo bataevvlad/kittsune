@@ -3,16 +3,16 @@ const path = require('path');
 const srcRoot = path.resolve(__dirname, '..');
 
 const evaModules = {
-  '@kitsuine/eva': path.resolve(srcRoot, 'eva'),
-  '@kitsuine/material': path.resolve(srcRoot, 'material'),
-  '@kitsuine/processor': path.resolve(srcRoot, 'processor'),
+  '@kittsune/eva': path.resolve(srcRoot, 'eva'),
+  '@kittsune/material': path.resolve(srcRoot, 'material'),
+  '@kittsune/processor': path.resolve(srcRoot, 'processor'),
 };
 
 const frameworkModules = {
-  '@kitsuine/components': path.resolve(srcRoot, 'components'),
-  '@kitsuine/date-fns': path.resolve(srcRoot, 'date-fns'),
-  '@kitsuine/eva-icons': path.resolve(srcRoot, 'eva-icons'),
-  '@kitsuine/moment': path.resolve(srcRoot, 'moment'),
+  '@kittsune/components': path.resolve(srcRoot, 'components'),
+  '@kittsune/date-fns': path.resolve(srcRoot, 'date-fns'),
+  '@kittsune/eva-icons': path.resolve(srcRoot, 'eva-icons'),
+  '@kittsune/moment': path.resolve(srcRoot, 'moment'),
 };
 
 const moduleResolverConfig = {

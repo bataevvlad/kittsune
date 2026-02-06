@@ -18,11 +18,11 @@ import {
   EvaSize,
   EvaStatus,
   LiteralUnion,
-} from '@kitsuine/components/devsupport';
+} from '@kittsune/components/devsupport';
 import {
   useStyled,
   StyleType,
-} from '@kitsuine/components';
+} from '@kittsune/components';
 import { ProgressBarAnimation, ProgressBarAnimationConfig } from './animation';
 
 interface ComponentStyles {

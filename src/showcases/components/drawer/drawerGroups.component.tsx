@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, DrawerGroup, DrawerItem, Icon, IconElement } from '@kitsuine/components';
+import { Drawer, DrawerGroup, DrawerItem, Icon, IconElement } from '@kittsune/components';
 
 const SmartphoneIcon = (props): IconElement => (
   <Icon

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Calendar, CalendarProps, Layout, Text } from '@kitsuine/components';
+import { Calendar, CalendarProps, Layout, Text } from '@kittsune/components';
 
 const useCalendarState = (initialState = null): CalendarProps => {
   const [date, setDate] = React.useState(initialState);

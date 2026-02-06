@@ -1,36 +1,25 @@
-name: Build
+name: CI
 on:
   push:
-    branches:
-      - master
-      - next
-
+    branches: [master]
   pull_request:
-    branches:
-      - master
-      - next
+    branches: [master]
 
 jobs:
-  build:
-    name: Running TypeScript compiler, TSLint and Jest
-    runs-on: macos-latest
+  build-and-test:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: '14'
-          cache: 'yarn'
+          node-version: 22
+          cache: yarn
 
-      - name: Install
-        run: yarn install --prefer-offline
+      - run: yarn install --frozen-lockfile
 
-      - name: Lint
-        run: yarn lint
+      - run: yarn lint
 
-      - name: Build
-        run: yarn build
+      - run: yarn build
 
-      - name: Test
-        run: yarn test
+      - run: yarn test

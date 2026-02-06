@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Tooltip } from '@kitsuine/components';
+import { Button, Tooltip } from '@kittsune/components';
 
 export const TooltipSimpleUsageShowcase = (): React.ReactElement => {
 

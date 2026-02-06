@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
-import { Autocomplete, AutocompleteItem, Icon, IconElement, TextProps} from '@kitsuine/components';
-import {RenderProp} from "@kitsuine/components/devsupport";
+import { Autocomplete, AutocompleteItem, Icon, IconElement, TextProps} from '@kittsune/components';
+import {RenderProp} from "@kittsune/components/devsupport";
 
 const movies = [
   {title: 'Star Wars'},

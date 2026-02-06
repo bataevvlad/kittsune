@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, IconElement, TopNavigation, TopNavigationAction } from '@kitsuine/components';
+import { Icon, IconElement, TopNavigation, TopNavigationAction } from '@kittsune/components';
 
 const BackIcon = (props): IconElement => (
   <Icon

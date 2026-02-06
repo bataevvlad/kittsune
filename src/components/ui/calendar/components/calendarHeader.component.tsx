@@ -36,7 +36,7 @@ import {
 import {
   CalendarViewModeId,
   CalendarViewModes,
-} from '@kitsuine/components/ui/calendar/type';
+} from '@kittsune/components/ui/calendar/type';
 
 interface IconStyle extends ImageStyle {
   tintColor?: string;
