@@ -1,6 +1,6 @@
 {
   "name": "@kittsune/core",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Headless UI component core - behavior and state management without styling",
   "main": "./lib/module/index.js",
   "types": "./index.ts",
