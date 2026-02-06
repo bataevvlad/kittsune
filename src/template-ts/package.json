@@ -1,5 +1,6 @@
 {
   "name": "@kittsune/template-ts",
+  "private": true,
   "description": "React Native template project with Kitsune and TypeScript",
   "version": "1.0.0",
   "author": "Kitsune Contributors",
