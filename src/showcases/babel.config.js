@@ -30,7 +30,7 @@ module.exports = function (api) {
     plugins: [
       ['module-resolver', moduleResolverConfig],
       ['@babel/plugin-proposal-decorators', { legacy: true }],
-      'react-native-reanimated/plugin', // Must be last
+      'react-native-reanimated/plugin', // Must be last (includes worklets plugin)
     ],
   };
 };

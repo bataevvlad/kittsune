@@ -406,9 +406,9 @@ I love Babel
     );
 
     fireEvent.press(touchables.findControlTouchable(component));
-    await waitFor(() => null);
+    const option2 = await waitFor(() => component.getByText('Option 2'));
 
-    fireEvent.press(touchables.findOptionTouchable(component, 1));
+    fireEvent.press(option2);
   });
 
   it('should call onSelect with array of indices', async () => {

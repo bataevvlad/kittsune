@@ -300,17 +300,24 @@ describe('@autocomplete: component checks', () => {
       <TestAutocomplete />,
     );
 
-    fireEvent(component.queryByTestId('@autocomplete/input-anchor'), 'focus');
+    fireEvent(component.UNSAFE_queryByType(TextInput), 'focus');
+    await waitFor(() => expect(component.queryByText('Option 1')).toBeTruthy());
+
+    const backdrop = await waitFor(() => {
+      const el = component.queryByTestId('@backdrop');
+      expect(el).toBeTruthy();
+      return el;
+    });
+    // Backdrop uses PanResponder - call the handler directly
+    const responderRelease = backdrop.props.onResponderRelease;
+    if (responderRelease) {
+      responderRelease({ nativeEvent: {} });
+    }
 
     await waitFor(() => {
-      fireEvent.press(component.queryByTestId('@backdrop'));
+      expect(component.queryByText('Option 1')).toBeFalsy();
+      expect(component.queryByText('Option 2')).toBeFalsy();
     });
-
-    const firstOption = await waitFor(() => component.UNSAFE_queryAllByType(TouchableWithoutFeedback)[2]);
-    const secondOption = component.queryByText('Option 2');
-
-    expect(firstOption).toBeFalsy();
-    expect(secondOption).toBeFalsy();
   });
 
   it('should call onFocus', async () => {

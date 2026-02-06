@@ -343,15 +343,20 @@ describe('@datepicker: component checks', () => {
 
     fireEvent.press(touchables.findInputTouchable(component));
 
-    const backdrop = await waitFor(() => touchables.findBackdropTouchable(component));
+    const backdrop = await waitFor(() => {
+      const el = touchables.findBackdropTouchable(component);
+      expect(el).toBeTruthy();
+      return el;
+    });
     // Backdrop uses PanResponder - call the handler directly
     const responderRelease = backdrop.props.onResponderRelease;
     if (responderRelease) {
       responderRelease({ nativeEvent: {} });
     }
 
-    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
-    expect(calendar).toBeFalsy();
+    await waitFor(() => {
+      expect(component.UNSAFE_queryByType(Calendar)).toBeFalsy();
+    });
   });
 
   it('should call onFocus when calendar becomes visible', async () => {
@@ -393,9 +398,9 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
-    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
-
-    expect(calendar).toBeTruthy();
+    await waitFor(() => {
+      expect(component.UNSAFE_queryByType(Calendar)).toBeTruthy();
+    });
   });
 
   it('should hide calendar by calling `blur` with ref', async () => {
@@ -406,12 +411,14 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
-    await waitFor(() => null);
+    await waitFor(() => {
+      expect(component.UNSAFE_queryByType(Calendar)).toBeTruthy();
+    });
 
     componentRef.current.blur();
-    const calendar = await waitFor(() => component.UNSAFE_queryByType(Calendar));
-
-    expect(calendar).toBeFalsy();
+    await waitFor(() => {
+      expect(component.UNSAFE_queryByType(Calendar)).toBeFalsy();
+    });
   });
 
   it('should return false if calendar not visible by calling `isFocused` with ref', async () => {
@@ -484,7 +491,7 @@ describe('@datepicker: component checks', () => {
     expect(onPressOut).toBeCalled();
   });
 
-  it('should show the selected date on load provided by date prop', () => {
+  it('should show the selected date on load provided by date prop', async () => {
     const date = new Date(2021, 2, 1);
     const componentRef: React.RefObject<Datepicker> = React.createRef();
 
@@ -496,13 +503,16 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
+    await waitFor(() => {
+      expect(componentRef.current.isFocused()).toBe(true);
+    });
 
     const visibleDate = componentRef.current.getCalendarVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(date.getFullYear());
     expect(visibleDate.getMonth()).toEqual(date.getMonth());
   });
 
-  it('should show the specific date on load provided by initialVisibleDate prop', () => {
+  it('should show the specific date on load provided by initialVisibleDate prop', async () => {
     const initialDate = new Date(2021, 2, 1);
     const componentRef: React.RefObject<Datepicker> = React.createRef();
 
@@ -515,14 +525,16 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
+    await waitFor(() => {
+      expect(componentRef.current.isFocused()).toBe(true);
+    });
 
-    // @ts-ignore: private calendarRef
     const visibleDate = componentRef.current.getCalendarVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(initialDate.getFullYear());
     expect(visibleDate.getMonth()).toEqual(initialDate.getMonth());
   });
 
-  it('should scroll to current month when scrollToToday called', () => {
+  it('should scroll to current month when scrollToToday called', async () => {
     const componentRef: React.RefObject<Datepicker> = React.createRef();
 
     render(
@@ -533,15 +545,18 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
+    await waitFor(() => {
+      expect(componentRef.current.isFocused()).toBe(true);
+    });
     componentRef.current.scrollToToday();
+    await waitFor(() => null);
 
-    // @ts-ignore: private calendarRef
     const visibleDate = componentRef.current.getCalendarVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(today.getFullYear());
     expect(visibleDate.getMonth()).toEqual(today.getMonth());
   });
 
-  it('should scroll to the specific date when scrollToDate called', () => {
+  it('should scroll to the specific date when scrollToDate called', async () => {
     const dateToScroll = new Date(2021, 2, 1);
     const componentRef: React.RefObject<Datepicker> = React.createRef();
 
@@ -553,15 +568,18 @@ describe('@datepicker: component checks', () => {
     );
 
     componentRef.current.focus();
+    await waitFor(() => {
+      expect(componentRef.current.isFocused()).toBe(true);
+    });
     componentRef.current.scrollToDate(dateToScroll);
+    await waitFor(() => null);
 
-    // @ts-ignore: private calendarRef
     const visibleDate = componentRef.current.getCalendarVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(dateToScroll.getFullYear());
     expect(visibleDate.getMonth()).toEqual(dateToScroll.getMonth());
   });
 
-  it('should render custom left arrow', () => {
+  it('should render custom left arrow', async () => {
     const componentRef: React.RefObject<Datepicker> = React.createRef();
 
     const onVisibleDateChange = jest.fn();
@@ -589,13 +607,17 @@ describe('@datepicker: component checks', () => {
 
     componentRef.current?.focus();
 
-    const leftArrow = component.queryByTestId('@arrow/left');
+    const leftArrow = await waitFor(() => {
+      const el = component.queryByTestId('@arrow/left');
+      expect(el).toBeTruthy();
+      return el;
+    });
     fireEvent.press(leftArrow);
 
     expect(onVisibleDateChange).toBeCalled();
   });
 
-  it('should render custom right arrow', () => {
+  it('should render custom right arrow', async () => {
     const componentRef: React.RefObject<Datepicker> = React.createRef();
 
     const onVisibleDateChange = jest.fn();
@@ -623,8 +645,12 @@ describe('@datepicker: component checks', () => {
 
     componentRef.current?.focus();
 
-    const leftArrow = component.queryByTestId('@arrow/right');
-    fireEvent.press(leftArrow);
+    const rightArrow = await waitFor(() => {
+      const el = component.queryByTestId('@arrow/right');
+      expect(el).toBeTruthy();
+      return el;
+    });
+    fireEvent.press(rightArrow);
 
     expect(onVisibleDateChange).toBeCalled();
   });

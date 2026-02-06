@@ -4,10 +4,10 @@ import { Calendar, CalendarProps, Layout, Text } from '@kitsuine/components';
 
 const useCalendarState = (initialState = null): CalendarProps => {
   const [date, setDate] = React.useState(initialState);
-  return { date, onSelect: setDate };
+  return { date, onSelect: setDate } as any;
 };
 
-const filter = (date): boolean => date.getDay() !== 0 && date.getDay() !== 6;
+const filter = (date: any): boolean => date.getDay() !== 0 && date.getDay() !== 6;
 
 const now = new Date();
 const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);

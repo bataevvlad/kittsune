@@ -1,18 +1,21 @@
 import React, { useCallback } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
-import { Autocomplete, AutocompleteItem, Icon, IconElement } from '@kitsuine/components';
+import { Autocomplete, AutocompleteItem, Icon, IconElement, TextProps} from '@kitsuine/components';
+import {RenderProp} from "@kitsuine/components/devsupport";
 
 const movies = [
-  { title: 'Star Wars' },
-  { title: 'Back to the Future' },
-  { title: 'The Matrix' },
-  { title: 'Inception' },
-  { title: 'Interstellar' },
+  {title: 'Star Wars'},
+  {title: 'Back to the Future'},
+  {title: 'The Matrix'},
+  {title: 'Inception'},
+  {title: 'Interstellar'},
 ];
 
-const filter = (item, query): boolean => item.title.toLowerCase().includes(query.toLowerCase());
+const filter = (item: {
+  title: any;
+}, query: string): boolean => item.title.toLowerCase().includes(query.toLowerCase());
 
-const StarIcon = (props): IconElement => (
+const StarIcon = (props: any): IconElement => (
   <Icon
     {...props}
     name='star'
@@ -21,24 +24,24 @@ const StarIcon = (props): IconElement => (
 
 export const AutocompleteAccessoriesShowcase = (): React.ReactElement => {
 
-  const [value, setValue] = React.useState(null);
-  const [data, setData] = React.useState(movies);
+  const [value, setValue] = React.useState("");
+  const [data, setData] = React.useState(movies) as any;
 
-  const onSelect = useCallback((index): void => {
+  const onSelect = useCallback((index: string | number): void => {
     setValue(data[index].title);
   }, [data]);
 
-  const onChangeText = useCallback((query) => {
+  const onChangeText = useCallback((query: any) => {
     setValue(query);
     setData(movies.filter(item => filter(item, query)));
   }, []);
 
   const clearInput = (): void => {
-    setValue('');
+    setValue("");
     setData(movies);
   };
 
-  const renderOption = (item, index): React.ReactElement => (
+  const renderOption = (item: { title: RenderProp<TextProps> | React.ReactText | undefined; }, index: React.Key | null | undefined): React.ReactElement => (
     <AutocompleteItem
       key={index}
       title={item.title}
@@ -46,7 +49,7 @@ export const AutocompleteAccessoriesShowcase = (): React.ReactElement => {
     />
   );
 
-  const renderCloseIcon = (props): React.ReactElement => (
+  const renderCloseIcon = (props: any): React.ReactElement => (
     <TouchableWithoutFeedback onPress={clearInput}>
       <Icon
         {...props}

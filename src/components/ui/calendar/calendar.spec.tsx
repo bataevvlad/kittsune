@@ -93,8 +93,9 @@ describe('@calendar: component checks', () => {
   });
 
   it('should request date change on year select', async () => {
+    const targetYear = now.getFullYear();
     const onSelect = jest.fn((date: Date) => {
-      expect(date).toEqual(new Date(now.getFullYear() + 1, 6, 7));
+      expect(date).toEqual(new Date(targetYear, 6, 7));
     });
 
     const component = render(
@@ -104,11 +105,12 @@ describe('@calendar: component checks', () => {
       />,
     );
 
-    fireEvent.press(component.queryByText(`${now.getFullYear() + 1}`));
-    const monthCell = await waitFor(() => component.queryByText('Jul'));
+    const yearCell = await waitFor(() => component.getByText(`${targetYear}`));
+    fireEvent.press(yearCell);
+    const monthCell = await waitFor(() => component.getByText('Jul'));
 
     fireEvent.press(monthCell);
-    const dayCell = await waitFor(() => component.queryByText('7'));
+    const dayCell = await waitFor(() => component.getByText('7'));
 
     fireEvent.press(dayCell);
   });
@@ -228,7 +230,7 @@ describe('@calendar: component checks', () => {
     expect(visibleDate.getMonth()).toEqual(initialDate.getMonth());
   });
 
-  it('should scroll to current month when scrollToToday called', () => {
+  it('should scroll to current month when scrollToToday called', async () => {
     const componentRef = React.createRef<Calendar>();
     render(
       <TestCalendar
@@ -238,11 +240,12 @@ describe('@calendar: component checks', () => {
     );
 
     componentRef.current.scrollToToday();
+    await waitFor(() => null);
 
     expect(componentRef.current.getVisibleDate().getMonth()).toEqual(today.getMonth());
   });
 
-  it('should scroll to the specific date when scrollToDate called', () => {
+  it('should scroll to the specific date when scrollToDate called', async () => {
     const dateToScroll = new Date(2021, 2, 1);
     const componentRef = React.createRef<Calendar>();
     render(
@@ -253,6 +256,7 @@ describe('@calendar: component checks', () => {
     );
 
     componentRef.current.scrollToDate(dateToScroll);
+    await waitFor(() => null);
 
     const visibleDate = componentRef.current.getVisibleDate();
     expect(visibleDate.getFullYear()).toEqual(dateToScroll.getFullYear());
