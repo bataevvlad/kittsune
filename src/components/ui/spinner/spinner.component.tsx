@@ -5,7 +5,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useReducer } from 'react';
 import {
   Animated,
   StyleSheet,
@@ -107,21 +107,34 @@ export const Spinner: React.FC<SpinnerProps> = (props) => {
     size,
   });
 
-  // Get container size from eva style
-  const containerSize = useMemo(() => {
-    const flatStyle = StyleSheet.flatten([evaStyle, style]);
+  // Decompose eva style into container size and arc (border) styles
+  const { containerSize, arcStyle } = useMemo(() => {
+    const flatStyle = StyleSheet.flatten([evaStyle, style]) as ViewStyle;
     const width = (flatStyle?.width as number) || 0;
     const height = (flatStyle?.height as number) || 0;
-    return new Size(width, height);
+
+    return {
+      containerSize: new Size(width, height),
+      arcStyle: {
+        width,
+        height,
+        borderColor: flatStyle?.borderColor,
+        borderWidth: flatStyle?.borderWidth as number,
+        borderRadius: flatStyle?.borderRadius as number,
+      } as ViewStyle,
+    };
   }, [evaStyle, style]);
 
   // Create animation instance
   const animationRef = useRef<SpinnerAnimation | null>(null);
+  // Force re-render after animation is created so arcs become visible immediately
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
 
   // Initialize or update animation when size changes
   useEffect(() => {
     if (containerSize.height > 0) {
       animationRef.current = new SpinnerAnimation(containerSize.height);
+      forceUpdate();
     }
     return () => {
       animationRef.current?.release();
@@ -152,15 +165,15 @@ export const Spinner: React.FC<SpinnerProps> = (props) => {
     return { start, end };
   };
 
-  const renderArcElement = (arcStyle: ArcElementStyle, arcSize: Size): React.ReactElement<ViewProps> => {
-    const halfSize: Size = new Size(arcSize.width, arcSize.height / 2);
+  const renderArcElement = (elementStyle: ArcElementStyle, elementSize: Size): React.ReactElement<ViewProps> => {
+    const halfSize: Size = new Size(elementSize.width, elementSize.height / 2);
 
     return (
-      <Animated.View style={[StyleSheet.absoluteFill, arcStyle.container, arcSize]}>
-        <View style={[styles.noOverflow, arcStyle.overflow, halfSize]}>
-          <Animated.View style={[arcStyle.arc, arcSize]}>
+      <Animated.View style={[StyleSheet.absoluteFill, elementStyle.container, elementSize]}>
+        <View style={[styles.noOverflow, elementStyle.overflow, halfSize]}>
+          <Animated.View style={[elementStyle.arc, elementSize]}>
             <View style={[styles.noOverflow, halfSize]}>
-              <View style={[evaStyle, style]} />
+              <View style={arcStyle} />
             </View>
           </Animated.View>
         </View>
