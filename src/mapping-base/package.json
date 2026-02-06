@@ -1,7 +1,7 @@
 {
   "name": "@kittsune/mapping-base",
   "description": "Shared mapping base for Kittsune design systems",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "author": "Kittsune Contributors",
   "license": "MIT",
   "main": "index.js",
