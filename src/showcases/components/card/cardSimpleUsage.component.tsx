@@ -1,12 +1,46 @@
 import React from 'react';
-import { Card, Text } from '@kitsuine/components';
+import { StyleSheet } from 'react-native';
+import { Card, Layout, Text } from '@kitsuine/components';
+
+const STATUSES = ['primary', 'success', 'info', 'warning', 'danger', 'basic'] as const;
+
+const Label: React.FC<{ children: string }> = ({ children }) => (
+  <Text category="s1" style={styles.label}>{children}</Text>
+);
+
+const CardContent: React.FC<{ text: string }> = ({ text }) => (
+  <Text>{text}</Text>
+);
 
 export const CardSimpleUsageShowcase = (): React.ReactElement => (
-  <Card>
-    <Text>
-      The Maldives, officially the Republic of Maldives, is a small country in South Asia,
-      located in the Arabian Sea of the Indian Ocean.
-      It lies southwest of Sri Lanka and India, about 1,000 kilometres (620 mi) from the Asian continent
-    </Text>
-  </Card>
+  <Layout style={styles.container} level="1">
+
+    <Label>Filled</Label>
+    {STATUSES.map((s) => (
+      <Card key={s} style={styles.card} appearance="filled" status={s}>
+        <CardContent text={`Filled / ${s}`} />
+      </Card>
+    ))}
+
+    <Label>Outline</Label>
+    {STATUSES.map((s) => (
+      <Card key={s} style={styles.card} appearance="outline" status={s}>
+        <CardContent text={`Outline / ${s}`} />
+      </Card>
+    ))}
+
+  </Layout>
 );
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 4,
+  },
+  label: {
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  card: {
+    marginVertical: 4,
+  },
+});

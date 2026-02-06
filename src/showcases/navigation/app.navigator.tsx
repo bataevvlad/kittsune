@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Layout, Text, Divider } from '@kitsuine/components';
+import { Button, Layout, Text, Divider } from '@kitsuine/components';
+import { AppMapping, AppTheme, ThemeContext } from '../services/theme.service';
 
 // Basic components
 import { ButtonSimpleUsageShowcase } from '../components/button/buttonSimpleUsage.component';
@@ -64,181 +65,215 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
   </View>
 );
 
+const ThemeSwitchHeader: React.FC = () => {
+  const { theme, mapping, setTheme, setMapping } = useContext(ThemeContext);
+
+  const toggleTheme = () => {
+    setTheme((prev) => prev === AppTheme.light ? AppTheme.dark : AppTheme.light);
+  };
+
+  const toggleMapping = () => {
+    setMapping((prev) => prev === AppMapping.eva ? AppMapping.material : AppMapping.eva);
+  };
+
+  return (
+    <Layout style={styles.header} level="1">
+      <Text category="s1" style={styles.headerLabel}>
+        {mapping} / {theme}
+      </Text>
+      <View style={styles.headerButtons}>
+        <Button
+          size="small"
+          appearance="outline"
+          style={styles.headerButton}
+          onPress={toggleTheme}
+        >
+          {theme === AppTheme.light ? 'DARK' : 'LIGHT'}
+        </Button>
+        <Button
+          size="small"
+          appearance="outline"
+          style={styles.headerButton}
+          onPress={toggleMapping}
+        >
+          {mapping === AppMapping.eva ? 'MATERIAL' : 'EVA'}
+        </Button>
+      </View>
+    </Layout>
+  );
+};
+
 export const AppNavigator = (): React.ReactElement => {
   return (
     <Layout style={styles.container}>
+      <ThemeSwitchHeader />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text category="h1" style={styles.title}>Kitsune Components</Text>
         <Text category="p1" style={styles.subtitle}>Component Showcase</Text>
-        <Text category="c1" style={styles.legend}>✅ All components migrated to functional components</Text>
 
-        {/* =============================================
-           ALL COMPONENTS MIGRATED TO FUNCTIONAL
-           ============================================= */}
-
-        {/* Basic Components - Migrated */}
-        <Section title="Layout ✅">
+        {/* Basic Components */}
+        <Section title="Layout">
           <LayoutLevelShowcase />
         </Section>
 
-        <Section title="Button ✅">
+        <Section title="Button">
           <ButtonSimpleUsageShowcase />
         </Section>
 
-        <Section title="ButtonGroup ✅">
+        <Section title="ButtonGroup">
           <ButtonGroupSimpleUsageShowcase />
         </Section>
 
-        <Section title="Input ✅">
+        <Section title="Input">
           <InputSimpleUsageShowcase />
         </Section>
 
-        <Section title="CheckBox ✅">
+        <Section title="CheckBox">
           <CheckboxSimpleUsageShowcase />
         </Section>
 
-        <Section title="Toggle ✅">
+        <Section title="Toggle">
           <ToggleSimpleUsageShowcase />
         </Section>
 
-        <Section title="Radio ✅">
+        <Section title="Radio">
           <RadioSimpleUsageShowcase />
         </Section>
 
-        <Section title="RadioGroup ✅">
+        <Section title="RadioGroup">
           <RadioGroupSimpleUsageShowcase />
         </Section>
 
-        <Section title="Card ✅">
+        <Section title="Card">
           <CardSimpleUsageShowcase />
         </Section>
 
-        <Section title="Avatar ✅">
+        <Section title="Avatar">
           <AvatarSimpleUsageShowcase />
         </Section>
 
-        <Section title="Spinner ✅">
+        <Section title="Spinner">
           <SpinnerSimpleUsageShowcase />
         </Section>
 
-        <Section title="ProgressBar ✅">
+        <Section title="ProgressBar">
           <ProgressBarSimpleUsageShowcase />
         </Section>
 
-        <Section title="CircularProgressBar ✅">
+        <Section title="CircularProgressBar">
           <CircularProgressBarSimpleUsageShowcase />
         </Section>
 
-        <Section title="Divider ✅">
+        <Section title="Divider">
           <DividerSimpleUsageShowcase />
         </Section>
 
-        <Section title="Icon ✅">
+        <Section title="Icon">
           <IconSimpleUsageShowcase />
         </Section>
 
         {/* List Components */}
-        <Section title="List ✅">
+        <Section title="List">
           <ListSimpleUsageShowcase />
         </Section>
 
-        <Section title="ListItem ✅">
+        <Section title="ListItem">
           <ListItemSimpleUsageShowcase />
         </Section>
 
-        <Section title="Menu ✅">
+        <Section title="Menu">
           <MenuSimpleUsageShowcase />
         </Section>
 
-        <Section title="MenuItem ✅">
+        <Section title="MenuItem">
           <MenuItemSimpleUsageShowcase />
         </Section>
 
-        <Section title="Select ✅">
+        <Section title="Select">
           <SelectSimpleUsageShowcase />
         </Section>
 
-        <Section title="SelectItem ✅">
+        <Section title="SelectItem">
           <SelectItemSimpleUsageShowcase />
         </Section>
 
         {/* Popover-based Components */}
-        <Section title="Popover ✅">
+        <Section title="Popover">
           <PopoverSimpleUsageShowcase />
         </Section>
 
-        <Section title="Tooltip ✅">
+        <Section title="Tooltip">
           <TooltipSimpleUsageShowcase />
         </Section>
 
-        <Section title="OverflowMenu ✅">
+        <Section title="OverflowMenu">
           <OverflowMenuSimpleUsageShowcase />
         </Section>
 
-        <Section title="Modal ✅">
+        <Section title="Modal">
           <ModalSimpleUsageShowcase />
         </Section>
 
         {/* Navigation Components */}
-        <Section title="TopNavigation ✅">
+        <Section title="TopNavigation">
           <TopNavigationSimpleUsageShowcase />
         </Section>
 
-        <Section title="TopNavigationAction ✅">
+        <Section title="TopNavigationAction">
           <TopNavigationActionSimpleUsageShowcase />
         </Section>
 
-        <Section title="BottomNavigation ✅">
+        <Section title="BottomNavigation">
           <BottomNavigationSimpleUsageShowcase />
         </Section>
 
-        <Section title="BottomNavigationTab ✅">
+        <Section title="BottomNavigationTab">
           <BottomNavigationTabSimpleUsageShowcase />
         </Section>
 
-        <Section title="Tab ✅">
+        <Section title="Tab">
           <TabSimpleUsageShowcase />
         </Section>
 
-        <Section title="TabBar ✅">
+        <Section title="TabBar">
           <TabBarSimpleUsageShowcase />
         </Section>
 
-        <Section title="TabView ✅">
+        <Section title="TabView">
           <TabViewSimpleUsageShowcase />
         </Section>
 
-        <Section title="Drawer ✅">
+        <Section title="Drawer">
           <DrawerSimpleUsageShowcase />
         </Section>
 
-        <Section title="DrawerItem ✅">
+        <Section title="DrawerItem">
           <DrawerItemSimpleUsageShowcase />
         </Section>
 
         {/* Calendar/Date Components */}
-        <Section title="Calendar ✅">
+        <Section title="Calendar">
           <CalendarSimpleUsageShowcase />
         </Section>
 
-        <Section title="RangeCalendar ✅">
+        <Section title="RangeCalendar">
           <RangeCalendarSimpleUsageShowcase />
         </Section>
 
-        <Section title="Datepicker ✅">
+        <Section title="Datepicker">
           <DatepickerSimpleUsageShowcase />
         </Section>
 
-        <Section title="RangeDatepicker ✅">
+        <Section title="RangeDatepicker">
           <RangeDatepickerSimpleUsageShowcase />
         </Section>
 
         {/* Other Components */}
-        <Section title="Autocomplete ✅">
+        <Section title="Autocomplete">
           <AutocompleteSimpleUsageShowcase />
         </Section>
 
-        <Section title="ViewPager ✅">
+        <Section title="ViewPager">
           <ViewPagerSimpleUsageShowcase />
         </Section>
 
@@ -256,9 +291,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 52,
+    paddingBottom: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E4E9F2',
+  },
+  headerLabel: {
+    flexShrink: 1,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  headerButton: {
+    minWidth: 80,
+  },
   scrollContent: {
     padding: 16,
-    paddingTop: 60,
     paddingBottom: 100,
   },
   title: {
@@ -267,12 +321,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: 8,
-  },
-  legend: {
-    textAlign: 'center',
     marginBottom: 24,
-    color: '#8F9BB3',
   },
   section: {
     marginVertical: 8,

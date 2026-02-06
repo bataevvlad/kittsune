@@ -25,10 +25,10 @@
     "kitsune": "./bin/kitsune"
   },
   "dependencies": {
+    "@kitsuine/mapping-base": "^1.0.0",
     "@kitsuine/processor": "^1.0.0",
     "chalk": "^3.0.0",
-    "commander": "^4.1.1",
-    "lodash.merge": "^4.6.1"
+    "commander": "^4.1.1"
   },
   "peerDependencies": {
     "metro-config": "*"

@@ -6,7 +6,7 @@ import {
 import { SchemaProcessor } from '@kitsuine/processor';
 import Fs from 'fs';
 import Path from 'path';
-import LodashMerge from 'lodash.merge';
+import { deepMerge } from '@kitsuine/mapping-base';
 import EvaConfigService, { EvaConfig } from './eva-config.service';
 import LogService from './log.service';
 import ProjectService from './project.service';
@@ -159,7 +159,7 @@ export default class BootstrapService {
      * Or re-write if custom mapping was changed
      */
     if (actualChecksum === DEFAULT_CHECKSUM || actualChecksum !== nextChecksum) {
-      const mapping: SchemaType = LodashMerge({}, evaMapping, customMapping);
+      const mapping: SchemaType = deepMerge(evaMapping, customMapping);
       const styles: ThemeStyleType = schemaProcessor.process(mapping);
       const writableCache: string = BootstrapService.createWritableCache(nextChecksum, styles);
 

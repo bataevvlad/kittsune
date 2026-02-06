@@ -25,15 +25,57 @@ describe('@bootstrap-service: instance checks', () => {
     evaPackage: '@kitsuine/eva',
   };
 
+  // New cache location outside of node_modules packages
+  const CACHE_DIR = 'node_modules/.cache/kitsuine';
+  const getCacheFilePath = (evaPackage: string): string => {
+    const packageName = evaPackage.replace('@kitsuine/', '');
+    return `${CACHE_DIR}/${packageName}-generated.json`;
+  };
+
+  // Store original content to restore after each test
+  let originalEvaIndexContent: string;
+  const evaPackageIndexPath: string = Path.resolve(`node_modules/${evaConfig.evaPackage}/index.js`);
+
+  beforeAll(() => {
+    // Save original content before any tests run
+    try {
+      originalEvaIndexContent = Fs.readFileSync(evaPackageIndexPath, { encoding: 'utf8' });
+    } catch {
+      originalEvaIndexContent = '';
+    }
+  });
+
+  afterEach(() => {
+    // Restore original content after each test
+    if (originalEvaIndexContent) {
+      // Remove any added exports.styles line
+      const cleanContent = originalEvaIndexContent.split('\n\nexports.styles')[0];
+      Fs.writeFileSync(evaPackageIndexPath, cleanContent);
+    }
+
+    // Clean up generated cache files
+    const generatedFilePath: string = Path.resolve(getCacheFilePath(evaConfig.evaPackage));
+    if (Fs.existsSync(generatedFilePath)) {
+      rimrafSync(generatedFilePath);
+    }
+  });
+
   afterAll(() => {
-    const evaPackageIndexPath: string = Path.resolve(`node_modules/${evaConfig.evaPackage}/index.js`);
-    const generatedFilePath: string = Path.resolve(`node_modules/${evaConfig.evaPackage}/generated.json`);
+    // Final cleanup
+    if (originalEvaIndexContent) {
+      const cleanContent = originalEvaIndexContent.split('\n\nexports.styles')[0];
+      Fs.writeFileSync(evaPackageIndexPath, cleanContent);
+    }
 
-    const currentExports = Fs.readFileSync(evaPackageIndexPath, { encoding: 'utf8' });
-    const [originalExports] = currentExports.split('exports.styles');
+    const generatedFilePath: string = Path.resolve(getCacheFilePath(evaConfig.evaPackage));
+    if (Fs.existsSync(generatedFilePath)) {
+      rimrafSync(generatedFilePath);
+    }
 
-    Fs.writeFileSync(evaPackageIndexPath, originalExports);
-    rimrafSync(generatedFilePath);
+    const oldGeneratedPath = Path.resolve(`node_modules/${evaConfig.evaPackage}/generated.json`);
+    if (Fs.existsSync(oldGeneratedPath)) {
+      rimrafSync(oldGeneratedPath);
+    }
 
     jest.resetAllMocks();
   });
@@ -41,7 +83,8 @@ describe('@bootstrap-service: instance checks', () => {
   it('should bootstrap @kitsuine/eva package', () => {
     BootstrapService.run(evaConfig);
 
-    const outputString = Fs.readFileSync(`node_modules/${evaConfig.evaPackage}/generated.json`).toString();
+    const cacheFilePath = getCacheFilePath(evaConfig.evaPackage);
+    const outputString = Fs.readFileSync(cacheFilePath).toString();
     const outputAsObject = JSON.parse(outputString);
 
     expect(outputAsObject.checksum).toBeTruthy();
@@ -52,12 +95,38 @@ describe('@bootstrap-service: instance checks', () => {
   it('should bootstrap @kitsuine/eva package with custom styles', () => {
     BootstrapService.run({ ...evaConfig, customMappingPath: 'src/metro-config/tests/custom-mapping.json' });
 
-    const outputString = Fs.readFileSync(`node_modules/${evaConfig.evaPackage}/generated.json`).toString();
+    const cacheFilePath = getCacheFilePath(evaConfig.evaPackage);
+    const outputString = Fs.readFileSync(cacheFilePath).toString();
     const outputAsObject = JSON.parse(outputString);
 
     expect(outputAsObject.checksum).toBeTruthy();
     expect(outputAsObject.checksum).not.toEqual('default');
     expect(outputAsObject.styles.StatusBar).toBeTruthy();
+  });
+
+  it('should store cache in node_modules/.cache/kitsuine directory', () => {
+    BootstrapService.run(evaConfig);
+
+    const cacheFilePath = getCacheFilePath(evaConfig.evaPackage);
+
+    // Verify the cache is in the new location
+    expect(Fs.existsSync(cacheFilePath)).toBe(true);
+
+    // Verify the old location doesn't have the file
+    const oldLocation = `node_modules/${evaConfig.evaPackage}/generated.json`;
+    expect(Fs.existsSync(oldLocation)).toBe(false);
+  });
+
+  it('should create cache directory if it does not exist', () => {
+    // Remove the cache directory if it exists
+    if (Fs.existsSync(CACHE_DIR)) {
+      rimrafSync(CACHE_DIR);
+    }
+
+    BootstrapService.run(evaConfig);
+
+    // Verify the cache directory was created
+    expect(Fs.existsSync(CACHE_DIR)).toBe(true);
   });
 
 });

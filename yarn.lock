@@ -2436,10 +2436,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kitsuine/components@workspace:src/components"
   dependencies:
+    "@kitsuine/mapping-base": ^1.0.0
     "@kitsuine/processor": ^1.0.0
     fecha: 3.0.3
     hoist-non-react-statics: ^3.2.1
-    lodash.merge: ^4.6.1
   peerDependencies:
     "@kitsuine/core": ^1.0.0
     react: ">=18.2.0"
@@ -2485,6 +2485,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@kitsuine/mapping-base@^1.0.0, @kitsuine/mapping-base@workspace:src/mapping-base":
+  version: 0.0.0-use.local
+  resolution: "@kitsuine/mapping-base@workspace:src/mapping-base"
+  languageName: unknown
+  linkType: soft
+
 "@kitsuine/material@workspace:src/material":
   version: 0.0.0-use.local
   resolution: "@kitsuine/material@workspace:src/material"
@@ -2495,10 +2501,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kitsuine/metro-config@workspace:src/metro-config"
   dependencies:
+    "@kitsuine/mapping-base": ^1.0.0
     "@kitsuine/processor": ^1.0.0
     chalk: ^3.0.0
     commander: ^4.1.1
-    lodash.merge: ^4.6.1
   peerDependencies:
     metro-config: "*"
   bin:
@@ -13594,7 +13600,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.merge@npm:^4.6.1, lodash.merge@npm:^4.6.2":
+"lodash.merge@npm:^4.6.2":
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
   checksum: ad580b4bdbb7ca1f7abf7e1bce63a9a0b98e370cf40194b03380a46b4ed799c9573029599caebc1b14e3f24b111aef72b96674a56cfa105e0f5ac70546cdc005

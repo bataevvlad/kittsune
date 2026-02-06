@@ -11,6 +11,7 @@ const frameworkModules = [
   path.resolve(srcRoot, 'core'),
   path.resolve(srcRoot, 'date-fns'),
   path.resolve(srcRoot, 'eva-icons'),
+  path.resolve(srcRoot, 'mapping-base'),
   path.resolve(srcRoot, 'moment'),
   path.resolve(srcRoot, 'eva'),
   path.resolve(srcRoot, 'material'),
@@ -23,7 +24,6 @@ const moduleDependencies = [
 
   // @kitsuine/components dependencies
   path.resolve(workspaceRoot, 'node_modules/hoist-non-react-statics'),
-  path.resolve(workspaceRoot, 'node_modules/lodash.merge'),
   path.resolve(workspaceRoot, 'node_modules/fecha'),
 
   // @kitsuine/eva-icons
@@ -51,6 +51,7 @@ const extraNodeModules = {
   '@kitsuine/eva': path.resolve(srcRoot, 'eva'),
   '@kitsuine/material': path.resolve(srcRoot, 'material'),
   '@kitsuine/processor': path.resolve(srcRoot, 'processor'),
+  '@kitsuine/mapping-base': path.resolve(srcRoot, 'mapping-base'),
 };
 
 config.projectRoot = path.resolve(__dirname);

@@ -5,7 +5,7 @@
   */
 
 import React from 'react';
-import merge from 'lodash.merge';
+import { deepMerge } from '@kitsuine/mapping-base';
 import { SchemaProcessor } from '@kitsuine/processor';
 import {
   CustomSchemaType,
@@ -14,6 +14,7 @@ import {
 } from '@kitsuine/processor';
 import { StyleProvider } from '../style/styleProvider.component';
 import { ThemeProviderProps } from '../theme/themeProvider.component';
+import { styleCache } from '../style/styleCache';
 
 interface EvaRuntimeProcessingProps {
   mapping: SchemaType;
@@ -29,14 +30,15 @@ type EvaProcessingProps = EvaRuntimeProcessingProps | EvaBuildtimeProcessingProp
 export type ApplicationProviderProps = EvaProcessingProps & ThemeProviderProps;
 export type ApplicationProviderElement = React.ReactElement<ApplicationProviderProps>;
 
-interface State {
-  styles: ThemeStyleType;
+const schemaProcessor = new SchemaProcessor();
+
+function createStyles(mapping: SchemaType, custom?: CustomSchemaType): ThemeStyleType {
+  const customizedMapping: SchemaType = deepMerge(mapping, custom);
+  return schemaProcessor.process(customizedMapping);
 }
 
 /**
  * Overall application container.
- *
- * @extends React.Component
  *
  * @property {ReactNode} children - Overall application component.
  * Usually, a router or nested providers.
@@ -93,36 +95,32 @@ interface State {
  * );
  * ```
  */
-export class ApplicationProvider extends React.Component<ApplicationProviderProps, State> {
+export function ApplicationProvider(props: ApplicationProviderProps): React.ReactElement {
+  const buildtimeStyles = (props as EvaBuildtimeProcessingProps).styles;
+  const { mapping, customMapping } = props as EvaRuntimeProcessingProps;
 
-  public state: State = {
-    styles: (this.props as EvaBuildtimeProcessingProps).styles,
-  };
+  // Clear style cache when mapping or theme changes so components recompute
+  const prevMappingRef = React.useRef(mapping);
+  const prevThemeRef = React.useRef(props.theme);
+  if (prevMappingRef.current !== mapping || prevThemeRef.current !== props.theme) {
+    styleCache.clear();
+    prevMappingRef.current = mapping;
+    prevThemeRef.current = props.theme;
+  }
 
-  private schemaProcessor: SchemaProcessor = new SchemaProcessor();
-
-  constructor(props: ApplicationProviderProps) {
-    super(props);
-
-    if (!this.state.styles) {
-      const { mapping, customMapping } = this.props as EvaRuntimeProcessingProps;
-      this.state.styles = this.createStyles(mapping, customMapping);
+  const styles = React.useMemo<ThemeStyleType>(() => {
+    if (buildtimeStyles) {
+      return buildtimeStyles;
     }
-  }
+    return createStyles(mapping, customMapping);
+  }, [buildtimeStyles, mapping, customMapping]);
 
-  private createStyles = (mapping: SchemaType, custom: CustomSchemaType): ThemeStyleType => {
-    const customizedMapping: SchemaType = merge({}, mapping, custom);
-    return this.schemaProcessor.process(customizedMapping);
-  };
-
-  public render(): React.ReactNode {
-    return (
-      <StyleProvider
-        theme={this.props.theme}
-        styles={this.state.styles}
-      >
-        {this.props.children}
-      </StyleProvider>
-    );
-  }
+  return (
+    <StyleProvider
+      theme={props.theme}
+      styles={styles}
+    >
+      {props.children}
+    </StyleProvider>
+  );
 }

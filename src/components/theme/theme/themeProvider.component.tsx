@@ -7,7 +7,7 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { ThemeContext } from './themeContext';
 import { ThemeService, ThemeType } from './theme.service';
-import { ThemeStore, ThemeStoreContext } from './themeStore';
+import { ThemeStore, ThemeStoreContext, computeThemeId } from './themeStore';
 import { styleCache } from '../style/styleCache';
 
 export interface ThemeProviderProps {
@@ -34,29 +34,22 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ theme, children })
   }
   const store = storeRef.current;
 
-  // Track previous theme ID for cache invalidation
-  const prevThemeIdRef = useRef<string | undefined>(undefined);
+  // Clear style cache when theme changes so components recompute with new colors
+  const prevThemeRef = useRef(theme);
+  if (prevThemeRef.current !== theme) {
+    styleCache.clear();
+    prevThemeRef.current = theme;
+  }
 
-  // Update store when theme changes
+  // Update store when theme changes (for useSyncExternalStore subscribers)
   useEffect(() => {
-    const previousThemeId = prevThemeIdRef.current;
-
-    // Update the store with new theme
     store.setTheme(theme);
-
-    // Get new theme ID
-    const newThemeId = store.getThemeId();
-
-    // Invalidate old theme cache entries if theme changed
-    if (previousThemeId && previousThemeId !== newThemeId) {
-      styleCache.invalidateTheme(previousThemeId);
-    }
-
-    prevThemeIdRef.current = newThemeId;
   }, [theme, store]);
 
+  // Compute themeId synchronously during render so children get the correct ID
+  const themeId = useMemo(() => computeThemeId(theme), [theme]);
+
   // Get processed theme from store for ThemeContext
-  // Use useMemo to ensure stable reference when theme hasn't changed
   const processedTheme = useMemo(() => {
     return ThemeService.create(theme);
   }, [theme]);
@@ -65,9 +58,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ theme, children })
   const themedWithId = useMemo(() => {
     return {
       ...processedTheme,
-      __themeId: store.getThemeId(),
+      __themeId: themeId,
     };
-  }, [processedTheme, store]);
+  }, [processedTheme, themeId]);
 
   return (
     <ThemeStoreContext.Provider value={store}>

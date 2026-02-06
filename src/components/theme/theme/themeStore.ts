@@ -25,6 +25,28 @@ export interface ThemeStoreInterface {
 }
 
 /**
+ * Compute a stable identifier for a theme.
+ * Uses a lightweight fingerprint based on a few key color values.
+ */
+export function computeThemeId(theme: ThemeType): string {
+  const backgroundKey = 'background-basic-color-1';
+  const primaryKey = 'color-primary-default';
+
+  const bg = theme[backgroundKey] ?? '';
+  const primary = theme[primaryKey] ?? '';
+
+  const combined = `${bg}-${primary}`;
+  let hash = 0;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+
+  return `theme_${Math.abs(hash).toString(36)}`;
+}
+
+/**
  * External store for theme with subscription support.
  * Compatible with React 18's useSyncExternalStore for selective re-renders.
  *
@@ -100,29 +122,8 @@ export class ThemeStore implements ThemeStoreInterface {
     });
   }
 
-  /**
-   * Compute a stable identifier for the theme.
-   * Uses a lightweight fingerprint based on a few key values.
-   */
   private computeThemeId(theme: ThemeType): string {
-    // Use background color and primary color as fingerprint
-    // These typically differ between light/dark and custom themes
-    const backgroundKey = 'background-basic-color-1';
-    const primaryKey = 'color-primary-default';
-
-    const bg = theme[backgroundKey] ?? '';
-    const primary = theme[primaryKey] ?? '';
-
-    // Create a simple hash from the values
-    const combined = `${bg}-${primary}`;
-    let hash = 0;
-    for (let i = 0; i < combined.length; i++) {
-      const char = combined.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-
-    return `theme_${Math.abs(hash).toString(36)}`;
+    return computeThemeId(theme);
   }
 }
 

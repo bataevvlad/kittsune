@@ -1,5 +1,5 @@
 import Fs from 'fs';
-import LodashMerge from 'lodash.merge';
+import { deepMerge } from '@kitsuine/mapping-base';
 import BootstrapService from './services/bootstrap.service';
 import { EvaConfig } from './services/eva-config.service';
 import ProjectService from './services/project.service';
@@ -74,5 +74,5 @@ export const create = (evaConfig: EvaConfig, metroConfig?: MetroConfigType): Met
     },
   };
 
-  return LodashMerge({}, metroConfig, libConfig);
+  return deepMerge(metroConfig || {}, libConfig);
 };

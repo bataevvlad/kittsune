@@ -1,0 +1,191 @@
+{
+  "$schema": "./node_modules/@kitsuine/processor/schema/schema.json",
+  "description": "Material Design System overrides from Eva base",
+  "strict": {},
+  "components": {
+    "CheckBox": {
+      "appearances": {
+        "default": {
+          "variantGroups": {
+            "status": {
+              "basic": {
+                "state": {
+                  "checked": {
+                    "textFontWeight": "600"
+                  },
+                  "indeterminate": {
+                    "textFontWeight": "600"
+                  }
+                }
+              },
+              "primary": {
+                "state": {
+                  "checked": {
+                    "textFontWeight": "600"
+                  },
+                  "indeterminate": {
+                    "textFontWeight": "600"
+                  }
+                }
+              },
+              "success": {
+                "state": {
+                  "checked": {
+                    "textFontWeight": "600"
+                  },
+                  "indeterminate": {
+                    "textFontWeight": "600"
+                  }
+                }
+              },
+              "info": {
+                "state": {
+                  "checked": {
+                    "textFontWeight": "600"
+                  },
+                  "indeterminate": {
+                    "textFontWeight": "600"
+                  }
+                }
+              },
+              "warning": {
+                "state": {
+                  "checked": {
+                    "textFontWeight": "600"
+                  },
+                  "indeterminate": {
+                    "textFontWeight": "600"
+                  }
+                }
+              },
+              "danger": {
+                "state": {
+                  "checked": {
+                    "textFontWeight": "600"
+                  },
+                  "indeterminate": {
+                    "textFontWeight": "600"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Input": {
+      "meta": {
+        "parameters": {
+          "captionMarginTop": {
+            "type": "number"
+          },
+          "captionIconWidth": {
+            "type": "number"
+          },
+          "captionIconHeight": {
+            "type": "number"
+          },
+          "captionIconMarginRight": {
+            "type": "number"
+          },
+          "captionIconTintColor": {
+            "type": "string"
+          }
+        }
+      },
+      "appearances": {
+        "default": {
+          "mapping": {
+            "captionMarginTop": 4,
+            "captionIconWidth": 10,
+            "captionIconHeight": 10,
+            "captionIconMarginRight": 8
+          },
+          "variantGroups": {
+            "status": {
+              "basic": {
+                "borderColor": "color-basic-600",
+                "backgroundColor": "background-basic-color-1",
+                "captionIconTintColor": "text-hint-color"
+              },
+              "primary": {
+                "backgroundColor": "background-basic-color-1",
+                "captionIconTintColor": "text-primary-color"
+              },
+              "success": {
+                "backgroundColor": "background-basic-color-1",
+                "captionIconTintColor": "text-success-color"
+              },
+              "info": {
+                "backgroundColor": "background-basic-color-1",
+                "captionIconTintColor": "text-info-color"
+              },
+              "warning": {
+                "backgroundColor": "background-basic-color-1",
+                "captionIconTintColor": "text-warning-color"
+              },
+              "danger": {
+                "backgroundColor": "background-basic-color-1",
+                "captionIconTintColor": "text-danger-color"
+              },
+              "control": {
+                "captionIconTintColor": "text-control-color"
+              }
+            }
+          }
+        }
+      }
+    },
+    "TabBar": {
+      "appearances": {
+        "default": {
+          "mapping": {
+            "backgroundColor": "color-primary-default",
+            "indicatorBorderRadius": 0,
+            "indicatorBackgroundColor": "color-primary-200"
+          }
+        }
+      }
+    },
+    "Tab": {
+      "appearances": {
+        "default": {
+          "mapping": {
+            "textMarginVertical": 4,
+            "textFontWeight": "600",
+            "textColor": "color-basic-default",
+            "iconTintColor": "color-basic-default"
+          }
+        }
+      }
+    },
+    "TopNavigation": {
+      "appearances": {
+        "default": {
+          "mapping": {
+            "backgroundColor": "color-primary-default",
+            "titleFontSize": "text-heading-6-font-size",
+            "titleFontWeight": "text-heading-6-font-weight",
+            "titleFontFamily": "text-heading-6-font-family",
+            "titleColor": "text-control-color",
+            "subtitleColor": "text-control-color"
+          }
+        }
+      }
+    },
+    "TopNavigationAction": {
+      "appearances": {
+        "default": {
+          "mapping": {
+            "iconTintColor": "color-basic-100"
+          }
+        },
+        "control": {
+          "mapping": {
+            "iconTintColor": "color-basic-100"
+          }
+        }
+      }
+    }
+  }
+}

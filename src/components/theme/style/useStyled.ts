@@ -50,12 +50,13 @@ export function useStyled(
   const theme = useContext(ThemeContext);
   const [interactions, setInteractions] = useState<Interaction[]>([]);
 
-  // Cache service and default props
+  // Cache service and default props, re-create when mapping changes
   const serviceRef = useRef<StyleConsumerService | null>(null);
   const defaultPropsRef = useRef<Record<string, unknown>>({});
+  const mappingRef = useRef<unknown>(null);
 
-  // Initialize service once when mapping is available
-  if (mapping && Object.keys(mapping).length > 0 && !serviceRef.current) {
+  if (mapping && Object.keys(mapping).length > 0 && mapping !== mappingRef.current) {
+    mappingRef.current = mapping;
     serviceRef.current = new StyleConsumerService(componentName, mapping as ThemeStyleType);
     defaultPropsRef.current = serviceRef.current.createDefaultProps() as Record<string, unknown>;
   }

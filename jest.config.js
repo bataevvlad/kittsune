@@ -30,6 +30,8 @@ module.exports = {
     '^@kitsuine/moment$': '<rootDir>/src/moment',
     '^@kitsuine/core/(.*)$': '<rootDir>/src/core/$1',
     '^@kitsuine/core$': '<rootDir>/src/core',
+    '^@kitsuine/mapping-base/(.*)$': '<rootDir>/src/mapping-base/$1',
+    '^@kitsuine/mapping-base$': '<rootDir>/src/mapping-base',
   },
   modulePathIgnorePatterns: [
     '<rootDir>/src/showcases/',
