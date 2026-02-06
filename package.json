@@ -22,7 +22,7 @@
     "typecheck": "tsc --noEmit",
     "clean": "turbo run clean --filter='./src/**'",
     "changeset": "changeset",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && yarn install --no-immutable",
     "release": "yarn build && changeset publish"
   },
   "dependencies": {
