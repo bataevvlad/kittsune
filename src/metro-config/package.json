@@ -1,7 +1,7 @@
 {
   "name": "@kittsune/metro-config",
   "description": "Kittsune config for Metro Bundler",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "./lib/module/index.js",
   "types": "./index.ts",
   "react-native": "./index.ts",
@@ -52,8 +52,8 @@
     "clean": "rm -rf lib"
   },
   "dependencies": {
-    "@kittsune/mapping-base": "^1.0.0",
-    "@kittsune/processor": "^1.0.0",
+    "@kittsune/mapping-base": "^2.0.0",
+    "@kittsune/processor": "^2.0.0",
     "chalk": "^3.0.0",
     "commander": "^4.1.1"
   },

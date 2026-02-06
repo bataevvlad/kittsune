@@ -1,7 +1,7 @@
 {
   "name": "@kittsune/moment",
   "description": "moment.js services for Kittsune",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "./lib/module/index.js",
   "types": "./index.ts",
   "react-native": "./index.ts",
@@ -47,7 +47,7 @@
     "moment": "^2.30.0"
   },
   "peerDependencies": {
-    "@kittsune/components": "^1.0.0",
+    "@kittsune/components": "^2.0.0",
     "moment": ">=2.24.0"
   },
   "sideEffects": false,
