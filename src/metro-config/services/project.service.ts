@@ -36,11 +36,18 @@ export default class ProjectService {
   };
 
   static requireActualModule = (relativePath: string): string | null => {
+    const modulePath: string = ProjectService.resolvePath(relativePath);
+
+    // Check if file exists directly (for non-JS files like JSON cache files)
+    if (Fs.existsSync(modulePath)) {
+      return Fs.readFileSync(modulePath, { encoding: 'utf8' });
+    }
+
+    // Fall back to module resolution for JS files
     if (!ProjectService.hasModule(relativePath)) {
       return null;
     }
 
-    const modulePath: string = ProjectService.resolvePath(relativePath);
     return Fs.readFileSync(modulePath, { encoding: 'utf8' });
   };
 

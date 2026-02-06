@@ -5,6 +5,7 @@ import {
 } from '@kitsuine/processor';
 import { SchemaProcessor } from '@kitsuine/processor';
 import Fs from 'fs';
+import Path from 'path';
 import LodashMerge from 'lodash.merge';
 import EvaConfigService, { EvaConfig } from './eva-config.service';
 import LogService from './log.service';
@@ -12,7 +13,21 @@ import ProjectService from './project.service';
 
 const DEFAULT_CHECKSUM = 'default';
 const CACHE_FILE_NAME = 'generated.json';
-const CACHE_EXPORT_SIGNATURE = `\n\nexports.styles = require('./${CACHE_FILE_NAME}').styles`;
+const CACHE_DIR = 'node_modules/.cache/kitsuine';
+
+/**
+ * Generates the require path for the cache file from the eva package index.
+ * Uses relative path from eva package to cache directory.
+ */
+const getCacheRequirePath = (evaPackage: string): string => {
+  // From node_modules/@kitsuine/eva to node_modules/.cache/kitsuine
+  // = ../../.cache/kitsuine/eva-generated.json or material-generated.json
+  const packageName = evaPackage.replace('@kitsuine/', '');
+  return `../../.cache/kitsuine/${packageName}-generated.json`;
+};
+
+const CACHE_EXPORT_SIGNATURE = (evaPackage: string): string =>
+  `\n\nexports.styles = require('${getCacheRequirePath(evaPackage)}').styles`;
 
 const RELATIVE_PATHS = {
   evaPackage: (evaPackage: string): string => {
@@ -25,7 +40,11 @@ const RELATIVE_PATHS = {
     return `node_modules/${evaPackage}/index.js`;
   },
   cache: (evaPackage: string): string => {
-    return `node_modules/${evaPackage}/${CACHE_FILE_NAME}`;
+    const packageName = evaPackage.replace('@kitsuine/', '');
+    return `${CACHE_DIR}/${packageName}-${CACHE_FILE_NAME}`;
+  },
+  cacheDir: (): string => {
+    return CACHE_DIR;
   },
 };
 
@@ -49,12 +68,17 @@ interface EvaCache {
  * 2. Validates specified eva config  by checking if `evaPackage` is specified and is one of the valid mapping packages.
  * Will warn if it is not valid and do nothing.
  *
- * 3. Generates styles for specified `evaPackage` and stores it into cache file in the package directory.
+ * 3. Generates styles for specified `evaPackage` and stores it into cache file in the cache directory.
  * @see {CACHE_FILE_NAME}
  * @see {EvaCache}
  *
  * E.g, if `evaPackage` is `@kitsuine/eva`:
- * The result will be stored at `./node_modules/@kitsuine/eva/generated.json`
+ * The result will be stored at `./node_modules/.cache/kitsuine/eva-generated.json`
+ *
+ * This location is preferred over storing in the package directory because:
+ * - It doesn't modify installed packages (cleaner package management)
+ * - It survives npm/yarn reinstalls better when using CI caching
+ * - It's a standard location for build caches in the Node.js ecosystem
  */
 // eslint-disable-next-line no-restricted-syntax
 export default class BootstrapService {
@@ -93,6 +117,12 @@ export default class BootstrapService {
   private static processMappingIfNeeded = (config: EvaConfig): void => {
     const evaMappingPath: string = RELATIVE_PATHS.evaMapping(config.evaPackage);
     const outputCachePath: string = RELATIVE_PATHS.cache(config.evaPackage);
+    const cacheDirPath: string = RELATIVE_PATHS.cacheDir();
+
+    /*
+     * Ensure cache directory exists
+     */
+    BootstrapService.ensureCacheDirectoryExists(cacheDirPath);
 
     /*
      * Use `require` for eva mapping as it is static module and should not be changed.
@@ -100,7 +130,7 @@ export default class BootstrapService {
      */
     const evaMapping: SchemaType = ProjectService.requireModule(evaMappingPath);
     const actualCacheString: string = ProjectService.requireActualModule(outputCachePath);
-    const actualCache: EvaCache = JSON.parse(actualCacheString);
+    const actualCache: EvaCache = actualCacheString ? JSON.parse(actualCacheString) : null;
 
     let customMapping: CustomSchemaType;
     let actualChecksum: string = DEFAULT_CHECKSUM;
@@ -133,23 +163,32 @@ export default class BootstrapService {
       const styles: ThemeStyleType = schemaProcessor.process(mapping);
       const writableCache: string = BootstrapService.createWritableCache(nextChecksum, styles);
 
-      Fs.writeFileSync(outputCachePath, writableCache);
+      const absoluteCachePath: string = ProjectService.resolvePath(outputCachePath);
+      Fs.writeFileSync(absoluteCachePath, writableCache);
     }
 
     const hasCacheExports: boolean = BootstrapService.hasCacheExports(config);
     if (!hasCacheExports) {
       const evaIndexPath: string = RELATIVE_PATHS.evaIndex(config.evaPackage);
 
-      Fs.appendFileSync(evaIndexPath, CACHE_EXPORT_SIGNATURE);
+      Fs.appendFileSync(evaIndexPath, CACHE_EXPORT_SIGNATURE(config.evaPackage));
       LogService.success(`Successfully bootstrapped ${config.evaPackage}`);
+    }
+  };
+
+  private static ensureCacheDirectoryExists = (cacheDirPath: string): void => {
+    const absoluteCacheDirPath: string = ProjectService.resolvePath(cacheDirPath);
+    if (!Fs.existsSync(absoluteCacheDirPath)) {
+      Fs.mkdirSync(absoluteCacheDirPath, { recursive: true });
     }
   };
 
   private static hasCacheExports = (config: EvaConfig): boolean => {
     const evaIndexPath: string = RELATIVE_PATHS.evaIndex(config.evaPackage);
     const evaIndexString = ProjectService.requireActualModule(evaIndexPath);
+    const expectedSignature = CACHE_EXPORT_SIGNATURE(config.evaPackage);
 
-    return evaIndexString.includes(CACHE_EXPORT_SIGNATURE);
+    return evaIndexString.includes(expectedSignature);
   };
 
   private static createWritableCache = (checksum: string, styles: ThemeStyleType): string => {
