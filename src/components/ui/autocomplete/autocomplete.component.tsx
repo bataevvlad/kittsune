@@ -22,10 +22,7 @@ import {
   InputRef,
 } from '../input/input.component';
 import { List } from '../list/list.component';
-import {
-  Popover,
-  PopoverElement,
-} from '../popover/popover.component';
+import { Popover } from '../popover/popover.component';
 import {
   AutocompleteItemElement,
   AutocompleteItemProps,

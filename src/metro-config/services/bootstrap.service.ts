@@ -5,7 +5,6 @@ import {
 } from '@kittsune/processor';
 import { SchemaProcessor } from '@kittsune/processor';
 import Fs from 'fs';
-import Path from 'path';
 import { deepMerge } from '@kittsune/mapping-base';
 import EvaConfigService, { EvaConfig } from './eva-config.service';
 import LogService from './log.service';

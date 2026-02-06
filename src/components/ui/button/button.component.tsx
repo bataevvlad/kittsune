@@ -5,15 +5,14 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
+  GestureResponderEvent,
   ImageProps,
+  NativeSyntheticEvent,
   StyleSheet,
+  TargetedEvent,
 } from 'react-native';
-import {
-  ButtonCore,
-  ButtonCoreRenderProps,
-} from '@kittsune/core';
 import {
   EvaSize,
   EvaStatus,
@@ -24,13 +23,17 @@ import {
   TouchableWebProps,
   LiteralUnion,
 } from '../../devsupport';
-import { useEvaStyle } from '../../theme';
-import { TextProps } from '../text/text.component';
+import {
+  Interaction,
+  useStyled,
+  StyleType,
+} from '../../theme';
+import {TextElement, TextProps} from '../text/text.component';
 
 type TouchableWebPropsWithoutChildren = Omit<TouchableWebProps, 'children'>;
 
 export interface ButtonProps extends TouchableWebPropsWithoutChildren {
-  children?: RenderProp<TextProps> | React.ReactText;
+  children?: RenderProp<TextProps> | TextElement;
   /**
    * Function component to render to start of the text.
    * Expected to return an Image.
@@ -125,7 +128,7 @@ export type ButtonElement = React.ReactElement<ButtonProps>;
  * @overview-example ButtonStyling
  * Button and it's inner views can be styled by passing them as function components.
  * ```
- * import { Button, Text } from '@kittsune/components';
+ * import { Button, Text } from '@kitsuine/components';
  *
  * <Button style={...}>
  *   {evaProps => <Text {...evaProps}>BUTTON</Text>}
@@ -145,73 +148,113 @@ export const Button = React.forwardRef<TouchableWeb, ButtonProps>(
       children,
       accessoryLeft,
       accessoryRight,
-      disabled = false,
-      onMouseEnter,
-      onMouseLeave,
-      onFocus,
-      onBlur,
-      onPress,
-      onPressIn,
-      onPressOut,
-      onLongPress,
-      accessibilityLabel,
-      accessibilityHint,
+      disabled,
+      onMouseEnter: onMouseEnterProp,
+      onMouseLeave: onMouseLeaveProp,
+      onFocus: onFocusProp,
+      onBlur: onBlurProp,
+      onPressIn: onPressInProp,
+      onPressOut: onPressOutProp,
       ...touchableProps
     } = props;
 
+    const { style: evaStyle, dispatch } = useStyled('Button', {
+      appearance,
+      status,
+      size,
+      disabled,
+    });
+
+    // Split eva style into component parts
+    const componentStyle = useMemo(() => {
+      const {
+        textColor,
+        textFontFamily,
+        textFontSize,
+        textFontWeight,
+        textMarginHorizontal,
+        iconWidth,
+        iconHeight,
+        iconTintColor,
+        iconMarginHorizontal,
+        ...containerParameters
+      } = evaStyle as StyleType;
+
+      return {
+        container: containerParameters,
+        text: {
+          color: textColor,
+          fontFamily: textFontFamily,
+          fontSize: textFontSize,
+          fontWeight: textFontWeight,
+          marginHorizontal: textMarginHorizontal,
+        },
+        icon: {
+          width: iconWidth,
+          height: iconHeight,
+          tintColor: iconTintColor,
+          marginHorizontal: iconMarginHorizontal,
+        },
+      };
+    }, [evaStyle]);
+
+    // Event handlers with dispatch
+    const onMouseEnter = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([Interaction.HOVER]);
+      onMouseEnterProp?.(event);
+    }, [dispatch, onMouseEnterProp]);
+
+    const onMouseLeave = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([]);
+      onMouseLeaveProp?.(event);
+    }, [dispatch, onMouseLeaveProp]);
+
+    const onFocus = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([Interaction.FOCUSED]);
+      onFocusProp?.(event);
+    }, [dispatch, onFocusProp]);
+
+    const onBlur = useCallback((event: NativeSyntheticEvent<TargetedEvent>) => {
+      dispatch([]);
+      onBlurProp?.(event);
+    }, [dispatch, onBlurProp]);
+
+    const onPressIn = useCallback((event: GestureResponderEvent) => {
+      dispatch([Interaction.ACTIVE]);
+      onPressInProp?.(event);
+    }, [dispatch, onPressInProp]);
+
+    const onPressOut = useCallback((event: GestureResponderEvent) => {
+      dispatch([]);
+      onPressOutProp?.(event);
+    }, [dispatch, onPressOutProp]);
+
     return (
-      <ButtonCore
+      <TouchableWeb
+        ref={ref}
+        {...touchableProps}
         disabled={disabled}
-        onPress={onPress}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        onLongPress={onLongPress}
+        style={[componentStyle.container, styles.container, style]}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onFocus={onFocus}
         onBlur={onBlur}
-        accessibilityLabel={accessibilityLabel}
-        accessibilityHint={accessibilityHint}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
       >
-        {({ state, handlers, accessibilityProps }: ButtonCoreRenderProps) => {
-          // Use the Eva style bridge hook
-          const { styles: evaStyles } = useEvaStyle('Button', {
-            appearance,
-            status,
-            size,
-            states: {
-              active: state.pressed,
-              hover: state.hovered,
-              focused: state.focused,
-              disabled,
-            },
-          });
-
-          return (
-            <TouchableWeb
-              ref={ref}
-              {...touchableProps}
-              {...handlers}
-              {...accessibilityProps}
-              disabled={disabled}
-              style={[evaStyles.container, styles.container, style]}
-            >
-              <FalsyFC
-                style={evaStyles.icon}
-                component={accessoryLeft}
-              />
-              <FalsyText
-                style={evaStyles.text}
-                component={children}
-              />
-              <FalsyFC
-                style={evaStyles.icon}
-                component={accessoryRight}
-              />
-            </TouchableWeb>
-          );
-        }}
-      </ButtonCore>
+        <FalsyFC
+          style={componentStyle.icon}
+          component={accessoryLeft}
+        />
+        <FalsyText
+          style={componentStyle.text}
+          component={children}
+        />
+        <FalsyFC
+          style={componentStyle.icon}
+          component={accessoryRight}
+        />
+      </TouchableWeb>
     );
   },
 );

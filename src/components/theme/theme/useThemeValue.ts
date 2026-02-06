@@ -91,6 +91,7 @@ export function useThemeValue<T>(selector: (theme: ThemedThemeType) => T): T {
  * ```
  */
 export function useThemeValues<
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   T extends Record<string, (theme: ThemedThemeType) => unknown>,
 >(selectors: T): { [K in keyof T]: ReturnType<T[K]> } {
   const store = useContext(ThemeStoreContext);

@@ -7,7 +7,6 @@
 import React, { useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import type {
   TextInput,
-  TextInputProps,
   NativeSyntheticEvent,
   TextInputFocusEventData,
   TargetedEvent,

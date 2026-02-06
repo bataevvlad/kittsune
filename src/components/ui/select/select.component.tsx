@@ -49,16 +49,17 @@ import {
   SelectItemDescriptor,
   SelectService,
 } from './select.service';
+import {TextElement} from "@kittsune/components";
 
 export interface SelectProps extends TouchableWebProps {
   children?: ChildrenWithProps<SelectItemProps | SelectGroupProps>;
   selectedIndex?: IndexPath | IndexPath[];
   onSelect?: (index: IndexPath | IndexPath[]) => void;
-  value?: RenderProp<TextProps> | React.ReactText;
+  value?: RenderProp<TextProps> | TextElement;
   multiSelect?: boolean;
-  placeholder?: RenderProp<TextProps> | React.ReactText;
-  label?: RenderProp<TextProps> | React.ReactText;
-  caption?: RenderProp<TextProps> | React.ReactText;
+  placeholder?: RenderProp<TextProps> | TextElement;
+  label?: RenderProp<TextProps> | TextElement;
+  caption?: RenderProp<TextProps> | TextElement;
   accessoryLeft?: RenderProp<Partial<ImageProps>>;
   accessoryRight?: RenderProp<Partial<ImageProps>>;
   status?: EvaStatus;
@@ -141,7 +142,7 @@ export const Select = React.forwardRef<SelectRef, SelectProps>(
       onPressIn: onPressInProp,
       onPressOut: onPressOutProp,
       testID,
-      ...touchableProps
+      ...touchableProps // eslint-disable-line @typescript-eslint/no-unused-vars
     } = props;
 
     const [listVisible, setListVisible] = useState(false);
@@ -201,10 +202,12 @@ export const Select = React.forwardRef<SelectRef, SelectProps>(
         captionFontSize,
         captionFontWeight,
         captionFontFamily,
+        /* eslint-disable @typescript-eslint/no-unused-vars */
         captionIconWidth,
         captionIconHeight,
         captionIconMarginRight,
         captionIconTintColor,
+        /* eslint-enable @typescript-eslint/no-unused-vars */
         popoverMaxHeight,
         popoverBorderRadius,
         popoverBorderColor,

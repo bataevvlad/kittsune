@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import type { GestureResponderEvent } from 'react-native';
 
 interface UsePressableOptions {
@@ -63,9 +63,6 @@ export function usePressable({
   delayLongPress,
 }: UsePressableOptions = {}): UsePressableResult {
   const [pressed, setPressed] = useState(false);
-
-  // Track if component is still mounted to avoid state updates after unmount
-  const isMountedRef = useRef(true);
 
   const handlePressIn = useCallback((event: GestureResponderEvent) => {
     if (disabled) return;

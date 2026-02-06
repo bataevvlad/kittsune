@@ -12,7 +12,6 @@ import {
   NativeSyntheticEvent,
   StyleSheet,
   TargetedEvent,
-  TouchableWithoutFeedback,
   View,
   ViewProps,
 } from 'react-native';
@@ -21,6 +20,7 @@ import {
   FalsyText,
   RenderProp,
   RTLService,
+  TouchableWeb,
   TouchableWebProps,
   LiteralUnion,
 } from '../../devsupport';
@@ -239,13 +239,18 @@ export const Toggle: React.FC<ToggleProps> = (props): React.ReactElement<ViewPro
 
   return (
     <View testID={testID} style={[styles.container, style]}>
-      <TouchableWithoutFeedback
+      <TouchableWeb
+        {...touchableProps}
+        style={styles.toggleContainer}
         onPress={handlePress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onFocus={onFocus}
+        onBlur={onBlur}
         disabled={disabled}
       >
-        <View style={styles.toggleContainer}>
           {/* Highlight / Outline */}
           <View style={[componentStyle.highlight, styles.highlight]} />
 
@@ -276,8 +281,7 @@ export const Toggle: React.FC<ToggleProps> = (props): React.ReactElement<ViewPro
               <CheckMark {...componentStyle.icon} />
             </Animated.View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
+      </TouchableWeb>
 
       <FalsyText style={componentStyle.text} component={children} />
     </View>

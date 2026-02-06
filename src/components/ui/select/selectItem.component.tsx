@@ -36,6 +36,7 @@ import { TextProps } from '../text/text.component';
 import { SelectItemDescriptor } from './select.service';
 
 type TouchableSelectProps = Overwrite<TouchableWebProps, {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPress?: (descriptor: SelectItemDescriptor, event?: GestureResponderEvent) => void;
 }>;
 

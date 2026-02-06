@@ -194,6 +194,7 @@ export class MenuGroup extends React.Component<MenuGroupProps, State> {
   };
 
   public render(): React.ReactNode {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { children, ...itemProps } = this.props;
 
     return (

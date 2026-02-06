@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
-import { Autocomplete, AutocompleteItem, Icon, IconElement, TextProps} from '@kittsune/components';
+import {Autocomplete, AutocompleteItem, Icon, IconElement, TextElement, TextProps} from '@kittsune/components';
+// @ts-ignore
 import {RenderProp} from "@kittsune/components/devsupport";
 
 const movies = [
@@ -41,7 +42,7 @@ export const AutocompleteAccessoriesShowcase = (): React.ReactElement => {
     setData(movies);
   };
 
-  const renderOption = (item: { title: RenderProp<TextProps> | React.ReactText | undefined; }, index: React.Key | null | undefined): React.ReactElement => (
+  const renderOption = (item: { title: RenderProp<TextProps> | TextElement | undefined; }, index: React.Key | null | undefined): React.ReactElement => (
     <AutocompleteItem
       key={index}
       title={item.title}

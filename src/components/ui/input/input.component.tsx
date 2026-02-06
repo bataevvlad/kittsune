@@ -17,7 +17,6 @@ import {
   TextInputProps,
   TextStyle,
   View,
-  ViewProps,
   ViewStyle,
 } from 'react-native';
 import {
@@ -274,6 +273,7 @@ export const Input = React.forwardRef<InputRef, InputProps>(
         labelMarginBottom,
         labelFontWeight,
         labelFontFamily,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         captionMarginTop,
         captionColor,
         captionFontSize,

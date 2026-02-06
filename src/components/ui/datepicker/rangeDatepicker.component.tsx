@@ -26,7 +26,6 @@ import {
   RangeCalendarProps,
   RangeCalendarRef,
 } from '../calendar/rangeCalendar.component';
-import { CalendarRange } from '../calendar/type';
 import { NativeDateService } from '../calendar/service/nativeDate.service';
 import { Popover } from '../popover/popover.component';
 import { PopoverPlacements } from '../popover/type';

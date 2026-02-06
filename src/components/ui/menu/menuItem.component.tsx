@@ -33,6 +33,7 @@ import { TextProps } from '../text/text.component';
 import { MenuItemDescriptor } from './menu.service';
 
 type TouchableMenuItemProps = Overwrite<TouchableWebProps, {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPress?: (descriptor: MenuItemDescriptor, event?: GestureResponderEvent) => void;
 }>;
 

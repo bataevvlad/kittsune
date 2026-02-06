@@ -38,20 +38,20 @@ import {
   PopoverPlacement,
   PopoverPlacements,
 } from '../popover/type';
-import { TextProps } from '../text/text.component';
+import {TextElement, TextProps} from '../text/text.component';
 
 export interface BaseDatepickerProps<D = Date> extends StyledComponentProps,
   TouchableOpacityProps,
   BaseCalendarProps<D> {
 
   controlStyle?: StyleProp<ViewStyle>;
-  label?: RenderProp<TextProps> | React.ReactText;
-  caption?: RenderProp<TextProps> | React.ReactText;
+  label?: RenderProp<TextProps> | TextElement;
+  caption?: RenderProp<TextProps> | TextElement;
   accessoryLeft?: RenderProp<Partial<ImageProps>>;
   accessoryRight?: RenderProp<Partial<ImageProps>>;
   status?: EvaStatus;
   size?: EvaInputSize;
-  placeholder?: RenderProp<TextProps> | React.ReactText;
+  placeholder?: RenderProp<TextProps> | TextElement | string;
   placement?: PopoverPlacement | string;
   backdropStyle?: StyleProp<ViewStyle>;
   onFocus?: () => void;
@@ -99,7 +99,7 @@ export abstract class BaseDatepickerComponent<P, D = Date> extends React.Compone
 
   public abstract clear(): void;
 
-  protected abstract getComponentTitle(): RenderProp<TextProps> | React.ReactText;
+  protected abstract getComponentTitle(): RenderProp<TextProps> | TextElement;
 
   protected abstract renderCalendar(): CalendarElement<D> | RangeCalendarElement<D>;
 
@@ -234,11 +234,11 @@ export abstract class BaseDatepickerComponent<P, D = Date> extends React.Compone
       style,
       testID,
       backdropStyle,
-      controlStyle,
+      controlStyle, // eslint-disable-line @typescript-eslint/no-unused-vars
       placement,
       label,
-      accessoryLeft,
-      accessoryRight,
+      accessoryLeft, // eslint-disable-line @typescript-eslint/no-unused-vars
+      accessoryRight, // eslint-disable-line @typescript-eslint/no-unused-vars
       caption,
       ...touchableProps
     } = this.props;

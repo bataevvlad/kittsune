@@ -16,7 +16,6 @@ import { useStyled } from '../../theme';
 import { Divider } from '../divider/divider.component';
 import {
   List,
-  ListElement,
   ListProps,
 } from '../list/list.component';
 import {

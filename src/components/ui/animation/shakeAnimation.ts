@@ -41,6 +41,7 @@ export class ShakeAnimation extends Animation<ShakeAnimationConfig, ViewProps> {
   }
 
   protected get animation(): Animated.CompositeAnimation {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { start, offset, ...restConfig } = this.config;
 
     const startAnimation: Animated.CompositeAnimation = Animated.timing(this.value, {

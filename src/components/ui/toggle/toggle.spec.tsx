@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import {
   fireEvent,
   render,
@@ -36,7 +36,7 @@ describe('@toggle: component checks', () => {
   );
 
   const touchables = {
-    findRootTouchable: (api: RenderAPI) => api.UNSAFE_queryByType(TouchableWithoutFeedback) as ReactTestInstance,
+    findRootTouchable: (api: RenderAPI) => api.UNSAFE_queryByType(TouchableOpacity) as ReactTestInstance,
   };
 
   it('should request checking', async () => {
