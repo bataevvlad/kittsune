@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import {
+  act,
   fireEvent,
   render,
   RenderAPI,
@@ -345,9 +346,9 @@ describe('@range-datepicker: component checks', () => {
     });
     // Backdrop uses PanResponder - call the handler directly
     const responderRelease = backdrop.props.onResponderRelease;
-    if (responderRelease) {
-      responderRelease({ nativeEvent: {} });
-    }
+    await act(async () => {
+      responderRelease?.({ nativeEvent: {} });
+    });
 
     await waitFor(() => {
       expect(component.UNSAFE_queryByType(RangeCalendar)).toBeFalsy();
@@ -407,7 +408,9 @@ describe('@range-datepicker: component checks', () => {
       expect(component.UNSAFE_queryByType(RangeCalendar)).toBeTruthy();
     });
 
-    componentRef.current.blur();
+    await act(async () => {
+      componentRef.current.blur();
+    });
     await waitFor(() => {
       expect(component.UNSAFE_queryByType(RangeCalendar)).toBeFalsy();
     });
