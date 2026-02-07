@@ -3,7 +3,7 @@ import BootstrapService from '../services/bootstrap.service';
 
 const BOOTSTRAP_COMMAND_DESCRIPTION = `
 Compile mapping.json into style object, optionally merging it with another mapping
-https://github.com/bataevvlad/kitsune#readme
+https://github.com/bataevvlad/kittsune#readme
 `;
 
 const BOOTSTRAP_COMMAND_USAGE = `

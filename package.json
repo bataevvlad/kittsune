@@ -5,10 +5,10 @@
   "packageManager": "yarn@3.6.4",
   "license": "MIT",
   "author": "Kitsune Contributors",
-  "homepage": "https://github.com/bataevvlad/kitsune#readme",
-  "repository": "git+https://github.com/bataevvlad/kitsune.git",
+  "homepage": "https://github.com/bataevvlad/kittsune#readme",
+  "repository": "git+https://github.com/bataevvlad/kittsune.git",
   "bugs": {
-    "url": "https://github.com/bataevvlad/kitsune/issues"
+    "url": "https://github.com/bataevvlad/kittsune/issues"
   },
   "workspaces": {
     "packages": [

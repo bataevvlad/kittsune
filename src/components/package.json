@@ -26,13 +26,13 @@
   ],
   "author": "Kitsune Contributors",
   "license": "MIT",
-  "homepage": "https://github.com/bataevvlad/kitsune#readme",
+  "homepage": "https://github.com/bataevvlad/kittsune#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bataevvlad/kitsune.git"
+    "url": "git+https://github.com/bataevvlad/kittsune.git"
   },
   "bugs": {
-    "url": "https://github.com/bataevvlad/kitsune/issues"
+    "url": "https://github.com/bataevvlad/kittsune/issues"
   },
   "keywords": [
     "react-native",
