@@ -1,7 +1,7 @@
 export {
   ApplicationProvider,
-  ApplicationProviderProps,
-  ApplicationProviderElement,
+  type ApplicationProviderProps,
+  type ApplicationProviderElement,
 } from './application/applicationProvider.component';
 export {
   ModalService,
@@ -9,42 +9,42 @@ export {
 // Note: @styled decorator has been removed in favor of useStyled hook
 // StyledComponentProps and EvaProp are kept for backward compatibility
 export {
-  StyledComponentProps,
-  EvaProp,
+  type StyledComponentProps,
+  type EvaProp,
 } from './style/styled';
 export {
   StyleService,
   useStyleSheet,
 } from './style/style.service';
 export {
-  StyleType,
-  Styles,
+  type StyleType,
+  type Styles,
   Interaction,
   State,
 } from './style/style.service';
 export {
   useStyled,
   useStyledDefaultProps,
-  UseStyledResult,
-  UseStyledOptions,
+  type UseStyledResult,
+  type UseStyledOptions,
 } from './style/useStyled';
 export {
   ThemeProvider,
-  ThemeProviderProps,
+  type ThemeProviderProps,
 } from './theme/themeProvider.component';
 export {
   withStyles,
-  ThemedComponentProps,
-  ThemedComponentClass,
+  type ThemedComponentProps,
+  type ThemedComponentClass,
 } from './theme/withStyles';
 export {
-  ThemeType,
+  type ThemeType,
   useTheme,
 } from './theme/theme.service';
 export {
   ThemeStore,
   ThemeStoreContext,
-  ThemedThemeType,
+  type ThemedThemeType,
 } from './theme/themeStore';
 export {
   useThemeValue,
@@ -54,9 +54,3 @@ export {
   styleCache,
   StyleCacheClass,
 } from './style/styleCache';
-export {
-  useEvaStyle,
-  EvaStyleOptions,
-  SplitStyles,
-  UseEvaStyleResult,
-} from './style/useEvaStyle';

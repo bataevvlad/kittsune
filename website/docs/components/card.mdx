@@ -1,0 +1,71 @@
+---
+id: card
+title: Card
+sidebar_label: Card
+description: Card component for displaying content and actions about a single subject.
+keywords:
+  - React Native
+  - Kittsune
+  - Card
+  - container
+---
+
+# Card
+
+Card contains content and actions about a single subject. It supports a header, footer, status color stripe, and press interaction.
+
+## Import
+
+```tsx
+import { Card } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, Card, Text } from '@kittsune/components';
+
+const Header = (props) => (
+  <Layout {...props}>
+    <Text category="h6">Card Title</Text>
+    <Text category="s1">Subtitle</Text>
+  </Layout>
+);
+
+const Footer = (props) => (
+  <Layout {...props}>
+    <Text category="c1">Footer content</Text>
+  </Layout>
+);
+
+const CardExample = () => (
+  <Layout style={{ flex: 1, padding: 16 }}>
+    <Card
+      status="primary"
+      header={Header}
+      footer={Footer}
+      onPress={() => console.log('Card pressed')}
+    >
+      <Text>This is the card body content.</Text>
+    </Card>
+  </Layout>
+);
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `status` | `'basic' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'control'` | `'basic'` | Status color stripe displayed at the top of the card. |
+| `appearance` | `'filled' \| 'outline'` | `'outline'` | Visual style variant. |
+| `header` | `(props) => ReactElement` | `undefined` | Render function for the card header. |
+| `footer` | `(props) => ReactElement` | `undefined` | Render function for the card footer. |
+| `onPress` | `() => void` | `undefined` | Called when the card is pressed. |
+| `children` | `ReactNode` | - | Body content of the card. |
+
+Card also accepts all standard React Native `TouchableOpacity` props.
+
+## Storybook
+
+Live examples coming soon via Storybook.

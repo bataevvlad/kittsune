@@ -23,7 +23,9 @@
     "clean": "turbo run clean --filter='./src/**'",
     "changeset": "changeset",
     "version-packages": "changeset version && yarn install --no-immutable",
-    "release": "yarn build && changeset publish"
+    "release": "yarn build && changeset publish",
+    "docs:dev": "cd website && yarn start",
+    "docs:build": "cd website && yarn build"
   },
   "dependencies": {
     "react": "19.1.0",

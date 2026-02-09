@@ -1,0 +1,79 @@
+---
+id: input
+title: Input
+sidebar_label: Input
+description: Text input component with label, caption, status variants, and accessory slots.
+keywords:
+  - React Native
+  - Kittsune
+  - Input
+  - TextInput
+  - form
+---
+
+# Input
+
+Input is a themed text input with support for labels, captions, status colors, size variants, and accessory slots for icons.
+
+## Import
+
+```tsx
+import { Input } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Input, Icon } from '@kittsune/components';
+
+const InputExample = () => {
+  const [value, setValue] = useState('');
+
+  return (
+    <Layout style={{ flex: 1, padding: 16, gap: 8 }}>
+      <Input
+        label="Username"
+        placeholder="Enter your username"
+        value={value}
+        onChangeText={setValue}
+      />
+
+      <Input
+        label="Password"
+        caption="Must be at least 8 characters"
+        placeholder="Enter your password"
+        secureTextEntry
+        accessoryRight={(props) => <Icon {...props} name="eye-off" />}
+      />
+
+      <Input
+        status="danger"
+        label="Email"
+        caption="Invalid email address"
+        placeholder="Email"
+      />
+    </Layout>
+  );
+};
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `status` | `'basic' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'control'` | `'basic'` | Semantic color applied to the input border and label. |
+| `size` | `'small' \| 'medium' \| 'large'` | `'medium'` | Size of the input. |
+| `label` | `ReactText \| (props) => ReactElement` | `undefined` | Label displayed above the input. |
+| `caption` | `ReactText \| (props) => ReactElement` | `undefined` | Caption displayed below the input (e.g., validation message). |
+| `placeholder` | `string` | `undefined` | Placeholder text displayed when the input is empty. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory (e.g., icon). |
+| `accessoryRight` | `(props) => ReactElement` | `undefined` | Render function for the right accessory (e.g., icon). |
+| `disabled` | `boolean` | `false` | Whether the input is disabled. |
+| `textStyle` | `TextStyle` | `undefined` | Style applied to the input text. |
+
+Input also accepts all standard React Native `TextInput` props.
+
+## Storybook
+
+Live examples coming soon via Storybook.

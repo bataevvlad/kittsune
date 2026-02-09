@@ -1,23 +1,23 @@
 export {
   FalsyFC,
-  RenderFCProp,
-  RenderProp,
+  type RenderFCProp,
+  type RenderProp,
 } from './components/falsyFC/falsyFC.component';
 export { FalsyText } from './components/falsyText/falsyText.component';
 export {
   TouchableWithoutFeedback,
-  TouchableWithoutFeedbackProps,
-  TouchableWithoutFeedbackElement,
+  type TouchableWithoutFeedbackProps,
+  type TouchableWithoutFeedbackElement,
 } from './components/touchableWithoutFeedback.component';
 export {
   TouchableWeb,
-  TouchableWebProps,
-  TouchableWebElement,
+  type TouchableWebProps,
+  type TouchableWebElement,
 } from './components/touchableWeb.component';
 export {
   MeasureElement,
-  MeasureElementProps,
-  MeasuringElement,
+  type MeasureElementProps,
+  type MeasuringElement,
 } from './components/measure/measure.component';
 export {
   Point,
@@ -27,7 +27,7 @@ export {
 export {
   WebEventResponder,
   WebEventResponderInstance,
-  WebEventResponderCallbacks,
+  type WebEventResponderCallbacks,
 } from './services/web/webEventResponder';
 export { RTLService } from './services/rtl/rtl.service';
 export {

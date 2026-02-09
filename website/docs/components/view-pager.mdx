@@ -1,0 +1,62 @@
+---
+id: view-pager
+title: ViewPager
+sidebar_label: View Pager
+description: ViewPager provides swipeable pages controlled by index.
+keywords:
+  - React Native
+  - Kittsune
+  - ViewPager
+  - pager
+  - swipe
+---
+
+# ViewPager
+
+ViewPager renders swipeable pages. Each child is rendered as a full-width page that the user can swipe between horizontally.
+
+## Import
+
+```tsx
+import { ViewPager } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, ViewPager, Text } from '@kittsune/components';
+
+const ViewPagerExample = () => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  return (
+    <ViewPager selectedIndex={selectedIndex} onSelect={setSelectedIndex}>
+      <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text category="h5">Page 1</Text>
+      </Layout>
+      <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text category="h5">Page 2</Text>
+      </Layout>
+      <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text category="h5">Page 3</Text>
+      </Layout>
+    </ViewPager>
+  );
+};
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `selectedIndex` | `number` | `0` | Index of the currently visible page. |
+| `onSelect` | `(index: number) => void` | - | Called when the visible page changes via swipe. |
+| `shouldLoadComponent` | `(index: number) => boolean` | `() => true` | Predicate to lazily load page content. Return `false` to skip rendering. |
+| `children` | `ReactNode[]` | - | Page content elements. |
+
+ViewPager also accepts all standard React Native `View` props.
+
+## Storybook
+
+Live examples coming soon via Storybook.

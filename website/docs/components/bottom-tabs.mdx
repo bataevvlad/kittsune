@@ -1,0 +1,79 @@
+---
+id: bottom-tabs
+title: Bottom Tabs
+sidebar_label: Bottom Tabs
+description: BottomNavigation and BottomNavigationTab components for tab-based navigation at the bottom of a screen.
+keywords:
+  - React Native
+  - Kittsune
+  - BottomNavigation
+  - BottomNavigationTab
+  - tabs
+---
+
+# Bottom Tabs
+
+BottomNavigation provides tab-based navigation displayed at the bottom of the screen, commonly used for primary app navigation.
+
+## Import
+
+```tsx
+import { BottomNavigation, BottomNavigationTab } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, BottomNavigation, BottomNavigationTab, Icon } from '@kittsune/components';
+
+const BottomTabsExample = () => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  return (
+    <Layout style={{ flex: 1 }}>
+      {/* Screen content */}
+      <BottomNavigation
+        selectedIndex={selectedIndex}
+        onSelect={setSelectedIndex}
+      >
+        <BottomNavigationTab
+          title="Home"
+          icon={(props) => <Icon {...props} name="home" />}
+        />
+        <BottomNavigationTab
+          title="Search"
+          icon={(props) => <Icon {...props} name="search" />}
+        />
+        <BottomNavigationTab
+          title="Profile"
+          icon={(props) => <Icon {...props} name="person" />}
+        />
+      </BottomNavigation>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+### BottomNavigation
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `selectedIndex` | `number` | `0` | Index of the currently selected tab. |
+| `onSelect` | `(index: number) => void` | - | Called when a tab is selected. |
+| `appearance` | `'default' \| 'noIndicator'` | `'default'` | Visual style variant. |
+| `indicatorStyle` | `ViewStyle` | `undefined` | Style applied to the active tab indicator. |
+| `children` | `BottomNavigationTab[]` | - | Tab elements. |
+
+### BottomNavigationTab
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | `undefined` | Tab title text or render function. |
+| `icon` | `(props) => ReactElement` | `undefined` | Render function for the tab icon. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

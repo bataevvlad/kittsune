@@ -23,3 +23,10 @@ src/showcases/web-build/
 
 .expo
 /.yarn/
+
+# website (docusaurus + storybook)
+website/node_modules/
+website/.docusaurus/
+website/.yarn/
+website/build/
+website/static/storybook/

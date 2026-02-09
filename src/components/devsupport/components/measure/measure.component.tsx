@@ -8,6 +8,7 @@
 import React from 'react';
 import {
   findNodeHandle,
+  Platform,
   UIManager,
   StatusBar,
 } from 'react-native';
@@ -52,7 +53,12 @@ export const MeasureElement: React.FC<MeasureElementProps> = ({
   children,
 }): MeasuringElement => {
 
-  const ref = React.useRef();
+  const ref = React.useRef({} as any);
+  // On web, store the actual DOM element from the onLayout event target.
+  // This is needed because ref.current may be a class component instance
+  // (e.g., TouchableWeb) rather than a DOM element, and getBoundingClientRect
+  // only exists on DOM elements.
+  const webDomNodeRef = React.useRef<HTMLElement | null>(null);
 
   const bindToWindow = (frame: Frame, window: Frame): Frame => {
     if (frame.origin.x < window.size.width) {
@@ -71,7 +77,13 @@ export const MeasureElement: React.FC<MeasureElementProps> = ({
 
   const onUIManagerMeasure = (x: number, y: number, w: number, h: number): void => {
     if (!w && !h) {
-      measureSelf();
+      if (Platform.OS === 'web') {
+        // On web, getBoundingClientRect is synchronous, so recursive measureSelf
+        // would cause an infinite loop. Schedule retry on next animation frame.
+        requestAnimationFrame(() => measureSelf());
+      } else {
+        measureSelf();
+      }
     } else {
       const originY = shouldUseTopInsets ? y + StatusBar.currentHeight || 0 : y;
       const frame: Frame = bindToWindow(new Frame(x, originY, w, h), Frame.window());
@@ -79,10 +91,51 @@ export const MeasureElement: React.FC<MeasureElementProps> = ({
     }
   };
 
+  // Get a DOM element for measurement on web.
+  // Prefers ref.current if it's a DOM element (forwardRef components),
+  // falls back to the DOM node captured from onLayout events (class components).
+  const getWebDomElement = (): HTMLElement | null => {
+    const current = ref.current;
+    if (current && typeof current.getBoundingClientRect === 'function') {
+      return current as unknown as HTMLElement;
+    }
+    return webDomNodeRef.current;
+  };
+
   const measureSelf = (): void => {
-    const node: number = findNodeHandle(ref.current);
-    if (node) {
-      UIManager.measureInWindow(node, onUIManagerMeasure);
+    if (Platform.OS === 'web') {
+      // On web, use getBoundingClientRect for viewport-relative coordinates.
+      // findNodeHandle is not supported in react-native-web 0.21+.
+      const element = getWebDomElement();
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        onUIManagerMeasure(rect.left, rect.top, rect.width, rect.height);
+      }
+    } else {
+      const node: number = findNodeHandle(ref.current);
+      if (node) {
+        UIManager.measureInWindow(node, onUIManagerMeasure);
+      }
+    }
+  };
+
+  // On web, handle onLayout events by extracting the DOM element from the event target.
+  // RNW's onLayout fires via ResizeObserver and provides the actual DOM node as event target,
+  // along with viewport-relative coordinates (left, top) from UIManager.measure.
+  const handleLayoutWeb = (event: any): void => {
+    // Capture the DOM element from the event target for use in force measurements
+    const target = event?.nativeEvent?.target;
+    if (target instanceof HTMLElement) {
+      webDomNodeRef.current = target;
+    }
+    // Use the viewport-relative coordinates from RNW's UIManager.measure
+    const layout = event?.nativeEvent?.layout;
+    if (layout && (layout.width || layout.height)) {
+      const left = layout.left !== undefined ? layout.left : 0;
+      const top = layout.top !== undefined ? layout.top : 0;
+      onUIManagerMeasure(left, top, layout.width, layout.height);
+    } else {
+      measureSelf();
     }
   };
 
@@ -94,5 +147,7 @@ export const MeasureElement: React.FC<MeasureElementProps> = ({
     }
   });
 
-  return React.cloneElement(children, { ref, onLayout: measureSelf });
+  const onLayoutHandler = Platform.OS === 'web' ? handleLayoutWeb : measureSelf;
+
+  return React.cloneElement(children, { ref, onLayout: onLayoutHandler });
 };

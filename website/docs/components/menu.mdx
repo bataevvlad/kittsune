@@ -1,0 +1,81 @@
+---
+id: menu
+title: Menu
+sidebar_label: Menu
+description: Versatile navigation menu with support for groups and nested items.
+keywords:
+  - React Native
+  - Kittsune
+  - Menu
+  - MenuGroup
+  - MenuItem
+  - navigation
+---
+
+# Menu
+
+Menu is a versatile navigation component that renders a list of actionable items. It supports grouping with collapsible sections.
+
+## Import
+
+```tsx
+import { Menu, MenuGroup, MenuItem } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Menu, MenuGroup, MenuItem, Icon } from '@kittsune/components';
+
+const MenuExample = () => {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  return (
+    <Layout style={{ flex: 1 }}>
+      <Menu selectedIndex={selectedIndex} onSelect={(index) => setSelectedIndex(index)}>
+        <MenuItem
+          title="Dashboard"
+          accessoryLeft={(props) => <Icon {...props} name="grid" />}
+        />
+        <MenuGroup title="Settings">
+          <MenuItem title="Profile" />
+          <MenuItem title="Preferences" />
+        </MenuGroup>
+        <MenuItem title="Logout" />
+      </Menu>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+### Menu
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `selectedIndex` | `IndexPath` | `undefined` | The selected menu item index. |
+| `onSelect` | `(index: IndexPath) => void` | - | Called when a menu item is selected. |
+| `children` | `MenuItem[] \| MenuGroup[]` | - | Menu items and groups. |
+
+### MenuGroup
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | - | Group title text or render function. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory. |
+| `children` | `MenuItem[]` | - | Nested menu items. |
+
+### MenuItem
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | `undefined` | Item title text or render function. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory. |
+| `accessoryRight` | `(props) => ReactElement` | `undefined` | Render function for the right accessory. |
+| `onPress` | `() => void` | `undefined` | Called when the item is pressed. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

@@ -1,0 +1,103 @@
+---
+id: top-tabs
+title: Top Tabs
+sidebar_label: Top Tabs
+description: TabBar and TabView components for top tab navigation with indicator styling.
+keywords:
+  - React Native
+  - Kittsune
+  - TabBar
+  - TabView
+  - Tab
+  - tabs
+---
+
+# Top Tabs
+
+TabBar renders a horizontal row of tabs at the top of a screen. TabView combines a TabBar with a ViewPager for swipeable tab content.
+
+## Import
+
+```tsx
+import { TabBar, TabView, Tab } from '@kittsune/components';
+```
+
+## Basic Usage
+
+### TabBar Only
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, TabBar, Tab } from '@kittsune/components';
+
+const TabBarExample = () => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  return (
+    <Layout style={{ flex: 1 }}>
+      <TabBar selectedIndex={selectedIndex} onSelect={setSelectedIndex}>
+        <Tab title="Users" />
+        <Tab title="Orders" />
+        <Tab title="Settings" />
+      </TabBar>
+    </Layout>
+  );
+};
+```
+
+### TabView with Content
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, TabView, Tab, Text } from '@kittsune/components';
+
+const TabViewExample = () => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  return (
+    <TabView selectedIndex={selectedIndex} onSelect={setSelectedIndex}>
+      <Tab title="Users">
+        <Layout style={{ padding: 16 }}>
+          <Text>Users content</Text>
+        </Layout>
+      </Tab>
+      <Tab title="Orders">
+        <Layout style={{ padding: 16 }}>
+          <Text>Orders content</Text>
+        </Layout>
+      </Tab>
+    </TabView>
+  );
+};
+```
+
+## Props
+
+### TabBar
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `selectedIndex` | `number` | `0` | Index of the currently selected tab. |
+| `onSelect` | `(index: number) => void` | - | Called when a tab is selected. |
+| `indicatorStyle` | `ViewStyle` | `undefined` | Style applied to the active tab indicator. |
+| `children` | `Tab[]` | - | Tab elements. |
+
+### TabView
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `selectedIndex` | `number` | `0` | Index of the currently selected tab. |
+| `onSelect` | `(index: number) => void` | - | Called when a tab is selected. |
+| `children` | `Tab[]` | - | Tab elements with content as their children. |
+
+### Tab
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | `undefined` | Tab title text or render function. |
+| `icon` | `(props) => ReactElement` | `undefined` | Render function for the tab icon. |
+| `children` | `ReactNode` | `undefined` | Content displayed when the tab is selected (used with TabView). |
+
+## Storybook
+
+Live examples coming soon via Storybook.

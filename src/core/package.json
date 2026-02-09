@@ -1,7 +1,7 @@
 {
   "name": "@kittsune/core",
   "version": "2.0.0",
-  "description": "Headless UI component core - behavior and state management without styling",
+  "description": "Shared hooks and utilities for interaction state management",
   "main": "./lib/module/index.js",
   "types": "./index.ts",
   "react-native": "./index.ts",
@@ -37,9 +37,7 @@
   },
   "keywords": [
     "react-native",
-    "headless",
-    "ui-components",
-    "accessibility",
+    "hooks",
     "state-management"
   ],
   "publishConfig": {

@@ -1,0 +1,71 @@
+---
+id: top-navigation
+title: TopNavigation
+sidebar_label: Top Navigation
+description: TopNavigation heading component with title, subtitle, and action slots for screen headers.
+keywords:
+  - React Native
+  - Kittsune
+  - TopNavigation
+  - TopNavigationAction
+  - header
+  - navigation
+---
+
+# TopNavigation
+
+TopNavigation is a heading component designed for screen headers. It supports a title, subtitle, alignment options, and left/right action accessories.
+
+## Import
+
+```tsx
+import { TopNavigation, TopNavigationAction } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, TopNavigation, TopNavigationAction, Icon } from '@kittsune/components';
+
+const BackAction = () => (
+  <TopNavigationAction icon={(props) => <Icon {...props} name="arrow-back" />} />
+);
+
+const TopNavigationExample = () => (
+  <Layout style={{ flex: 1 }}>
+    <TopNavigation
+      title="Screen Title"
+      subtitle="Subtitle"
+      alignment="center"
+      accessoryLeft={BackAction}
+      accessoryRight={() => (
+        <TopNavigationAction icon={(props) => <Icon {...props} name="more-vertical" />} />
+      )}
+    />
+  </Layout>
+);
+```
+
+## Props
+
+### TopNavigation
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | `undefined` | Title text or render function. |
+| `subtitle` | `ReactText \| (props) => ReactElement` | `undefined` | Subtitle text or render function. |
+| `alignment` | `'start' \| 'center'` | `'start'` | Title alignment within the navigation bar. |
+| `accessoryLeft` | `() => ReactElement` | `undefined` | Render function for the left accessory (e.g., back action). |
+| `accessoryRight` | `() => ReactElement` | `undefined` | Render function for the right accessory (e.g., menu action). |
+
+### TopNavigationAction
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `icon` | `(props) => ReactElement` | - | Render function for the action icon. |
+| `onPress` | `() => void` | `undefined` | Called when the action is pressed. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

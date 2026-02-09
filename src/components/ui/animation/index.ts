@@ -7,17 +7,17 @@
 
 export {
   Animation,
-  AnimationConfig,
+  type AnimationConfig,
 } from './animation';
 export {
   PulseAnimation,
-  PulseAnimationConfig,
+  type PulseAnimationConfig,
 } from './pulseAnimation';
 export {
   ShakeAnimation,
-  ShakeAnimationConfig,
+  type ShakeAnimationConfig,
 } from './shakeAnimation';
 export {
   ZoomAnimation,
-  ZoomAnimationConfig,
+  type ZoomAnimationConfig,
 } from './zoomAnimation';

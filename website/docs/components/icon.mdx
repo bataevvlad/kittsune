@@ -1,0 +1,64 @@
+---
+id: icon
+title: Icon
+sidebar_label: Icon
+description: Animated Icon component that renders icons from a registered icon pack, with IconRegistry for configuration.
+keywords:
+  - React Native
+  - Kittsune
+  - Icon
+  - IconRegistry
+  - icons
+---
+
+# Icon
+
+Icon renders an animated icon from a registered icon pack. Use `IconRegistry` at the application root to register one or more icon packs (e.g., Eva Icons, Material Icons, FontAwesome).
+
+## Import
+
+```tsx
+import { Icon, IconRegistry } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { ApplicationProvider, Layout, Icon, IconRegistry } from '@kittsune/components';
+import { EvaIconsPack } from '@ui-kitten/eva-icons';
+import * as eva from '@eva-design/eva';
+
+const App = () => (
+  <>
+    <IconRegistry icons={EvaIconsPack} />
+    <ApplicationProvider {...eva} theme={eva.light}>
+      <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Icon name="star" fill="#FFD700" style={{ width: 32, height: 32 }} />
+      </Layout>
+    </ApplicationProvider>
+  </>
+);
+```
+
+## Props
+
+### Icon
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `name` | `string` | - | Name of the icon in the registered icon pack. |
+| `pack` | `string` | `undefined` | Name of the icon pack to use. Defaults to the first registered pack. |
+| `animation` | `'zoom' \| 'pulse' \| 'shake'` | `undefined` | Animation type applied to the icon. |
+| `fill` | `string` | `undefined` | Fill color for the icon. |
+| `style` | `ViewStyle` | - | Style containing `width` and `height` for the icon. |
+
+### IconRegistry
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `icons` | `IconPack \| IconPack[]` | - | One or more icon packs to register. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

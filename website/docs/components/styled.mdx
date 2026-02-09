@@ -1,0 +1,58 @@
+---
+id: styled
+title: Using Mapping
+sidebar_label: Using Mapping
+description: Use the styled higher-order function to apply Eva Design System style mappings to custom components.
+keywords:
+  - React Native
+  - Kittsune
+  - styled
+  - mapping
+  - Eva Design System
+---
+
+# Using Mapping
+
+The `styled` higher-order function connects a custom component to the Eva Design System style mapping. It resolves Eva styles based on the component's interaction state (focused, pressed, disabled, etc.) and passes computed styles as props.
+
+## Import
+
+```tsx
+import { styled } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { View } from 'react-native';
+import { styled } from '@kittsune/components';
+
+const MyComponent = ({ eva, style, ...props }) => {
+  return (
+    <View style={[eva.style, style]} {...props} />
+  );
+};
+
+export default styled('MyComponent')(MyComponent);
+```
+
+The `styled` function accepts the Eva mapping name as its first argument and returns a wrapper that injects `eva.style` into the component props. These styles are resolved from your Eva theme and mapping configuration.
+
+## Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | The component name as defined in the Eva mapping configuration. |
+
+## Injected Props
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `eva.style` | `object` | The resolved style object from the Eva mapping for the current interaction state. |
+| `eva.dispatch` | `function` | Dispatches interaction state changes (e.g., focus, press) to recalculate styles. |
+| `eva.theme` | `object` | The current Eva theme variables. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

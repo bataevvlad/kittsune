@@ -1,0 +1,68 @@
+---
+id: button
+title: Button
+sidebar_label: Button
+description: Button component for triggering actions with appearance, status, and size variants.
+keywords:
+  - React Native
+  - Kittsune
+  - Button
+  - action
+---
+
+# Button
+
+Button triggers an action when pressed. It supports multiple appearances, statuses, sizes, and accessory slots for icons.
+
+## Import
+
+```tsx
+import { Button } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, Button, Icon } from '@kittsune/components';
+
+const ButtonExample = () => (
+  <Layout style={{ flex: 1, padding: 16, gap: 8 }}>
+    <Button onPress={() => console.log('Pressed')}>
+      Default Button
+    </Button>
+
+    <Button appearance="outline" status="success">
+      Success Outline
+    </Button>
+
+    <Button
+      appearance="ghost"
+      status="danger"
+      size="small"
+      accessoryLeft={(props) => <Icon {...props} name="trash-2" />}
+    >
+      Delete
+    </Button>
+  </Layout>
+);
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `appearance` | `'filled' \| 'outline' \| 'ghost'` | `'filled'` | Visual style variant. |
+| `status` | `'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'basic' \| 'control'` | `'primary'` | Semantic color applied to the button. |
+| `size` | `'tiny' \| 'small' \| 'medium' \| 'large' \| 'giant'` | `'medium'` | Size of the button. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory (e.g., icon). |
+| `accessoryRight` | `(props) => ReactElement` | `undefined` | Render function for the right accessory (e.g., icon). |
+| `disabled` | `boolean` | `false` | Whether the button is disabled. |
+| `onPress` | `() => void` | - | Called when the button is pressed. |
+| `children` | `ReactText \| (props) => ReactElement` | `undefined` | Button label text or render function. |
+
+Button also accepts all standard React Native `TouchableOpacity` props.
+
+## Storybook
+
+Live examples coming soon via Storybook.

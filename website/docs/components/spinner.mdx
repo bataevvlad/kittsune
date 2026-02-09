@@ -1,0 +1,49 @@
+---
+id: spinner
+title: Spinner
+sidebar_label: Spinner
+description: Spinner is a loading state indicator with status and size variants.
+keywords:
+  - React Native
+  - Kittsune
+  - Spinner
+  - loading
+  - activity indicator
+---
+
+# Spinner
+
+Spinner displays an animated loading indicator. Use it to communicate that a process is underway and the user should wait.
+
+## Import
+
+```tsx
+import { Spinner } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, Spinner } from '@kittsune/components';
+
+const SpinnerExample = () => (
+  <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 }}>
+    <Spinner size="small" />
+    <Spinner size="medium" status="primary" />
+    <Spinner size="large" status="danger" />
+  </Layout>
+);
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `status` | `'basic' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'control'` | `'primary'` | Semantic color of the spinner. |
+| `size` | `'tiny' \| 'small' \| 'medium' \| 'large' \| 'giant'` | `'medium'` | Size of the spinner. |
+| `animating` | `boolean` | `true` | Whether the spinner animation is active. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

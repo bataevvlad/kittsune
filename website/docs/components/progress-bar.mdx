@@ -1,0 +1,55 @@
+---
+id: progress-bar
+title: ProgressBar
+sidebar_label: ProgressBar
+description: ProgressBar displays the length of a process as a horizontal bar.
+keywords:
+  - React Native
+  - Kittsune
+  - ProgressBar
+  - progress
+  - loading
+---
+
+# ProgressBar
+
+ProgressBar displays the completion percentage of a process as a horizontal bar. The progress value ranges from 0 to 1.
+
+## Import
+
+```tsx
+import { ProgressBar } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, ProgressBar, Text } from '@kittsune/components';
+
+const ProgressBarExample = () => (
+  <Layout style={{ flex: 1, padding: 16, gap: 16 }}>
+    <Text category="s1">Upload Progress</Text>
+    <ProgressBar progress={0.5} />
+
+    <Text category="s1">Complete</Text>
+    <ProgressBar progress={1.0} status="success" />
+
+    <Text category="s1">Error</Text>
+    <ProgressBar progress={0.3} status="danger" />
+  </Layout>
+);
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `progress` | `number` | `0` | Progress value between 0 and 1. |
+| `status` | `'basic' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'control'` | `'primary'` | Semantic color of the progress bar. |
+| `size` | `'tiny' \| 'small' \| 'medium' \| 'large' \| 'giant'` | `'medium'` | Height of the progress bar. |
+| `animating` | `boolean` | `true` | Whether the progress bar animates value changes. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

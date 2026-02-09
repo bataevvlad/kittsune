@@ -1,0 +1,87 @@
+---
+id: autocomplete
+title: Autocomplete
+sidebar_label: Autocomplete
+description: Text input with a suggestions panel for filtering and selecting from a list of options.
+keywords:
+  - React Native
+  - Kittsune
+  - Autocomplete
+  - AutocompleteItem
+  - search
+  - form
+---
+
+# Autocomplete
+
+Autocomplete combines a text input with a dropdown suggestions panel. As the user types, the list of suggestions is filtered and displayed below the input.
+
+## Import
+
+```tsx
+import { Autocomplete, AutocompleteItem } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Autocomplete, AutocompleteItem } from '@kittsune/components';
+
+const allOptions = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'];
+
+const AutocompleteExample = () => {
+  const [value, setValue] = useState('');
+
+  const filteredOptions = allOptions.filter(
+    (item) => item.toLowerCase().includes(value.toLowerCase()),
+  );
+
+  const onSelect = (index) => {
+    setValue(filteredOptions[index]);
+  };
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <Autocomplete
+        placeholder="Search fruits"
+        value={value}
+        onChangeText={setValue}
+        onSelect={onSelect}
+      >
+        {filteredOptions.map((title, index) => (
+          <AutocompleteItem key={index} title={title} />
+        ))}
+      </Autocomplete>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+### Autocomplete
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `value` | `string` | `undefined` | Current text value of the input. |
+| `onChangeText` | `(text: string) => void` | - | Called when the input text changes. |
+| `onSelect` | `(index: number) => void` | - | Called when a suggestion item is selected. |
+| `placeholder` | `string` | `undefined` | Placeholder text displayed when the input is empty. |
+| `label` | `ReactText \| (props) => ReactElement` | `undefined` | Label displayed above the input. |
+| `caption` | `ReactText \| (props) => ReactElement` | `undefined` | Caption displayed below the input. |
+| `children` | `AutocompleteItem[]` | - | Suggestion items. |
+
+### AutocompleteItem
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | - | Item title text or render function. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory. |
+| `accessoryRight` | `(props) => ReactElement` | `undefined` | Render function for the right accessory. |
+
+Autocomplete also accepts all standard `Input` props.
+
+## Storybook
+
+Live examples coming soon via Storybook.

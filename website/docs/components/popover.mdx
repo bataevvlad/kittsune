@@ -1,0 +1,68 @@
+---
+id: popover
+title: Popover
+sidebar_label: Popover
+description: Popover displays content positioned relative to another element with configurable placement.
+keywords:
+  - React Native
+  - Kittsune
+  - Popover
+  - overlay
+  - tooltip
+---
+
+# Popover
+
+Popover displays content positioned relative to an anchor element. It supports configurable placement and dismissal via backdrop press.
+
+## Import
+
+```tsx
+import { Popover } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { Layout, Popover, Button, Text } from '@kittsune/components';
+
+const PopoverExample = () => {
+  const [visible, setVisible] = useState(false);
+
+  const renderToggleButton = () => (
+    <Button onPress={() => setVisible(true)}>Show Popover</Button>
+  );
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <Popover
+        visible={visible}
+        anchor={renderToggleButton}
+        onBackdropPress={() => setVisible(false)}
+        placement="bottom"
+      >
+        <Layout style={{ padding: 16 }}>
+          <Text>Popover content goes here.</Text>
+        </Layout>
+      </Popover>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `visible` | `boolean` | `false` | Whether the popover is visible. |
+| `anchor` | `() => ReactElement` | - | Render function for the anchor element the popover is positioned relative to. |
+| `onBackdropPress` | `() => void` | `undefined` | Called when the area outside the popover is pressed. |
+| `placement` | `'top' \| 'top start' \| 'top end' \| 'bottom' \| 'bottom start' \| 'bottom end' \| 'left' \| 'left start' \| 'left end' \| 'right' \| 'right start' \| 'right end' \| 'inner' \| 'inner top' \| 'inner bottom'` | `'bottom'` | Position of the popover relative to the anchor. |
+| `backdropStyle` | `ViewStyle` | `undefined` | Style applied to the backdrop. |
+| `children` | `ReactNode` | - | Content rendered inside the popover. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

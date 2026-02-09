@@ -1,0 +1,69 @@
+---
+id: radio
+title: Radio
+sidebar_label: Radio
+description: Radio and RadioGroup components for selecting a single option from a set.
+keywords:
+  - React Native
+  - Kittsune
+  - Radio
+  - RadioGroup
+  - form
+---
+
+# Radio
+
+Radio allows the user to select one option from a set. Use RadioGroup to manage a group of Radio buttons with a shared selection state.
+
+## Import
+
+```tsx
+import { Radio, RadioGroup } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Radio, RadioGroup } from '@kittsune/components';
+
+const RadioExample = () => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <RadioGroup
+        selectedIndex={selectedIndex}
+        onChange={(index) => setSelectedIndex(index)}
+      >
+        <Radio>Option 1</Radio>
+        <Radio>Option 2</Radio>
+        <Radio>Option 3</Radio>
+      </RadioGroup>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+### Radio
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `checked` | `boolean` | `false` | Whether the radio is selected. |
+| `onChange` | `(checked: boolean) => void` | - | Called when the radio value changes. |
+| `status` | `'basic' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'control'` | `'basic'` | Semantic color of the radio. |
+| `children` | `ReactText \| (props) => ReactElement` | `undefined` | Label text or render function displayed next to the radio. |
+
+### RadioGroup
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `selectedIndex` | `number` | `undefined` | Index of the currently selected radio. |
+| `onChange` | `(index: number) => void` | - | Called when the selected radio changes. |
+| `children` | `Radio[]` | - | Radio elements. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

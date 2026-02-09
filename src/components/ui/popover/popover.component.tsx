@@ -7,6 +7,7 @@
 
 import React, { useState, useCallback, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import {
+  Platform,
   StyleSheet,
   View,
   StyleProp,
@@ -311,7 +312,13 @@ export const Popover = forwardRef<View, PopoverProps>(({
 
   const renderMeasuringPopoverElement = (): MeasuringElement => {
     return (
-      <MeasureElement onMeasure={onContentMeasure}>
+      <MeasureElement
+        // On web, force-measure the content to avoid relying solely on
+        // async ResizeObserver onLayout which may not fire reliably in
+        // modal portals. On native, onLayout works fine without force.
+        force={Platform.OS === 'web' ? forceMeasure : undefined}
+        onMeasure={onContentMeasure}
+      >
         {renderPopoverElement()}
       </MeasureElement>
     );

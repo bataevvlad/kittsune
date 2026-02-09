@@ -1,0 +1,64 @@
+---
+id: avatar
+title: Avatar
+sidebar_label: Avatar
+description: Avatar displays an image styled as a user avatar with shape and size variants.
+keywords:
+  - React Native
+  - Kittsune
+  - Avatar
+  - image
+  - profile
+---
+
+# Avatar
+
+Avatar renders an image styled as a user avatar. It supports multiple shapes and sizes for use in profiles, lists, and comments.
+
+## Import
+
+```tsx
+import { Avatar } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, Avatar } from '@kittsune/components';
+
+const AvatarExample = () => (
+  <Layout style={{ flex: 1, padding: 16, flexDirection: 'row', gap: 8 }}>
+    <Avatar
+      source={require('./assets/avatar.png')}
+      shape="round"
+      size="giant"
+    />
+    <Avatar
+      source={{ uri: 'https://example.com/avatar.jpg' }}
+      shape="rounded"
+      size="medium"
+    />
+    <Avatar
+      source={require('./assets/avatar.png')}
+      shape="square"
+      size="small"
+    />
+  </Layout>
+);
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `source` | `ImageSourcePropType` | - | Image source (local require or remote URI). |
+| `shape` | `'round' \| 'rounded' \| 'square'` | `'round'` | Shape of the avatar. |
+| `size` | `'tiny' \| 'small' \| 'medium' \| 'large' \| 'giant'` | `'medium'` | Size of the avatar. |
+| `style` | `ImageStyle` | `undefined` | Additional styles applied to the avatar image. |
+
+Avatar also accepts all standard React Native `Image` props.
+
+## Storybook
+
+Live examples coming soon via Storybook.

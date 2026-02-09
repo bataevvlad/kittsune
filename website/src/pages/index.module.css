@@ -1,0 +1,33 @@
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.quickStart {
+  padding: 2rem 0 4rem;
+  text-align: center;
+}
+
+.codeBlock {
+  display: inline-block;
+  text-align: left;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+}

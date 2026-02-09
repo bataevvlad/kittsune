@@ -1,0 +1,51 @@
+---
+id: circular-progress-bar
+title: CircularProgressBar
+sidebar_label: CircularProgressBar
+description: CircularProgressBar displays the length of a process as a circular indicator.
+keywords:
+  - React Native
+  - Kittsune
+  - CircularProgressBar
+  - progress
+  - loading
+---
+
+# CircularProgressBar
+
+CircularProgressBar displays the completion percentage of a process as a circular ring indicator. The progress value ranges from 0 to 1.
+
+## Import
+
+```tsx
+import { CircularProgressBar } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, CircularProgressBar } from '@kittsune/components';
+
+const CircularProgressBarExample = () => (
+  <Layout style={{ flex: 1, padding: 16, flexDirection: 'row', gap: 16 }}>
+    <CircularProgressBar progress={0.25} size="small" />
+    <CircularProgressBar progress={0.5} status="primary" />
+    <CircularProgressBar progress={0.75} status="success" size="large" />
+    <CircularProgressBar progress={1.0} status="info" size="giant" />
+  </Layout>
+);
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `progress` | `number` | `0` | Progress value between 0 and 1. |
+| `status` | `'basic' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'control'` | `'primary'` | Semantic color of the progress indicator. |
+| `size` | `'tiny' \| 'small' \| 'medium' \| 'large' \| 'giant'` | `'medium'` | Size of the circular progress indicator. |
+| `animating` | `boolean` | `true` | Whether the progress indicator animates value changes. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

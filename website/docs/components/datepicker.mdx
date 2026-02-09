@@ -1,0 +1,100 @@
+---
+id: datepicker
+title: Datepicker
+sidebar_label: Datepicker
+description: Date selection component with a modal calendar, supporting single date and date range modes.
+keywords:
+  - React Native
+  - Kittsune
+  - Datepicker
+  - RangeDatepicker
+  - calendar
+  - date
+  - form
+---
+
+# Datepicker
+
+Datepicker provides date selection through a modal calendar popup. It supports single date and date range selection modes.
+
+## Import
+
+```tsx
+import { Datepicker, RangeDatepicker } from '@kittsune/components';
+```
+
+## Basic Usage
+
+### Single Date
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Datepicker } from '@kittsune/components';
+
+const DatepickerExample = () => {
+  const [date, setDate] = useState(new Date());
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <Datepicker
+        label="Select Date"
+        caption="Choose a delivery date"
+        date={date}
+        onSelect={(nextDate) => setDate(nextDate)}
+      />
+    </Layout>
+  );
+};
+```
+
+### Date Range
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, RangeDatepicker } from '@kittsune/components';
+
+const RangeDatepickerExample = () => {
+  const [range, setRange] = useState({});
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <RangeDatepicker
+        label="Select Range"
+        range={range}
+        onSelect={(nextRange) => setRange(nextRange)}
+      />
+    </Layout>
+  );
+};
+```
+
+## Props
+
+### Datepicker
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `date` | `Date` | `undefined` | The currently selected date. |
+| `onSelect` | `(date: Date) => void` | - | Called when a date is selected. |
+| `min` | `Date` | `undefined` | Minimum selectable date. |
+| `max` | `Date` | `undefined` | Maximum selectable date. |
+| `dateService` | `DateService` | `NativeDateService` | Custom date service for localization and formatting. |
+| `label` | `ReactText \| (props) => ReactElement` | `undefined` | Label displayed above the input. |
+| `caption` | `ReactText \| (props) => ReactElement` | `undefined` | Caption displayed below the input. |
+| `placeholder` | `string` | `undefined` | Placeholder text displayed when no date is selected. |
+
+### RangeDatepicker
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `range` | `{ startDate?: Date, endDate?: Date }` | `{}` | The currently selected date range. |
+| `onSelect` | `(range: { startDate: Date, endDate: Date }) => void` | - | Called when a range is selected. |
+| `min` | `Date` | `undefined` | Minimum selectable date. |
+| `max` | `Date` | `undefined` | Maximum selectable date. |
+| `dateService` | `DateService` | `NativeDateService` | Custom date service for localization and formatting. |
+| `label` | `ReactText \| (props) => ReactElement` | `undefined` | Label displayed above the input. |
+| `caption` | `ReactText \| (props) => ReactElement` | `undefined` | Caption displayed below the input. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

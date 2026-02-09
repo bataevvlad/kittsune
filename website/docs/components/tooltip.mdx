@@ -1,0 +1,62 @@
+---
+id: tooltip
+title: Tooltip
+sidebar_label: Tooltip
+description: Tooltip displays informative text when the user focuses on or taps an element.
+keywords:
+  - React Native
+  - Kittsune
+  - Tooltip
+  - overlay
+---
+
+# Tooltip
+
+Tooltip displays a short informative text when the user interacts with an anchor element. It is positioned relative to the anchor and dismissed by pressing the backdrop.
+
+## Import
+
+```tsx
+import { Tooltip } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Tooltip, Button } from '@kittsune/components';
+
+const TooltipExample = () => {
+  const [visible, setVisible] = useState(false);
+
+  const renderToggleButton = () => (
+    <Button onPress={() => setVisible(true)}>Show Tooltip</Button>
+  );
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <Tooltip
+        visible={visible}
+        anchor={renderToggleButton}
+        onBackdropPress={() => setVisible(false)}
+      >
+        This is a tooltip message
+      </Tooltip>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `visible` | `boolean` | `false` | Whether the tooltip is visible. |
+| `anchor` | `() => ReactElement` | - | Render function for the anchor element the tooltip is positioned relative to. |
+| `onBackdropPress` | `() => void` | `undefined` | Called when the area outside the tooltip is pressed. |
+| `placement` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | Position of the tooltip relative to the anchor. |
+| `children` | `ReactText \| (props) => ReactElement` | - | Tooltip content text or render function. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

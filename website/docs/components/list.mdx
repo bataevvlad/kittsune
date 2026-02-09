@@ -1,0 +1,71 @@
+---
+id: list
+title: List
+sidebar_label: List
+description: Performant List and ListItem components for rendering flat lists of data.
+keywords:
+  - React Native
+  - Kittsune
+  - List
+  - ListItem
+  - FlatList
+---
+
+# List
+
+List is a performant themed wrapper around React Native's `FlatList`. ListItem provides a standardized row layout with title, description, and accessory slots.
+
+## Import
+
+```tsx
+import { List, ListItem } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, List, ListItem, Icon } from '@kittsune/components';
+
+const data = [
+  { title: 'Item 1', description: 'Description for item 1' },
+  { title: 'Item 2', description: 'Description for item 2' },
+  { title: 'Item 3', description: 'Description for item 3' },
+];
+
+const renderItem = ({ item }) => (
+  <ListItem
+    title={item.title}
+    description={item.description}
+    accessoryLeft={(props) => <Icon {...props} name="person" />}
+    accessoryRight={(props) => <Icon {...props} name="arrow-ios-forward" />}
+  />
+);
+
+const ListExample = () => (
+  <Layout style={{ flex: 1 }}>
+    <List data={data} renderItem={renderItem} />
+  </Layout>
+);
+```
+
+## Props
+
+### List
+
+List accepts all React Native `FlatList` props.
+
+### ListItem
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | `undefined` | Primary text content of the list item. |
+| `description` | `ReactText \| (props) => ReactElement` | `undefined` | Secondary text content displayed below the title. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory (e.g., icon or avatar). |
+| `accessoryRight` | `(props) => ReactElement` | `undefined` | Render function for the right accessory (e.g., icon or button). |
+| `onPress` | `() => void` | `undefined` | Called when the list item is pressed. |
+| `children` | `ReactNode` | `undefined` | Custom content replacing the default layout. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

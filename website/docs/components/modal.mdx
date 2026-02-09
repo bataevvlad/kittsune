@@ -1,0 +1,70 @@
+---
+id: modal
+title: Modal
+sidebar_label: Modal
+description: Modal component for displaying content above the enclosing view with backdrop support.
+keywords:
+  - React Native
+  - Kittsune
+  - Modal
+  - dialog
+  - overlay
+---
+
+# Modal
+
+Modal renders content above the enclosing view. It includes a configurable backdrop and can be dismissed by pressing outside the modal content.
+
+## Import
+
+```tsx
+import { Modal } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { Layout, Modal, Card, Text, Button } from '@kittsune/components';
+
+const ModalExample = () => {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <Button onPress={() => setVisible(true)}>Show Modal</Button>
+
+      <Modal
+        visible={visible}
+        onBackdropPress={() => setVisible(false)}
+        backdropStyle={styles.backdrop}
+      >
+        <Card disabled>
+          <Text>This is a modal dialog.</Text>
+          <Button onPress={() => setVisible(false)}>Dismiss</Button>
+        </Card>
+      </Modal>
+    </Layout>
+  );
+};
+
+const styles = StyleSheet.create({
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+});
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `visible` | `boolean` | `false` | Whether the modal is visible. |
+| `onBackdropPress` | `() => void` | `undefined` | Called when the backdrop is pressed. |
+| `backdropStyle` | `ViewStyle` | `undefined` | Style applied to the backdrop. |
+| `children` | `ReactNode` | - | Content rendered inside the modal. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

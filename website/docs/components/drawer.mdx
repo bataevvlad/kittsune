@@ -1,0 +1,91 @@
+---
+id: drawer
+title: Drawer
+sidebar_label: Drawer
+description: Sliding navigation panel with grouped items, header, and footer slots.
+keywords:
+  - React Native
+  - Kittsune
+  - Drawer
+  - DrawerGroup
+  - DrawerItem
+  - navigation
+---
+
+# Drawer
+
+Drawer is a sliding navigation panel typically used for app-wide navigation. It supports grouped items, a header, and a footer.
+
+## Import
+
+```tsx
+import { Drawer, DrawerGroup, DrawerItem } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Drawer, DrawerGroup, DrawerItem, Icon, Text } from '@kittsune/components';
+
+const Header = (props) => (
+  <Layout {...props} style={{ padding: 16 }}>
+    <Text category="h6">Navigation</Text>
+  </Layout>
+);
+
+const DrawerExample = () => {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  return (
+    <Drawer
+      selectedIndex={selectedIndex}
+      onSelect={(index) => setSelectedIndex(index)}
+      header={Header}
+    >
+      <DrawerItem
+        title="Home"
+        accessoryLeft={(props) => <Icon {...props} name="home" />}
+      />
+      <DrawerGroup title="Settings">
+        <DrawerItem title="Profile" />
+        <DrawerItem title="Preferences" />
+      </DrawerGroup>
+      <DrawerItem title="Logout" />
+    </Drawer>
+  );
+};
+```
+
+## Props
+
+### Drawer
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `selectedIndex` | `IndexPath` | `undefined` | The selected drawer item index. |
+| `onSelect` | `(index: IndexPath) => void` | - | Called when a drawer item is selected. |
+| `header` | `(props) => ReactElement` | `undefined` | Render function for the drawer header. |
+| `footer` | `(props) => ReactElement` | `undefined` | Render function for the drawer footer. |
+| `children` | `DrawerItem[] \| DrawerGroup[]` | - | Drawer items and groups. |
+
+### DrawerGroup
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | - | Group title text or render function. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory. |
+| `children` | `DrawerItem[]` | - | Nested drawer items. |
+
+### DrawerItem
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | `undefined` | Item title text or render function. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory. |
+| `accessoryRight` | `(props) => ReactElement` | `undefined` | Render function for the right accessory. |
+| `onPress` | `() => void` | `undefined` | Called when the item is pressed. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

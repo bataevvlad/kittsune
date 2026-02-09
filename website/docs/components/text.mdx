@@ -1,0 +1,53 @@
+---
+id: text
+title: Text
+sidebar_label: Text
+description: Text component with pre-defined Eva styles for headings, subtitles, paragraphs, captions, and labels.
+keywords:
+  - React Native
+  - Kittsune
+  - Text
+  - typography
+---
+
+# Text
+
+Text renders themed typography with pre-defined styles for headings, subtitles, paragraphs, captions, and labels. The `category` prop selects the typography variant from the Eva Design System.
+
+## Import
+
+```tsx
+import { Text } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React from 'react';
+import { Layout, Text } from '@kittsune/components';
+
+const TypographyShowcase = () => (
+  <Layout style={{ flex: 1, padding: 16 }}>
+    <Text category="h1">Heading 1</Text>
+    <Text category="s1">Subtitle 1</Text>
+    <Text category="p1">This is a paragraph of body text.</Text>
+    <Text category="c1">Caption</Text>
+    <Text category="label">Label</Text>
+  </Layout>
+);
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `category` | `'h1' \| 'h2' \| 'h3' \| 'h4' \| 'h5' \| 'h6' \| 's1' \| 's2' \| 'p1' \| 'p2' \| 'c1' \| 'c2' \| 'label'` | `'p1'` | Typography category controlling font size, weight, and line height. |
+| `status` | `'basic' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'control'` | `undefined` | Semantic color applied to the text. |
+| `appearance` | `'default' \| 'alternative' \| 'hint'` | `'default'` | Visual style variant. |
+| `children` | `ReactNode` | - | Text content. |
+
+Text also accepts all standard React Native `Text` props.
+
+## Storybook
+
+Live examples coming soon via Storybook.

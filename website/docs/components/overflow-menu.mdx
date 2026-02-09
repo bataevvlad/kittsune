@@ -1,0 +1,98 @@
+---
+id: overflow-menu
+title: OverflowMenu
+sidebar_label: Overflow Menu
+description: OverflowMenu displays a menu of actions positioned relative to another element.
+keywords:
+  - React Native
+  - Kittsune
+  - OverflowMenu
+  - MenuItem
+  - dropdown
+  - context menu
+---
+
+# OverflowMenu
+
+OverflowMenu displays a dropdown menu of actions positioned relative to an anchor element. It is commonly used for "more options" actions.
+
+## Import
+
+```tsx
+import { OverflowMenu, MenuItem } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, OverflowMenu, MenuItem, Button, Icon } from '@kittsune/components';
+
+const OverflowMenuExample = () => {
+  const [visible, setVisible] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const onItemSelect = (index) => {
+    setSelectedIndex(index);
+    setVisible(false);
+  };
+
+  const renderToggleButton = () => (
+    <Button onPress={() => setVisible(true)}>
+      More Options
+    </Button>
+  );
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <OverflowMenu
+        visible={visible}
+        anchor={renderToggleButton}
+        onBackdropPress={() => setVisible(false)}
+        selectedIndex={selectedIndex}
+        onSelect={onItemSelect}
+      >
+        <MenuItem
+          title="Edit"
+          accessoryLeft={(props) => <Icon {...props} name="edit" />}
+        />
+        <MenuItem
+          title="Delete"
+          accessoryLeft={(props) => <Icon {...props} name="trash-2" />}
+        />
+        <MenuItem
+          title="Share"
+          accessoryLeft={(props) => <Icon {...props} name="share" />}
+        />
+      </OverflowMenu>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+### OverflowMenu
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `visible` | `boolean` | `false` | Whether the menu is visible. |
+| `anchor` | `() => ReactElement` | - | Render function for the anchor element the menu is positioned relative to. |
+| `onBackdropPress` | `() => void` | `undefined` | Called when the area outside the menu is pressed. |
+| `selectedIndex` | `IndexPath` | `undefined` | The selected menu item index. |
+| `onSelect` | `(index: IndexPath) => void` | - | Called when a menu item is selected. |
+| `placement` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'bottom'` | Position of the menu relative to the anchor. |
+| `children` | `MenuItem[]` | - | Menu item elements. |
+
+### MenuItem
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | - | Item title text or render function. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory. |
+| `accessoryRight` | `(props) => ReactElement` | `undefined` | Render function for the right accessory. |
+| `disabled` | `boolean` | `false` | Whether the item is disabled. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

@@ -1,0 +1,89 @@
+---
+id: select
+title: Select
+sidebar_label: Select
+description: Dropdown select component with single and multi-select modes, groups, and search support.
+keywords:
+  - React Native
+  - Kittsune
+  - Select
+  - SelectGroup
+  - SelectItem
+  - dropdown
+  - form
+---
+
+# Select
+
+Select renders a dropdown list for picking one or more items. It supports grouping, multi-selection, labels, and captions.
+
+## Import
+
+```tsx
+import { Select, SelectGroup, SelectItem } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Select, SelectGroup, SelectItem, IndexPath } from '@kittsune/components';
+
+const SelectExample = () => {
+  const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
+
+  const options = ['Option 1', 'Option 2', 'Option 3'];
+  const displayValue = options[selectedIndex.row];
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <Select
+        label="Choose an option"
+        caption="Pick one from the list"
+        selectedIndex={selectedIndex}
+        onSelect={(index) => setSelectedIndex(index)}
+        value={displayValue}
+      >
+        {options.map((title, index) => (
+          <SelectItem key={index} title={title} />
+        ))}
+      </Select>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+### Select
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `selectedIndex` | `IndexPath \| IndexPath[]` | `undefined` | The selected item index (or array for multi-select). |
+| `onSelect` | `(index: IndexPath \| IndexPath[]) => void` | - | Called when an item is selected. |
+| `placeholder` | `ReactText \| (props) => ReactElement` | `undefined` | Placeholder displayed when no item is selected. |
+| `label` | `ReactText \| (props) => ReactElement` | `undefined` | Label displayed above the select. |
+| `caption` | `ReactText \| (props) => ReactElement` | `undefined` | Caption displayed below the select. |
+| `multiSelect` | `boolean` | `false` | Whether multiple items can be selected. |
+| `value` | `ReactText \| (props) => ReactElement` | `undefined` | Display value text or render function. |
+| `children` | `SelectItem[] \| SelectGroup[]` | - | Select items and groups. |
+
+### SelectGroup
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | - | Group title text or render function. |
+| `children` | `SelectItem[]` | - | Nested select items. |
+
+### SelectItem
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `title` | `ReactText \| (props) => ReactElement` | - | Item title text or render function. |
+| `accessoryLeft` | `(props) => ReactElement` | `undefined` | Render function for the left accessory. |
+| `accessoryRight` | `(props) => ReactElement` | `undefined` | Render function for the right accessory. |
+| `disabled` | `boolean` | `false` | Whether the item is disabled. |
+
+## Storybook
+
+Live examples coming soon via Storybook.

@@ -1,0 +1,61 @@
+---
+id: toggle
+title: Toggle
+sidebar_label: Toggle
+description: Toggle switch component for boolean on/off controls.
+keywords:
+  - React Native
+  - Kittsune
+  - Toggle
+  - switch
+  - form
+---
+
+# Toggle
+
+Toggle is a switch component for boolean on/off controls. It provides a visual toggle that the user can tap or swipe.
+
+## Import
+
+```tsx
+import { Toggle } from '@kittsune/components';
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Layout, Toggle } from '@kittsune/components';
+
+const ToggleExample = () => {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <Layout style={{ flex: 1, padding: 16 }}>
+      <Toggle
+        checked={checked}
+        onChange={(nextChecked) => setChecked(nextChecked)}
+      >
+        Notifications
+      </Toggle>
+
+      <Toggle checked={true} status="success">
+        Dark Mode
+      </Toggle>
+    </Layout>
+  );
+};
+```
+
+## Props
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `checked` | `boolean` | `false` | Whether the toggle is on. |
+| `onChange` | `(checked: boolean) => void` | - | Called when the toggle value changes. |
+| `status` | `'basic' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'danger' \| 'control'` | `'basic'` | Semantic color of the toggle. |
+| `children` | `ReactText \| (props) => ReactElement` | `undefined` | Label text or render function displayed next to the toggle. |
+
+## Storybook
+
+Live examples coming soon via Storybook.
